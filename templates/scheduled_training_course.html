@@ -1,0 +1,97 @@
+{% extends "base.html" %} {% block content %}
+
+<h4 class="text-center" style="margin: 0px;">FORMATIONS ORGANISEES</h4>
+<h5 class="text-center" style="margin: 0px;"></h5>
+<p style="font-size: 12px;">
+    ECHEANCE: {% for d in dates %}
+    <span style="color: #0c5c9e">{{d.strftime( "%d/%m/%y")}}</span> - {% endfor %}
+    <br> <b>{{current_date}}</b>
+</p>
+<table class="mtable" style="  border: 1px solid #ccc; margin: 0;padding: 0;width: 100%;">
+    <thead style="background: #f1f1f1;">
+         <tr>
+            <th rowspan="2">No</th>
+            <th rowspan="2">DATES</th>
+            <th rowspan="2">FORMATIONS ORGANISEES</th>
+            <th rowspan="2">CATEGORIES</th>
+            <th rowspan="2">FORMATEURS</th>
+            <th rowspan="2">LOCALISATION</th>
+            <th rowspan="2">LEU</th>
+            <th colspan="3"  style="text-align: center;">FORMÉS</th>
+         </tr>
+         <tr style="font-size: small;">
+            <th style="width: 50px;" >HOMMES</th>
+            <th style="width: 50px;">FEMMES</th>
+            <th style="width: 50px;">TOTAL</th>
+         </tr>
+    </thead>
+    <tbody>
+       
+
+        {% for elt in  data %}
+            <tr>
+                <td>{{loop.index}}</td>
+                <td>{{elt['start_date'].strftime( "%d/%m/%Y")}} - {{elt['end_date'].strftime( "%d/%m/%Y")}}</td>
+                <td>{{elt['name']}}</td>
+                <td>{{elt['category_name']}}</td>
+                <td>{{elt['instructors']}}</td>
+                <td>{{elt['location']}}</td>
+                <td>{{elt['stc']}}</td>
+                <td style="text-align: right;">{{elt['gender_m']}}</td>
+                <td style="text-align: right;">{{elt['gender_FaM'] - elt['gender_m']}}</td>
+                <td style="text-align: right;"><b>{{elt['gender_FaM']}}</b></td>
+            </tr>
+            
+        {% endfor %}
+        {% set total_m = data | sum(attribute='gender_m') %}
+        {% set total_FaM = data | sum(attribute='gender_FaM') %}
+        
+        <tr style="background: #f7f7f7; font-weight: 700;">
+            <td colspan="7" style="text-align: center;">TOTAL</td>
+            <td style="text-align: right;">{{total_m}}</td>
+            <td style="text-align: right;">{{total_FaM - total_m}}</td>
+            <td style="text-align: right;">{{total_FaM}}</td>
+           
+        </tr>
+    </tbody>
+    
+        
+    
+</table>
+<p style="font-size: 12px;">
+    ECHEANCE: {% for d in dates %}
+    <span style="color: #0c5c9e">{{d.strftime( "%d/%m/%y")}}</span> - {% endfor %}
+    <br> <b>{{current_date}}</b>
+</p>
+<style>
+  .text-center {
+    text-align: center;
+  }
+   @page {
+        size: A4;
+    }
+
+    @page {
+        size: A4 landscape;
+    }
+
+    @page {
+        size: 22cm 24cm;
+    }
+
+    @page {
+        size: 12in 14in;
+    }
+    
+    .mtable,
+    th,
+    td {
+        border: 1px solid #999;
+        border-collapse: collapse;
+        padding: 2px;
+        text-align: left;
+        font-size: 12px;
+        color: #222;
+    }
+</style>
+{% endblock content %}

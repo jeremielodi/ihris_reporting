@@ -1,0 +1,107 @@
+/* You can add global styles to this file, and also import other style files */
+
+$gutter: 1rem; //for primeflex grid system
+@import '@/assets/layout/layout.scss';
+
+/* PrimeVue */
+// @import 'primevue/resources/primevue.min.css'; // version deplicated. You must open the command line if you are using < 3.29.00
+@import 'primeflex/primeflex.scss';
+@import 'primeicons/primeicons.css';
+
+
+ 
+#nprogress .bar {
+    background: #3B82F6 !important;
+    height: 3px;
+}
+scaleLoader{
+    color: #3B82F6;
+}
+.layout-footer {
+     
+    justify-content: left;
+     
+}
+
+.internal-table .p-sortable-column {
+  
+	writing-mode: vertical-rl;
+    transform: rotate(180deg);
+    text-align: left;
+    max-height: 150px;
+    border-width: 0 0 1px 1px;
+   
+}
+.timesheet_table .p-column-header-content {
+    text-align: center;
+}
+.internal-table, .timesheet_table, .salaire_prime_table, .revenu-table{
+    td{
+        text-align: right !important;
+        border-width: 0 0 1px 1px;
+    }
+    .fosa_col{
+        text-align: left !important;
+        font-weight: 500;
+    }
+    .link{
+        color: var(--primary-color) !important;
+        cursor: pointer;
+    }
+}
+.dashboard{
+    .p-tabview-panels{
+        padding: 0px;
+    }
+    .card{
+        padding: 18px;
+    }
+    .online{
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: clip;
+    }
+    .p-metergroup.p-metergroup-horizontal .p-metergroup-meters {
+        height: 2px;
+    }
+} 
+
+.p-dialog .p-dialog-footer {
+    border-top: 0 none;
+    background: #f3f4f6;
+    border-top: 1px solid #d1d5db;
+     
+}
+.p-dialog .p-dialog-header {
+    border-bottom: 0 none;
+    background: #f3f4f6;
+    border-bottom: 1px solid #d1d5db;
+     
+}
+
+
+.p-tag.p-tag-info {
+    background-color: #41a0fc;
+    color: #ffffff;
+    font-size: inherit;
+  }
+
+  .p-tag.p-tag-success {
+    background-color: #22c57038;
+    color: #3f9d43;
+}
+.p-tag.p-tag-warning {
+    background-color: #fbda794a;
+    color: #7e5f00;
+}
+.p-datatable.p-datatable-sm .p-datatable-tbody > tr > td {
+    padding: 0.4rem 0.5rem;
+}
+
+.dashboard{
+     th {
+        
+        text-align: center !important;
+    }
+     
+}

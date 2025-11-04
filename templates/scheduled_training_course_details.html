@@ -1,0 +1,90 @@
+{% extends "base.html" %} {% block content %}
+
+<h4 class="text-center" style="margin: 0px;">{{title| upper}}</h4>
+<h5 class="text-center" style="margin: 0px;"></h5>
+<p style="font-size: 12px;">
+    
+    <br> <b>{{current_date}}</b>
+</p>
+<table class="mtable" style="  border: 1px solid #ccc; margin: 0;padding: 0;width: 100%;">
+    <thead style="background: #f1f1f1;">
+         <tr>
+            <th rowspan="2">No</th>
+            <th rowspan="2">NOM</th>
+            <th rowspan="2">POST-NOM</th>
+            <th rowspan="2">PRENOM</th>
+            <th rowspan="2">GENRE</th>
+            <th rowspan="2">DATE.N</th>
+            <th rowspan="2">MATRICULE</th>
+            <th rowspan="2">CATEGORIE</th>
+            <th rowspan="2">ZS</th>
+            <th rowspan="2">STRUCTURE</th>
+            <th colspan="2"  style="text-align: center;">TESTS</th>
+         </tr>
+         <tr style="font-size: small;">
+            <th style="width: 50px;text-align: center;">PRE</th>
+            <th style="width: 50px;text-align: center;">POST</th>
+            
+         </tr>
+    </thead>
+    <tbody>
+        {% for elt in  data %}
+            <tr>
+                <td>{{loop.index}}</td>
+                <td>{{elt['firstname']}}</td>
+                <td>{{elt['surname']}}</td>
+                <td>{{elt['othername']}}</td>
+                <td> 
+                    {% if elt['gender'] | length > 5  %}
+                        {{elt['gender'][-1]}}
+                    {% endif %}
+                </td>
+                <td>
+                    {% if elt['birth_date'] | is_datetime %}
+                        {{ elt['birth_date'].strftime( "%d-%m-%Y")}}
+                    {% endif %}
+                </td>
+                <td>{{elt['id_num']}}</td>
+                <td>{{elt['cadre']}}</td>
+                <td>{{elt['health_area']}}</td>
+                <td>{{elt['facility']}}</td>
+                <td style="text-align: right;">-</td>
+                <td style="text-align: right;">-</td>
+            </tr>
+        {% endfor %}
+    </tbody>
+</table>
+
+<style>
+  .text-center {
+    text-align: center;
+  }
+   @page {
+        size: A4;
+    }
+
+    @page {
+        size: A4 landscape;
+    }
+
+    @page {
+        size: 22cm 24cm;
+    }
+
+    @page {
+        size: 12in 14in;
+    }
+    
+    .mtable,
+    th,
+    td {
+        border: 1px solid #999;
+        border-collapse: collapse;
+        padding: 2px;
+        text-align: left;
+        font-size: 12px;
+        color: #222;
+    }
+    
+</style>
+{% endblock content %}

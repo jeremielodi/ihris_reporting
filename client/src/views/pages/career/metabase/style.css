@@ -1,0 +1,262 @@
+
+.metabase-dashboard {
+    padding: 20px;
+    background: #f8f9fa;
+    min-height: 80vh;
+    /* Ensure container is responsive */
+    width: 100%;
+    max-width: 100%;
+    box-sizing: border-box;
+    overflow-x: hidden; /* Prevent horizontal scroll */
+}
+
+.dashboard-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+    padding: 0 10px;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+.dashboard-title {
+    margin: 0;
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: #2c3e50;
+    max-width: 100%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.dashboard-actions {
+    display: flex;
+    gap: 10px;
+    flex-shrink: 0;
+}
+
+.refresh-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    background: #4f46e5;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: background-color 0.2s;
+    flex-shrink: 0;
+}
+
+.refresh-btn:hover {
+    background: #4338ca;
+}
+
+.play-icon {
+    width: 20px;
+    height: 20px;
+}
+
+/* Dashboard Grid - Fully responsive */
+.dashboard-grid {
+    display: grid;
+    /* Use fractional units for responsive columns */
+    grid-template-columns: repeat(24, minmax(0, 1fr));
+    /* Auto rows for true responsiveness */
+    grid-auto-rows: minmax(auto, max-content);
+    /* Small gap for better spacing */
+    gap: 10px;
+    /* Ensure grid fits container */
+    width: 100%;
+    min-width: 100%;
+    max-width: 100%;
+    box-sizing: border-box;
+    /* Prevent overflow */
+    overflow: hidden;
+}
+
+/* Grid Cards - Ensure they respect container boundaries */
+.grid-card {
+    /* No borders, no background, no shadow */
+    border: none;
+    background: none;
+    box-shadow: none;
+    /* Ensure cards respect grid boundaries */
+    align-self: start;
+    justify-self: start;
+    /* Remove any margin and padding */
+    margin: 0;
+    padding: 0;
+    /* Allow height to be determined by content */
+    height: auto;
+    min-height: auto;
+    /* Critical: ensure cards don't overflow */
+    width: 100%;
+    min-width: 0; /* Allows grid items to shrink below content size */
+    max-width: 100%;
+    box-sizing: border-box;
+    /* Prevent content overflow */
+    overflow: hidden;
+}
+
+/* Loading Skeletons */
+.loading-skeletons {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 16px;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+.card-skeleton {
+    background: white;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    padding: 16px;
+    height: 200px;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+.skeleton-content {
+    height: 100%;
+    width: 100%;
+}
+
+.skeleton-chart {
+    height: 100%;
+    background: #e5e7eb;
+    border-radius: 4px;
+    width: 100%;
+}
+
+/* Empty State */
+.empty-dashboard {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 50vh;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+.empty-state {
+    text-align: center;
+    color: #6b7280;
+    max-width: 100%;
+}
+
+.empty-icon {
+    margin-bottom: 1rem;
+    opacity: 0.5;
+}
+
+.empty-state h3 {
+    margin: 0 0 0.5rem 0;
+    color: #374151;
+}
+
+.empty-state p {
+    margin: 0;
+    font-size: 0.875rem;
+}
+
+/* Responsive Design */
+@media (max-width: 1200px) {
+    .metabase-dashboard {
+        padding: 15px;
+    }
+}
+
+@media (max-width: 768px) {
+    .metabase-dashboard {
+        padding: 10px;
+    }
+    
+    .dashboard-grid {
+        /* Switch to single column on smaller screens */
+        grid-template-columns: 1fr !important;
+        /* Remove fixed row template */
+        grid-template-rows: none;
+        grid-auto-rows: minmax(auto, max-content);
+        gap: 10px;
+    }
+    
+    .grid-card {
+        /* Force full width on mobile */
+        grid-column: 1 / -1 !important;
+        grid-row: auto !important;
+        /* Ensure full width */
+        width: 100%;
+        min-width: 100%;
+        max-width: 100%;
+    }
+    
+    .dashboard-header {
+        flex-direction: column;
+        gap: 10px;
+        align-items: flex-start;
+    }
+    
+    .dashboard-title {
+        white-space: normal;
+        text-overflow: unset;
+    }
+}
+
+@media (max-width: 480px) {
+    .metabase-dashboard {
+        padding: 8px;
+    }
+    
+    .loading-skeletons {
+        grid-template-columns: 1fr;
+        gap: 10px;
+    }
+    
+    .card-skeleton {
+        height: 150px;
+        padding: 12px;
+    }
+}
+
+/* Critical: Ensure no horizontal overflow anywhere */
+.metabase-dashboard * {
+    box-sizing: border-box;
+}
+
+.dashboard-grid::before {
+    content: none;
+}
+
+.dashboard-grid > * {
+    margin-top: 0;
+}
+
+.chart-wrapper.fullscreen {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  width: 100vw;   /* ensure full width */
+  height: 100vh;  /* ensure full height */
+  border-radius: 0;
+}
+
+/* Let PrimeVue Panel and its content stretch in fullscreen */
+.chart-wrapper.fullscreen :deep(.p-panel) {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+.chart-wrapper.fullscreen :deep(.p-panel-content) {
+  flex: 1 1 auto;
+  display: flex;
+  flex-direction: column;
+}
+.chart-wrapper.fullscreen .chart-area {
+  flex: 1 1 auto;
+}

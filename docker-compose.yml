@@ -1,0 +1,105 @@
+version: "3.8"
+
+services:
+  postgresdb:
+    image: postgres:16
+    container_name: ihris_reporting_postgres_db
+    restart: unless-stopped
+    env_file: ./.env
+    environment:
+      POSTGRES_USER: ${DB_USER}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+      POSTGRES_DB: ${DB_NAME}
+    ports:
+      - "${POSTGRES_LOCAL_PORT}:5432"
+    volumes:
+      - ./pgdata:/var/lib/postgresql/data
+      - ./db:/opt/db/
+      - ./db/docker-entrypoint.sql:/docker-entrypoint-initdb.d/init.sql:ro
+    networks:
+      - internal_net
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USER} -d ${DB_NAME} -h localhost"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+
+  app:
+    container_name: ihris_reporting_webapp
+    depends_on:
+      postgresdb:
+        condition: service_healthy
+    build:
+      context: .
+      dockerfile: Dockerfile.backend
+    restart: unless-stopped
+    env_file: ./.env
+    environment:
+      DB_HOST: postgresdb
+      DB_USER: ${DB_USER}
+      DB_PASSWORD: ${DB_PASSWORD}
+      DB_NAME: ${DB_NAME}
+      DB_PORT: ${DB_PORT}
+      HOST: 0.0.0.0
+      PORT: 8000
+      WORKERS: 2
+    ports:
+      - "${APP_LOCAL_PORT}:8000"
+    # keep this only if you rely on root for host-mounted volume perms
+    user: "0:0"
+    volumes:
+      - ${UPLOAD_DIR}:/app/data
+    networks:
+      - internal_net
+    stdin_open: true
+    tty: true
+    healthcheck:
+      test: ["CMD-SHELL", "curl -fsS http://127.0.0.1:8000/ || exit 1"]
+      interval: 20s
+      timeout: 5s
+      retries: 10
+      start_period: 20s
+
+  frontend:
+    container_name: ihris_reporting_frontend
+    depends_on:
+      app:
+        condition: service_healthy
+    build:
+      context: .
+      dockerfile: Dockerfile.frontend
+    ports:
+      - "${WEB_CLIENT_PORT}:${WEB_CLIENT_PORT}"
+    networks:
+      - internal_net
+    restart: unless-stopped
+
+  metabase:
+    image: metabase/metabase:latest
+    container_name: metabase
+    restart: unless-stopped
+    depends_on:
+      postgresdb:
+        condition: service_healthy
+    networks:
+      - internal_net
+    environment:
+      MB_DB_TYPE: postgres
+      MB_DB_HOST: postgresdb
+      MB_DB_PORT: ${DB_PORT}
+      MB_DB_DBNAME: metabase
+      MB_DB_USER: ${DB_USER}
+      MB_DB_PASS: ${DB_PASSWORD}
+
+      MB_QUERY_CACHING_ENABLED: ${MB_QUERY_CACHING_ENABLED}
+      MB_QUERY_CACHING_MIN_TTL: ${MB_QUERY_CACHING_MIN_TTL}
+      MB_QUERY_CACHING_MAX_TTL: ${MB_QUERY_CACHING_MAX_TTL}
+
+      MB_ENCRYPTION_SECRET_KEY: ${METABASE_ENCRYPTION_KEY}
+      JAVA_TOOL_OPTIONS: "-Xms512m -Xmx1g"
+    ports:
+      - "${METABASE_LOCAL_PORT}:3000"
+
+networks:
+  internal_net:
+    driver: bridge

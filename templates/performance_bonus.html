@@ -1,0 +1,449 @@
+
+{% extends "base.html" %}
+{% block content %}
+<p>
+    <b>{{current_date}}</b>: ECHEANCE: {% for d in dates %}
+    <span style="color: #0c5c9e">{{d.local_abb}}</span>, {% endfor %}
+</p>
+<h4>PRIME DE PERFORMANCE DES ZS, DPS ET IPS</h4>
+<table class="mtable mtable-100">
+    <thead style="background-color: #f7f7f7;font-size:12px;">
+        <tr>
+            <th rowspan="3">No</th>
+            <th style="text-align: center !important; width: 150px;font-size: 12px;" rowspan="3">
+                LIEUX
+            </th>
+            <th style="text-align: center !important" colspan="3">EFFECTIFS</th>
+            <th style="text-align: center !important" colspan="2">
+                COMPLETUDES DE <br />
+                PRESTATION
+            </th>
+            <th style="text-align: center !important" colspan="2">
+                COMPLETUDES <br />
+                INTERNES
+            </th>
+            <th style="text-align: center !important" colspan="4">
+                PRIME DE PERFORMANCE
+            </th>
+        </tr>
+        <tr>
+            <th rowspan="2">GEN.</th>
+            <th rowspan="2">ACTIF</th>
+            <th rowspan="2">NON <br />ACTIF</th>
+            <th rowspan="2">ACTIF</th>
+            <th rowspan="2">GEN.</th>
+            <th rowspan="2">CARRIERE</th>
+            <th rowspan="2">PRESTAT°</th>
+            <th rowspan="2" style="text-align: center !important; font-size: 10px">
+                TAUX DE <br />
+                RAPPORTAGE
+            </th>
+
+            <th colspan="2" style="text-align: center !important; font-size: 10px; width: 100px">
+                COMPLETUDE INTERNE
+            </th>
+
+            <th rowspan="2" style="width: 70px">TOTAL</th>
+        </tr>
+        <tr>
+            <th style="text-align: center !important; font-size: 12px">
+                CARRIERE
+            </th>
+            <th style="text-align: center !important; font-size: 12px">
+                PRESTAT°
+            </th>
+
+        </tr>
+    </thead>
+    <tbody>
+        {% for index, row in data.iterrows() %}
+        <tr>
+            <td>{{"%.0f"|format(row['row_number']+1)}}</td>
+            <td style="
+              text-align: left !important;
+              font-size: 12px;
+            ">
+                {{ index }}
+            </td>
+            <td>{{ "%.0f"|format(row['effectif_gen']) }}</td>
+            <td>{{"%.0f" |format(row['effectif_actif']) }}</td>
+            <td>
+                {{"%.0f" |format( row['effectif_gen'] - row['effectif_actif']) }}
+            </td>
+            <td>{{ "%.1f"|format(row['timesheet_perc_actif']) }} %</td>
+            <td>{{ "%.1f"|format(row['timesheet_perc_gen']) }} %</td>
+
+
+            <td>{{ "%.1f"|format(row['career_data_comp_perc']) }} %</td>
+            <td>{{ "%.1f"|format(row['timesheet_com_int_perc']) }} %</td>
+            <td style="color: #0c5c9e">
+                {{ "%.1f"|format(row['perfomance_bonus_com_timesheet']) }} $
+            </td>
+            <td style="color: #0c5c9e">
+                {{ "%.1f"|format(row['perfomance_bonus_com_career']) }} $
+            </td>
+            <td style="color: #0c5c9e">
+                {{ "%.1f"|format(row['perfomance_bonus_com_int_timesheet']) }} $
+            </td>
+
+            <td><b>{{ "%.1f"|format(row['perfomance_bonus_total']) }} $</b></td>
+        </tr>
+        {% endfor %}
+        <tr style="background: #f7f7f7; font-weight: 800">
+            <td colspan="2" style="
+              text-align: left !important;
+              font-size: 12px;
+              font-weight: 700;
+            ">
+                TOTAL
+            </td>
+            <td>{{ "%.0f"|format(subtotal['effectif_gen']) }}</td>
+            <td>{{"%.0f" |format(subtotal['effectif_actif']) }}</td>
+            <td>
+                {{"%.0f" |format( subtotal['effectif_gen'] -
+                subtotal['effectif_actif']) }}
+            </td>
+            <td>{{ "%.1f"|format( subtotal['timesheet_perc_actif']) }} %</td>
+            <td>{{ "%.1f"|format(subtotal['timesheet_perc_gen']) }} %</td>
+
+
+
+            <td>{{ "%.1f"|format(subtotal['career_data_comp_perc']) }} %</td>
+            <td>{{ "%.1f"|format(subtotal['timesheet_com_int_perc']) }} %</td>
+            <td style="color: #0c5c9e">
+                {{ "%.1f"|format(subtotal['perfomance_bonus_com_timesheet']) }} $
+            </td>
+            <td style="color: #0c5c9e">
+                {{ "%.1f"|format(subtotal['perfomance_bonus_com_career']) }} $
+            </td>
+            <td style="color: #0c5c9e">
+                {{ "%.1f"|format(subtotal['perfomance_bonus_com_int_timesheet']) }}
+                $
+            </td>
+
+            <td>
+                <b>{{ "%.1f"|format(subtotal['perfomance_bonus_total']) }} $</b>
+            </td>
+        </tr>
+    </tbody>
+</table>
+<h4>PRIME D’ACCOMPAGNEMENT DES ZS PAR LA DPS ET IPS</h4>
+<table class="mtable">
+    <thead style="background-color: #f7f7f7; font-size: 12px;">
+        <tr>
+            <th rowspan="2" style="text-align:left;">No</th>
+            <th rowspan="2" style="text-align: left;">
+                INDICATEURS
+            </th>
+            <th rowspan="2" style="text-align: left; width: 55px; text-align: center; ">TAUX</th>
+            <th colspan="2" style="text-align: center;width: 200px;">PRIME (IPS) </th>
+            <th colspan="2" style="text-align: center;width: 200px;">PRIME (DPS) </th>
+        </tr>
+        <tr>
+            <th style="text-align: center;width:70px;">PROPORT° <br>
+                (100 $)
+            </th>
+            <th style="text-align: center;"">MONTANT</th>
+            <th style=" text-align: center;">PROPORT° <br>
+                (200 $)
+            </th>
+            <th style="text-align: center;">MONTANT</th>
+        </tr>
+        <tr></tr>
+    </thead>
+    <tbody>
+        <tr>
+            <td>1</td>
+            <td style="text-align: left;">Complétude générale des tous les ZS</td>
+            <td>{{ "%.1f"|format(subtotal['timesheet_perc_gen'])}} %</td>
+            <td>40 %</td>
+            <td>{{ "%.1f"|format( subtotal['bonus_ips_comp_timesheet'])}} $</td>
+            <td>40 %</td>
+            <td>{{ "%.1f"|format(subtotal['bonus_dps_comp_timesheet'])}} $</td>
+        </tr>
+        <tr>
+            <td>2</td>
+            <td style="text-align: left;"><b>Qualité des données:</b> Complétude interne données carrière </td>
+            <td>{{ "%.1f"|format(subtotal['career_data_comp_perc']) }} %</td>
+            <td>30 %</td>
+            <td>{{ "%.1f"|format(subtotal['bonus_ips_career'])}} $</td>
+            <td>30 %</td>
+            <td>{{ "%.1f"|format(subtotal['bonus_dps_career'])}} $</td>
+        </tr>
+        <tr>
+            <td>3</td>
+            <td style="text-align: left;"><b>Qualité des données:</b> Complétude interne données prestation </td>
+            <td>{{ "%.1f"|format(subtotal['timesheet_com_int_perc']) }} %</td>
+            <td>30 %</td>
+            <td>{{ "%.1f"|format(subtotal['bonus_ips_int_timesheet'])}} $</td>
+            <td>30 %</td>
+            <td>{{ "%.1f"|format(subtotal['bonus_dps_int_timesheet'])}} $</td>
+        </tr>
+        <tr style="
+              text-align: left !important;
+              font-size: 12px;
+              font-weight: 700;
+              background-color: #f7f7f7
+            ">
+            <td colspan="3" style="text-align:left"> TOTAL </td>
+            <td>100 %</td>
+            <td>{{ "%.1f"|format( (subtotal['bonus_ips_comp_timesheet'] + subtotal['bonus_ips_career'] +
+                subtotal['bonus_ips_int_timesheet']) )}} $ </td>
+            <td>100 %</td>
+            <td>{{ "%.1f"|format( (subtotal['bonus_dps_comp_timesheet'] + subtotal['bonus_dps_career'] +
+                subtotal['bonus_dps_int_timesheet']) )}} $ </td>
+        </tr>
+    </tbody>
+</table>
+<p>
+    <b>{{current_date}}</b>: ECHEANCE: {% for d in dates %}
+    <span style="color: #0c5c9e">{{d.local_abb}}</span>, {% endfor %}
+</p>
+<div class="break ">
+    <div style="font-size: 16px;">
+        <h3>Notes</h3>
+        <ul>
+        <li>
+            <b>La complétude de prestation ou taux de rapportage des données de prestation</b> : est la mesure qui permet de vérifier si les données de prestation des agents ont été collecté ou non dans la base de données 
+            <ul>
+                <li>    
+                    <b>La complétude de prestation actif</b> : est la complétude de prestation calculée sur base de l’effectif des agents actifs (ou les agents réguliers dans le registre de présence) 
+                </li>
+                <li>
+                    <b>La complétude de prestation generale  </b>: est la complétude de prestation calculée sur base de l’effectif de tous les agents (réguliers ou irréguliers dans le registre de présence) 
+            
+                </li>
+            </ul>
+        </li>
+        <li>	<b>La complétude interne des données de prestation</b> : est la mesure de la qualité des données de prestation qui permet de vérifier si les données de prestation collectées sont exhaustives et précises dans la base de données. 
+        </li>
+        <li>
+           <b>  La complétude interne des données de carrières</b> :  est la mesure de la qualité données de carrière qui permet de vérifier si les données de carrière collectées sont exhaustives et précises dans la base de données. 
+    
+        </li>
+    </ul>
+    </div>
+<h3>Calcul de la prime de performance </h3>
+<h4>Paiement de performance en suivant la charge de travail de la structure</h4>
+<ul>
+    <li>
+        <h4>Pondération en suivant la charge de travail de la structure</h4>
+        <table class="mtable">
+            <thead>
+                <tr>
+                    <th style="width: 16px;">No</th>
+                    <th  style="width: 25%;" class="text-left">RAPPORTS À COLLECTER MENSUELLEMENT</th>
+                    <th  class="text-left">ZONES DE SANTE</th>
+                    <th style="width: 8%;">MAX</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>1</td>
+                    <td class="text-left">0-150</td>
+                    <td class="text-left">
+                        {% for index, row in data.iterrows() %}
+                            {% if row['effectif_gen'] <= 150 %}
+                                {{index}}, 
+                            {% endif %}
+                        {% endfor %}
+                    </td>
+                    <td><b>50,00 $</b></td>
+                </tr>
+                <tr>
+                    <td>2</td>
+                    <td  class="text-left">151-250</td>
+                    <td  class="text-left">
+                        {% for index, row in data.iterrows() %}
+                            {% if 150 < row['effectif_gen'] and  row['effectif_gen'] <= 250  %}
+                                {{index}},
+                            {% endif %}
+                        {% endfor %}
+                    </td>
+                    <td><b>70,00 $</b></td>
+                </tr>
+                <tr>
+                    <td>3</td>
+                    <td  class="text-left">251-350</td>
+                    <td  class="text-left">
+                        {% for index, row in data.iterrows() %}
+                            {% if 250 < row['effectif_gen'] and  row['effectif_gen'] <= 350  %}
+                                {{index}},
+                            {% endif %}
+                        {% endfor %}
+                    </td>
+                    <td><b>90,00 $</b></td>
+                </tr>
+                <tr>
+                    <td>4</td>
+                    <td  class="text-left">>350</td>
+                    <td  class="text-left">
+                        {% for index, row in data.iterrows() %}
+                            {% if row['effectif_gen'] > 350  %}
+                                {{index}},
+                            {% endif %}
+                        {% endfor %}
+                    </td>
+                    <td><b>100,00 $</b></td>
+
+                </tr>
+            </tbody>
+        </table>
+    </li>
+    <li>
+        <h4>Pondération en suivant les indicateurs de rapportage des données (ZS, DPS, IPS)</h4>
+        <table class="mtable">
+            <thead>
+                <tr>
+                    <th style="width: 16px;">No</th>
+                    <th class="text-left">INDICATEURS</th>
+                    <th>PONDERATION</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>1</td>
+                    <td class="text-left"><b>Complétude Interne</b> - données de carrière</td>
+                    <td><b>30 %</b></td>
+                </tr>
+                <tr>
+                    <td>2</td>
+                    <td class="text-left"><b>Complétude interne</b> - données de prestation</td>
+                    <td><b>30 %</b></td>
+                </tr>
+                <tr>
+                    <td>3</td>
+                    <td class="text-left">Complétude  de prestation générale </td>
+                    <td><b>40 %</b></td>
+                </tr>
+                
+            </tbody>
+            <tfoot>
+                <tr>
+                    <td colspan="2"><b>TOTAL</b></td>
+                   <td><b>100 %</b></td>
+               </tr>
+            </tfoot>
+        </table>
+        <p>La proportion de 60 % de complétude interne (30 % données de carrière et 30 % données de prestation) est importante pour pousser chaque Zône de Santé à améliorer la qualité des données collectées </p>
+    </li>
+</ul>
+
+
+<h4>Prime d’accompagnement des Zône de Santé par la DPS et IPS </h4>
+<ul>
+    <li>
+        <h4>Pondération (DPS & IPS)</h4>
+        <table class="mtable">
+            <thead>
+                <tr>
+                    <th style="width: 16px;">No</th>
+                    <th class="text-left">STRUCTURES</th>
+                    <th>MAX</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>1</td>
+                    <td class="text-left">DPS</td>
+                    <td><b>200,00 $</b></td>
+                </tr>
+                <tr>
+                    <td>2</td>
+                    <td class="text-left">IPS</td>
+                    <td><b>100,00 $</b></td>
+                </tr>
+            </tbody>
+            <tfoot>
+                <tr>
+                    <td colspan="2"><b>TOTAL</b></td>
+                    
+                    <td><b>300,00 $</b></td>
+                </tr>
+            </tfoot>
+        </table>
+    </li>
+    <li>
+        <h4>Pondération en suivant les indicateurs de rapportage des données (ZS, DPS, IPS)</h4>
+        <table class="mtable ">
+            <thead>
+                <tr>
+                    <th style="width: 16px;">No</th>
+                    <th class="text-left">INDICATEURS</th>
+                    <th>PONDERATION</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>1</td>
+                    <td class="text-left">Complétude prestation générale (tous les ZS)</td>
+                    <td><b>40 %</b></td>
+                </tr>
+                <tr>
+                    <td>2</td>
+                    <td class="text-left"><b>Qualité des données</b>: Complétude interne données carrière</td>
+                    <td><b>30 %</b></td>
+                </tr>
+                <tr>
+                    <td>3</td>
+                    <td class="text-left"><b>Qualité des données</b>: Complétude  interne données prestation</td>
+                    <td><b>30 %</b></td>
+                </tr>
+                
+            </tbody>
+            <tfoot>
+                <tr>
+                    <td colspan="2"><b>TOTAL</b></td>
+                   <td><b>100 %</b></td>
+               </tr>
+            </tfoot>
+        </table>
+    </li>
+</ul>
+</div>
+
+<style>
+    @page {
+        size: A4;
+    }
+
+    @page {
+        size: A4 landscape;
+    }
+
+    @page {
+        size: 22cm 24cm;
+    }
+
+    @page {
+        size: 12in 14in;
+    }
+     
+    .mtable{
+        border: 1px solid #ccc; margin: 0;padding: 0;width: 100%;
+        
+    }
+    
+    .mtable,
+    th,
+    td {
+        border: 1px solid rgb(109, 109, 112);
+        border-collapse: collapse;
+        padding: 2px;
+        text-align: right;
+        font-size: 14px;
+    }
+    .mtable  thead, .mtable tfoot{
+        background-color: #f7f7f7
+    }
+    .text-left{
+        text-align: left;
+    }
+
+    .break {
+        page-break-before:always;
+        font-size: 14px !important;
+        
+    }
+</style>
+{% endblock content %}

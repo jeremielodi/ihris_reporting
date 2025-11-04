@@ -1,0 +1,102 @@
+{% extends "base.html" %} {% block content %}
+
+<h4 class="text-center" style="margin: 0px;">COMPLETUDE DE PRESTATION</h4>
+<h5 class="text-center" style="margin: 0px;">{{title.upper()}}</h5>
+<p style="font-size: 10px;"><b>{{current_date}}</b><br> ECHEANCE: {% for d in dates %} 
+  <span style="color: #0c5c9e">{{d.local_abb}}</span>, {% endfor %}
+</p>
+<table class="mtable" style="  border: 1px solid #ccc; margin: 0;padding: 0;width: 100%;">
+    <thead style="background: #f1f1f1;">
+         <tr >
+            <th rowspan="2">No</th>
+            <th rowspan="2" style="text-align:center !important; min-width: 150px;font-size: 12px; ">LIEUX</th>
+            <th colspan="3" class="text-center">EFFECTIFS</th>
+            <th colspan="{{dates|length}}" class="text-center">RAPPORTS DE PRESTATION</th>
+            <th rowspan="2" class="text-center">TOTAL</th>
+            <th rowspan="2" class="text-center">MOY.</th>
+            <th rowspan="2" class="text-center"  style="width: 40px;">COMP. <br> INTERNE</th>
+            <th colspan="2" class="text-center" style="width: 80px;"> TAUX DE RAPPORTAGE </th>
+         </tr>
+        <tr style="font-size: 11px;">
+            <th style="width: 40px;">GEN.</th>
+            <th style="width: 40px;">ACTIF</th>
+            <th style="width: 40px;">NON <br> ACTIF</th>
+            {% for elt in dates %}
+            <th>{{elt.local_abb}}</th>
+            {% endfor %}
+            <th class="text-center" style="width: 40px;"> ACTIF</th>
+            <th class="text-center" style="width: 40px;"> GEN.</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for index, elt in data.iterrows() %}
+        <tr>
+            <td>{{"%.0f"|format(elt['_index'])}}</td>
+            <td style="text-align:left !important;  font-size: 11px;">{{index}}</td>
+            <td>{{"%.0f"|format(elt['effectif_gen'])}}</td>
+            <td style="color: green;">{{"%.0f"|format(elt['effectif_actif'])}}</td>
+            <td style="color: rgb(134, 48, 48);">{{"%.0f"|format(elt['effectif_gen'] - elt['effectif_actif'])}}</td>
+            {% for d in dates %}
+            <td>{{"%.0f"|format(elt[d.key])}}</td>
+            {% endfor %}
+            <td>{{"%.0f"|format(elt['sum'])}}</td>
+            <td>{{"%.1f"|format(elt['moyenne'])}}</td>
+            <td>{{"%.1f"|format(elt['com_int_perc'])}} %</td>
+            <td style="font-weight: 700;color: #689F38">{{"%.1f"|format(elt['report_perc_gen'])}} %</td>
+            <td style="font-weight: 700;color: #fd7e14">{{"%.1f"|format(elt['report_perc_actif'])}} %</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+    <tfoot>
+        <tr style="background: #f7f7f7; font-weight: 700;">
+            <td colspan="2" style="text-align: center;">TOTAL</td>
+            <td>{{"%.0f"|format(subtotal['effectif_gen'])}}</td>
+            <td>{{"%.0f"|format(subtotal['effectif_actif'])}}</td>
+            <td>{{"%.0f"|format(subtotal['effectif_gen'] - subtotal['effectif_actif'])}}</td>
+            {% for d in dates %}
+            <td>{{"%.0f"|format(subtotal[d.key])}}</td>
+            {% endfor %}
+            <td>{{"%.0f"|format(subtotal['sum'])}}</td>
+            <td>{{"%.1f"|format(subtotal['moyenne'])}}</td>
+            <td>{{"%.1f"|format(subtotal['com_int_perc'])}} %</td>
+            <td style="font-weight: 700;color: #689F38">{{"%.1f"|format(subtotal['report_perc_gen'])}} %</td>
+            <td style="font-weight: 700;color: #fd7e14">{{"%.1f"|format(subtotal['report_perc_actif'])}} %</td>
+        </tr>
+    </tfoot>
+</table>
+<p style="font-size: 10px;"><b>{{current_date}}</b><br> ECHEANCE: {% for d in dates %}
+    <span style="color: #0c5c9e">{{d.local_abb}}</span>, {% endfor %} <br>
+    <small>{{title.upper()}}</small>
+</p>
+<style>
+  .text-center {
+    text-align: center;
+  }
+   @page {
+        size: A4;
+    }
+
+    @page {
+        size: A4 landscape;
+    }
+
+    @page {
+        size: 22cm 24cm;
+    }
+
+    @page {
+        size: 12in 14in;
+    }
+    
+    .mtable,
+    th,
+    td {
+        border: 1px solid #999;
+        border-collapse: collapse;
+        padding: 2px;
+        text-align: right;
+        font-size: 12px;
+        color: #222;
+    }
+</style>
+{% endblock content %}
