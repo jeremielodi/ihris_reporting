@@ -66,34 +66,7 @@ Edit `.env` as needed for your environment (database credentials, ports, etc.).
 
 ---
 
-## 6. Configure Database
-Edit `config/Database.py`:
-
-```bash
-vim config/Database.py
-```
-
-Put this content (adjust credentials as required):
-
-```python
-dbParams = {
-    "host": "127.0.0.1",
-    "user": "test",
-    "passwd": "test",
-    "database": "test"  
-}
-
-docAccess = {
-    'username': 'docs',
-    'password': 'docs'
-}
-```
-
-Save and exit (`:wq`).
-
----
-
-## 7. Build & Run with Docker
+## 6. Build & Run with Docker
 Run the project with Docker Compose:
 
 ```bash
@@ -107,7 +80,7 @@ This will:
 
 ---
 
-## 8. Verify Installation
+## 7. Verify Installation
 - Check running containers:
   ```bash
   docker ps
@@ -121,7 +94,7 @@ This will:
 
 ---
 
-## 9. (Optional) Manage Containers
+## 8. (Optional) Manage Containers
 - Stop:
   ```bash
   docker compose down
