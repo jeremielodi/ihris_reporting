@@ -1,0 +1,54 @@
+__pycache__
+.vscode/*
+.venv/*
+.env/*
+.env
+venv/*
+env/*
+log/*
+data/*
+config/Database.py
+
+./pgdata
+
+
+# Logs
+client/logs
+client/*.log
+client/npm-debug.log*
+client/yarn-debug.log*
+client/yarn-error.log*
+client/pnpm-debug.log*
+client/lerna-debug.log*
+
+# dependencies
+client/node_modules
+client/package-lock.json
+client/yarn.lock
+
+client/.DS_Store
+client/dist
+client/dist-ssr
+client/coverage
+client/*.local
+
+client/cypress/videos/
+client/cypress/screenshots/
+
+# Editor directories and files
+client/.vscode/*
+client/!.vscode/extensions.json
+client/.idea
+client/*.suo
+client/*.ntvs*
+client/*.njsproj
+client/*.sln
+client/*.sw?
+client/.env
+# Themes
+client/public/themes/soho-light/
+client/public/themes/soho-dark/
+client/public/themes/viva-light/
+client/public/themes/viva-dark/
+client/public/themes/mira/
+client/public/themes/nano/
