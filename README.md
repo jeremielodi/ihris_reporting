@@ -98,7 +98,7 @@ This will:
 
 ---
 
-✅ At this point, **ihris-reporting-fastapi** should be up and running.
+✅ At this point, **ihris_reporting** should be up and running.
 
 
 
@@ -241,10 +241,10 @@ After=network.target
 [Service]
 User=www-data
 Group=www-data
-WorkingDirectory=/home/ihris/ihris-reporting-fastapi/backend
-Environment="PATH=/home/ihris/ihris-reporting-fastapi/backend/.venv/bin"
-EnvironmentFile=/home/ihris/ihris-reporting-fastapi/.env
-ExecStart=/home/ihris/ihris-reporting-fastapi/backend/.venv/bin/uvicorn app.main:app --host 0.0.0.0 --port 8282 --workers 2
+WorkingDirectory=/home/ihris/ihris_reporting/backend
+Environment="PATH=/home/ihris/ihris_reporting/backend/.venv/bin"
+EnvironmentFile=/home/ihris/ihris_reporting/.env
+ExecStart=/home/ihris/ihris_reporting/backend/.venv/bin/uvicorn app.main:app --host 0.0.0.0 --port 8282 --workers 2
 Restart=always
 RestartSec=5
 
@@ -301,85 +301,12 @@ npm i -g serve
 serve -s dist -l 8080
 ```
 
----
 
-## 6) Nginx (serve Vue & proxy API)
-Copy built frontend to a web root:
-```bash
-sudo mkdir -p /var/www/ihris-reporting-ui
-sudo rsync -a dist/ /var/www/ihris-reporting-ui/
-sudo chown -R www-data:www-data /var/www/ihris-reporting-ui
-```
-
-Create an Nginx server block:
-```bash
-sudo nano /etc/nginx/sites-available/ihris-reporting.conf
-```
-Paste:
-```nginx
-server {
-    listen 80;
-    server_name your-domain your-server-ip;
-
-    # Serve built Vue app
-    root /var/www/ihris-reporting-ui;
-    index index.html;
-
-    # Frontend routes (history mode)
-    location / {
-        try_files $uri $uri/ /index.html;
-    }
-
-    # API reverse proxy to FastAPI
-    location /api/ {
-        proxy_pass         http://127.0.0.1:8282/;
-        proxy_http_version 1.1;
-
-        proxy_set_header   Host $host;
-        proxy_set_header   X-Real-IP $remote_addr;
-        proxy_set_header   X-Forwarded-For $proxy_add_x_forwarded_for;
-        proxy_set_header   X-Forwarded-Proto $scheme;
-
-        # websockets (if used)
-        proxy_set_header   Upgrade $http_upgrade;
-        proxy_set_header   Connection "upgrade";
-    }
-
-    # Static file caching (optional)
-    location ~* \.(?:css|js|woff2?|ttf|eot|svg|png|jpe?g|gif)$ {
-        expires 7d;
-        add_header Cache-Control "public, no-transform";
-        try_files $uri =404;
-    }
-}
-```
-Enable and reload:
-```bash
-sudo ln -s /etc/nginx/sites-available/ihris-reporting.conf /etc/nginx/sites-enabled/
-sudo nginx -t
-sudo systemctl reload nginx
-```
-
-### 6.1 SSL (Let’s Encrypt)
-```bash
-sudo apt install -y certbot python3-certbot-nginx
-sudo certbot --nginx -d your-domain
-```
-Auto-renew runs via system timer.
-
----
-
-## 7) CORS Notes
-- In **backend**, allow the **frontend origin(s)** via environment (e.g., `CORS_ALLOW_ORIGINS=https://your-domain,http://localhost:5173`).
-- If proxying `/api` with Nginx on the same domain, set `VITE_API_URL=/api` and CORS can be minimal.
-
----
-
-## 8) Folders for caches & logs
+## 6) Folders for caches & logs
 You can keep them in the repo:
 ```bash
-mkdir -p /home/ihris/ihris-reporting-fastapi/backend/{data,log}
-chmod -R 700 /home/ihris/ihris-reporting-fastapi/backend/{data,log}
+mkdir -p /home/ihris/ihris_reporting/backend/{data,log}
+chmod -R 700 /home/ihris/ihris_reporting/backend/{data,log}
 ```
 Or use system paths:
 ```bash
@@ -390,30 +317,6 @@ Update your env (`DATA_DIR`, `LOG_DIR`) to match.
 
 ---
 
-## 9) Verify
-- API docs: `http://your-domain/api/docs` (via Nginx) or `http://server-ip:8282/docs` (direct)
-- Frontend: `http://your-domain`
-
----
-
-## 10) Useful service commands
-```bash
-# Backend
-sudo systemctl status ihris-reporting
-sudo journalctl -u ihris-reporting -f
-
-# Nginx
-sudo nginx -t
-sudo systemctl reload nginx
-```
-
----
-
-## 11) Troubleshooting
-- **502 Bad Gateway**: Backend not running or port mismatch. Check `ExecStart` path, `APP_PORT`, and `proxy_pass`.
-- **CORS errors**: Make sure `CORS_ALLOW_ORIGINS` includes your frontend origin(s), or use same-domain `/api` proxy.
-- **DB connection**: Confirm DB creds/host/port. From the server:
-  ```bash
-  PGPASSWORD=strong-password psql -h 127.0.0.1 -U ihris_reporting -d ihris_reporting_db -c '\dt'
-  ```
-- **Permissions**: Logs/data must be owned by the service user (e.g., `www-data`) and writable.
+## 7) Verify
+- API docs: `http://server-ip:8282/docs` (direct)
+- Frontend: `http://server-ip:8282`
