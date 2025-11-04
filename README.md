@@ -3,7 +3,7 @@
 ## DOCKER INSTALLATION
 
 
-# 📘 Installation Guide — iHRIS Reporting FastAPI
+# 📘 Installation Guide
 
 ## 1. Prerequisites
 - Linux server (tested on **Ubuntu 22.04 LTS**)
