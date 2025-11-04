@@ -7,7 +7,7 @@ venv/*
 env/*
 log/*
 data/*
-config/Database.py
+# config/Database.py
 
 ./pgdata
 
