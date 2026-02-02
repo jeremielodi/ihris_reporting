@@ -1,9 +1,8 @@
 import numpy as np
 import pandas as pd
 from datetime import date, datetime
-
 from requests import Session
-from config.Config import mysql_get_mydb, pg_get_mydb
+from config.Config import pg_get_mydb
 from datetime import timedelta
 from dateutil.relativedelta import relativedelta
 import os

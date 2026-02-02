@@ -1,31 +1,6 @@
-
-import mysql.connector
 from config.Database import  dbParams
 from dotenv import load_dotenv
 import os
-
-def mysql_get_mydb():
-
-    '''Returns a connection to   MYSQL.'''
-    try:
-        cnx = mysql.connector.connect(
-            host=  dbParams['host'],
-            user = dbParams['user'],
-            passwd = dbParams['passwd'],
-            database = dbParams['database'])
-    
-    except mysql.connector.Error as err:
-        if err.errno == mysql.connector.errorcode.ER_ACCESS_DENIED_ERROR:
-            print("Something is wrong with your user name or password")
-        elif err.errno == mysql.errorcode.ER_BAD_DB_ERROR:
-            print("Database does not exist")
-        else:
-            print(err)
-
-        cnx.reconnect()
-
-    return  cnx
-
 import psycopg2
 from psycopg2 import OperationalError, errors
 from config.Database import dbParams

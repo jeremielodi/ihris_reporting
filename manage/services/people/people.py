@@ -75,18 +75,24 @@ async def lookUp(id:str, queryParameters: PeopelQueryParameters | None, db: Asyn
             where_clauses.append("p.firstname ILIKE :name OR p.lastname ILIKE :name")
             params["name"] = f"%{queryParameters.name}%"
 
+
+        if queryParameters.matricule is not None:
+            where_clauses.append("p.id IN (SELECT id FROM z_employment_status_view WHERE matricule ILIKE :matricule)")
+            params["matricule"] = f"%{queryParameters.matricule}%"
+
     if where_clauses:
         sql += " WHERE " + " AND ".join(where_clauses)
 
     sql += " LIMIT 25"
 
+    print(sql)
     result = await db.execute(text(sql), params)
     return result.mappings().all()   # returns list of dict-like rows
     
 # Get all people
 @apiRouter.get("/people/",  response_model=list, dependencies=[Depends(get_current_active_user)],)
-async def get_peoples( name: str = None, db: AsyncSession = Depends(get_session)):
-    result = await lookUp(None, PeopelQueryParameters(name=name), db)
+async def get_peoples( name: str = None,  matricule: str = None,db: AsyncSession = Depends(get_session)):
+    result = await lookUp(None, PeopelQueryParameters(name=name, matricule=matricule), db)
     return result
 
 
