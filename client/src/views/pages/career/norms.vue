@@ -66,15 +66,18 @@ defineExpose({
         </div>
         <div className="card">
             <h4>Normes</h4>
+           
             <template v-if="resultTree">
                 <template v-for="orgUnit in resultTree" :key="orgUnit.id">
+                     <div style="float: right;">
+                                    <a target="_blank" :href="NormService.server + `manage/norms/${orgUnit.id}/tree/export`">Télécharger</a>
+                     </div>
+
                     <table style="width: 100%" class="table">
                         <thead>
                             <tr>
                                 <th colspan="4">NORMES - {{ orgUnit.name }}</th>
-                                <th>
-                                    <a target="_blank" :href="NormService.server + `manage/norms/${orgUnit.id}/tree/export`">Télécharger</a>
-                                </th>
+                                
                             </tr>
                             <tr>
                                 <th>CATEGORIE</th>
