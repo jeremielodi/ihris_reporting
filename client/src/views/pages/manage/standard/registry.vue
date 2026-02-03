@@ -84,9 +84,9 @@ export default defineComponent({
 
             <Column selectionMode="single" style="width: 20px"></Column>
             <Column field="classification_name" :header="$t('FORM.LABELS.NAME')" />
-            <Column field="org_unit_type_name" :header="$t('FORM.LABELS.CODE')" />
-            <Column field="number_of_positions" :header="$t('FORM.LABELS.NUMBER_OF_POSITIONS')" />
-            <Column field="actions" :header="$t('Actions')" style="width: 80px">
+            <Column field="organization_unit_type_name" header="Type Structure" />
+            <Column field="required" :header="$t('FORM.LABELS.NUMBER_OF_POSITIONS')" />
+            <Column field="actions" :header="$t('Actions')" style="width: 30px">
                 <template #body="{ data }">
                     <RegionAction :entity="data" action-id="${data.id}" />
                 </template>

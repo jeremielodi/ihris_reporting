@@ -5,6 +5,7 @@ import orgUnitService from './orgUnit.service';
 import NotifyService from '@/service/Notify.service';
 import PyramidSelect from '@/components/pyramidSelect/pyramidSelect.vue';
 import OrganizationLevelSelect from '@/components/OrganizationLevelSelect.vue';
+import FacilityTypeSelect from '@/components/FacilityTypeSelect.vue';
 
 export default defineComponent({
     name: 'OrgUnitCreateCreateView',
@@ -39,7 +40,8 @@ export default defineComponent({
     components: {
         MyInputText,
         PyramidSelect,
-        OrganizationLevelSelect
+        OrganizationLevelSelect,
+        FacilityTypeSelect,
     },
     methods: {
         reset() {
@@ -143,9 +145,23 @@ export default defineComponent({
                         :validationTrigger="formSubmitted"
                     />
                 </div>
-                <div class="col-12 lg:col-1 xl:col-1 p-field"></div>
+                <div class="col-12 lg:col-1 xl:col-1 p-field">
+                </div>
 
                 <div class="col-12 lg:col-5 xl:col-5 p-field">
+                     <FacilityTypeSelect
+                        id="type"
+                        :value="this.orgUnit.type"
+                        label="FORM.LABELS.TYPE"
+                        :required="false"
+                        :onChange="
+                            (value) => {
+                                this.orgUnit.type = value.id;
+                            }
+                        "
+                        :validationTrigger="formSubmitted"
+                    />
+
                     <div v-if="orgUnitId" class="p-field-checkbox">
                         <Checkbox id="i2ce_hidden" :binary="true" name="locked" variant="filled" v-model="orgUnit.i2ce_hidden" />
                         <label for="i2ce_hidden"> {{ $t('FORM.LABELS.LOCKED') }}</label>

@@ -62,7 +62,7 @@ export default defineComponent({
                             label: this.$t('FORM.BUTTONS.EDIT'),
                             icon: 'pi pi-fw pi-pencil',
                             command: () => {
-                                this.$router.push(`/manage/org_unit_standards_create?uuid=${this.entity.uuid}`);
+                                this.$router.push(`/manage/org_unit_standards_create?id=${this.entity.id}`);
                             }
                         }
                     ]

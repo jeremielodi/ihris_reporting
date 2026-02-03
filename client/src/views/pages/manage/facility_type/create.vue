@@ -11,7 +11,7 @@ export default defineComponent({
         return {
             formSubmitted: false,
             facility_typeId: null,
-            facility_type: { name: null, code: null }
+            facility_type: { name: null, id: null }
         };
     },
     created() {
@@ -38,7 +38,7 @@ export default defineComponent({
             }
         },
         validate() {
-            const options = { name: this.facility_type.name, parentError: this.facility_typeId ? this.facility_typeId == this.facility_type.parent : true };
+            const options = { name: this.facility_type.name, id: this.facility_type.id };
             let validKey = true;
             for (const key of Object.keys(options)) {
                 if (!options[key]) {
@@ -92,6 +92,18 @@ export default defineComponent({
                     <hr />
                 </div>
                 <div class="col-12 lg:col-5 xl:col-5 p-field">
+                     <MyInputText
+                        id="id"
+                        v-model="facility_type.id"
+                        label="FORM.LABELS.CODE"
+                        :required="false"
+                        @onChange="
+                            (value) => {
+                                facility_type.id = value;
+                            }
+                        "
+                        :validationTrigger="formSubmitted"
+                    />
                     <MyInputText
                         id="name"
                         v-model="facility_type.name"
@@ -104,18 +116,7 @@ export default defineComponent({
                         "
                         :validationTrigger="formSubmitted"
                     />
-                    <MyInputText
-                        id="code"
-                        v-model="facility_type.code"
-                        label="FORM.LABELS.CODE"
-                        :required="false"
-                        @onChange="
-                            (value) => {
-                                facility_type.code = value;
-                            }
-                        "
-                        :validationTrigger="formSubmitted"
-                    />
+                   
                 </div>
                 <div class="col-12 lg:col-1 xl:col-1 p-field"></div>
 

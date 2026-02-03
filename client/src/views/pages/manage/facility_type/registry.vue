@@ -81,8 +81,8 @@ export default defineComponent({
             </template>
 
             <Column selectionMode="single" style="width: 20px"></Column>
+            <Column field="id" :header="$t('FORM.LABELS.CODE')" />
             <Column field="name" :header="$t('FORM.LABELS.NAME')" />
-            <Column field="code" :header="$t('FORM.LABELS.CODE')" />
             <Column field="actions" :header="$t('Actions')" style="width: 80px;">
                 <template #body="{ data }">
                     <Facility_typeAction :entity="data" action-id="${data.id}" />

@@ -1,5 +1,5 @@
 import PrototypeApiService from '@/service/httpService';
-function ClassificationService() {
+function _ClassificationService() {
     const baseUrl = '/manage/classifications';
     const service = new PrototypeApiService(baseUrl);
     service.import = (data) => {
@@ -8,5 +8,5 @@ function ClassificationService() {
     return service;
 }
 
-const a = ClassificationService();
-export default a;
+const ClassificationService = _ClassificationService();
+export default ClassificationService;

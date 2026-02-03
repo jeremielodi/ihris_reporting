@@ -74,6 +74,11 @@ const router = createRouter({
                     path: 'validation',
                     name: 'validation',
                     component: () => import('@/views/pages/career/Validation.vue')
+                },
+                {
+                    path: 'norms',
+                    name: 'norms',
+                    component: () => import('@/views/pages/career/norms.vue')
                 }
             ]
         },

@@ -27,6 +27,7 @@ export default {
         async getPath(nodeId) {
             const result = await OrgUnitService.path(nodeId);
             this.bItems = result;
+            this.currentNode = { value: nodeId };
             this.reload();
         }
     }
@@ -47,7 +48,7 @@ export default {
                 </Breadcrumb>
             </div>
             <div class="col-2 pb-0 text-right">
-                <Button title="Actualiser" @click="reload()" icon="pi pi-refresh" severity="primary" raised />
+                <Button title="Actualiser" @click="reload(currentNode)" icon="pi pi-refresh" severity="primary" raised />
             </div>
         </div>
     </div>

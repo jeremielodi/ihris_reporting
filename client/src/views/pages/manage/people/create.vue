@@ -56,9 +56,7 @@ export default defineComponent({
         reset() {
             this.person = {};
             this.formSubmitted = false;
-            if (this.personId) {
-                this.$router.back();
-            }
+            this.$router.back();
         },
         async init() {
             this.canEditPerson = await this.checkPermission(constants.ACTIONS.CAN_EDIT_PERSON);

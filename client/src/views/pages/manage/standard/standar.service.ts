@@ -1,7 +1,7 @@
 import PrototypeApiService from '@/service/httpService';
 
 function _StandardService() {
-    const baseUrl = '/manage/organization_unit_standards';
+    const baseUrl = '/manage/norm-requirements';
     const service = new PrototypeApiService(baseUrl);
     service.import = (data) => {
         return service.post('/import', data);

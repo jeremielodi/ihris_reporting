@@ -1184,3 +1184,10 @@ class OrganizationLevel(Base):
     id = Column(String(255), primary_key=True)
     name = Column(String(255))
     level = Column(Integer)
+
+class NormRequirement(Base):
+    __tablename__ = "norm_requirement"
+    id = Column(UUID(as_uuid=True), primary_key=True)
+    organization_unit_type_id = Column(String(255), primary_key=True)
+    classification_id = Column(String(255), primary_key=True)
+    required = Column(Integer, nullable=False)

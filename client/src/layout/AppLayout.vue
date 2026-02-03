@@ -158,6 +158,15 @@ let elements = [
         command: () => {
             treeUpdated();
         }
+    },
+    {
+        label: 'Normes',
+        icon: 'pi pi-check-circle',
+        route: 'norms',
+        index: 8,
+        command: () => {
+            treeUpdated();
+        }
     }
 ];
 let index = 0;

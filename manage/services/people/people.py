@@ -85,7 +85,6 @@ async def lookUp(id:str, queryParameters: PeopelQueryParameters | None, db: Asyn
 
     sql += " LIMIT 25"
 
-    print(sql)
     result = await db.execute(text(sql), params)
     return result.mappings().all()   # returns list of dict-like rows
     

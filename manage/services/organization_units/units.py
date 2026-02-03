@@ -87,7 +87,7 @@ async def get_OrganisationUnit(db: AsyncSession = Depends(get_session)):
     return rows
 
 
-# Get all healthareas
+# Get all organization_units details
 @apiRouter.get("/organization_units/{id}", response_model=ViewOrgUnitListRead, dependencies=[Depends(get_current_active_user)],)
 async def get_OrganisationUnit(id:str,db: AsyncSession = Depends(get_session)):
     result = await db.execute(text(f"""
@@ -114,7 +114,7 @@ async def get_OrganisationUnit(parentId:str,db: AsyncSession = Depends(get_sessi
     rows = result.all()
     return rows
 
-# Get all healthareas
+# Get all organization_units tree from parent id
 @apiRouter.get("/organization_units/tree/{parentId}", response_model=list, dependencies=[Depends(get_current_active_user)],)
 async def get_OrganisationUnitTree(parentId:str,db: AsyncSession = Depends(get_session)):
     

@@ -3,6 +3,7 @@ from datetime import datetime
 from typing import Optional
 
 class OrganizationUnitTypeBase(BaseModel):
+    id: str
     name: str
     position: Optional[int] = 0
 

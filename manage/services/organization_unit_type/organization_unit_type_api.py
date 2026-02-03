@@ -52,7 +52,7 @@ async def create_organization_unit_type(
         raise HTTPException(status_code=400, detail="Organization unit type with this name already exists")
     
     org_unit_type_data = org_unit_type.dict()
-    org_unit_type_data['id'] = f"org_unit_type|{org_unit_type.name.upper()}"
+    org_unit_type_data['id'] = f"org_unit_type|{org_unit_type.id}"
     
     new_org_unit_type = OrganizationUnitType(**org_unit_type_data)
     session.add(new_org_unit_type)

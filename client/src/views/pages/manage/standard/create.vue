@@ -13,14 +13,14 @@ export default defineComponent({
         return {
             formSubmitted: false,
             standardId: null,
-            standard: { name: null, code: null, country: null }
+            standard: { classification_id: null, organization_unit_type_id: null, required: 0 }
         };
     },
     created() {
-        const { uuid } = this.$route.query;
-        if (uuid) {
-            this.standardId = uuid;
-            StandardService.read(uuid).then((standard) => {
+        const { id } = this.$route.query;
+        if (id) {
+            this.standardId = id;
+            StandardService.read(id).then((standard) => {
                 setTimeout(() => {
                     this.standard = standard;
                     this.standard.i2ce_hidden = !!standard.i2ce_hidden;
@@ -44,8 +44,8 @@ export default defineComponent({
         validate() {
             const options = { 
                 classification_id: this.standard.classification_id,
-                number_of_positions: this.standard.number_of_positions,
-                org_unit_type_id: this.standard.org_unit_type_id
+                required: this.standard.required,
+                organization_unit_type_id: this.standard.organization_unit_type_id
             };
             let validKey = true;
             for (const key of Object.keys(options)) {
@@ -114,25 +114,26 @@ export default defineComponent({
                     />
 
                     <OrgUnitTypeSelect
-                        id="org_unit_type_id"
-                        :value="standard.org_unit_type_id"
+                        id="organization_unit_type_id"
+                        :value="standard.organization_unit_type_id"
                         label="TREE.ORG_UNIT_TYPE"
                         :required="true"
                         :onChange="
                             (value) => {
-                                standard.org_unit_type_id = value.id;
+                                standard.organization_unit_type_id = value.id;
                             }
                         "
                         :validationTrigger="formSubmitted"
                     />
                     <MyInputText
-                        id="number_of_positions"
-                        v-model="standard.number_of_positions"
+                        id="required"
+                        v-model="standard.required"
+                        type="number"
                         label="FORM.LABELS.NUMBER_OF_POSITIONS"
                         :required="false"
                         @onChange="
                             (value) => {
-                                standard.number_of_positions = value;
+                                standard.required = value;
                             }
                         "
                         :validationTrigger="formSubmitted"
