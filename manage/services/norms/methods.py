@@ -43,9 +43,11 @@ async def db_get_organization_unit_type_id(facility_id: str, db) -> str:
 
 async def db_get_norms(organization_unit_type_id: str, db) -> dict[str, int]:
     result = await db.execute(text("""
-        SELECT classification_id, required
-        FROM public.norm_requirement
-        WHERE organization_unit_type_id = :organization_unit_type_id
+        SELECT nr.classification_id, nr.required, cl.name
+        FROM public.norm_requirement nr
+        JOIN hippo_classification cl ON cl.id = nr.classification_id
+        WHERE nr.organization_unit_type_id = :organization_unit_type_id
+        ORDER BY nr.classification_id ASC
     """), {"organization_unit_type_id": organization_unit_type_id})
 
     rows = result.mappings().all()
@@ -54,10 +56,10 @@ async def db_get_norms(organization_unit_type_id: str, db) -> dict[str, int]:
 
 async def db_get_actual_staff(facility_id: str, db) -> dict[str, int]:
     result = await db.execute(text("""
-        SELECT classification_id, COUNT(classification_id) as qty
-        FROM z_employment_status_view
-        WHERE facility_id = :id AND classification_id IS NOT NULL
-        GROUP BY classification_id
+        SELECT t1.classification_id , COUNT(t1.classification_id) as qty
+        FROM z_employment_status_view t1
+        WHERE t1.facility_id = :id AND t1.classification_id IS NOT NULL
+        GROUP BY t1.classification_id
     """), {"id": facility_id})
 
     rows = result.mappings().all()

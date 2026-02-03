@@ -52,7 +52,7 @@ class NormRequirementRepository:
             FROM norm_requirement nr
             JOIN hippo_classification cl ON cl.id = nr.classification_id
             JOIN organization_unit_type ot ON ot.id = nr.organization_unit_type_id
-            ORDER BY nr.organization_unit_type_id, nr.classification_id
+            ORDER BY cl.name, ot.name
         """))
         return result.mappings().all() 
 
