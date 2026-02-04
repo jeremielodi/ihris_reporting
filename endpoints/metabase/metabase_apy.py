@@ -167,7 +167,7 @@ async def get_question_data(data: List[RequestionParamers], id: int):
                         ["template-tag", param['slug']]
                     ]
                 })
-        
+        print(request_queries)
         # Execute the data request
         data_response = await client.post(api_url, headers=headers, json={
             "ignore_cache": False,

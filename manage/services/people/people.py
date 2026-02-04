@@ -77,7 +77,7 @@ async def lookUp(id:str, queryParameters: PeopelQueryParameters | None, db: Asyn
 
 
         if queryParameters.matricule is not None:
-            where_clauses.append("p.id IN (SELECT id FROM z_employment_status_view WHERE matricule ILIKE :matricule)")
+            where_clauses.append("p.id IN (SELECT person_id FROM hippo_person_identification WHERE number ILIKE :matricule)")
             params["matricule"] = f"%{queryParameters.matricule}%"
 
     if where_clauses:

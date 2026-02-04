@@ -51,9 +51,7 @@ const filters1 = ref({
 });
 
 const onclickGetReport = (page = 1, search = null, matricule = null, birth_date = null) => {
-    currentNode.value = _AppCache.getCurrentNode();
     if (!currentNode.value) return;
-
     if (loadingReport.value) return;
     reportUrl.value = '/people/list?' + 'org_unit_id=' + currentNode.value + '&page=' + page + '&limit=' + 50 + '&search=' + search + '&matricule=' + matricule + '&birth_date=' + birth_date;
 
@@ -150,11 +148,12 @@ const download = () => {
 };
 
 const updateReport = (node) => {
-    currentNode.value = node;
+    currentNode.value = node.value || node;
     onclickGetReport();
 };
 
 defineExpose({
+    treeUpdated: updateReport,
     updateReport
 });
 const personDialog = ref(null);
@@ -165,7 +164,7 @@ const showPersonDialog = () => {
 <template>
     <div>
      <div style="margin-bottom: 10px;">
-        <PyarmidPath :reload="onclickGetReport"/>
+        <PyarmidPath :reload="updateReport"/>
     </div>
     <div className="card">
         <h4>LISTE DU PERSONNEL</h4>

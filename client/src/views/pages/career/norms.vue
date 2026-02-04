@@ -76,6 +76,7 @@ const getFilteredClassifications = (orgUnit) => {
 const onclickGetReport = async (node) => {
     // Load classifications once per reload
     loading.value = true;
+    resultTree.value = null;
     const classificationList = await ClassificationService.read();
     const map = {};
     for (const classif of classificationList) {
@@ -114,7 +115,7 @@ defineExpose({
             
             <!-- ✅ NEW: Search input -->
             <div style="margin-bottom: 10px">
-                <input v-model="categorySearch" type="text" placeholder="Rechercher une catégorie..." style="width: 90%; padding: 6px" />
+                <input v-model="categorySearch" type="text" placeholder="Rechercher une catégorie..." style="width: 85%; padding: 6px" />
             </div>
 
             <div v-if="loading" class="mt-4 pt-4">
@@ -181,7 +182,7 @@ defineExpose({
                                             <!-- Missing details -->
                                             <template v-if="(orgUnit.stat?.missing_total?.[classificationId] ?? 0) > 0">
                                                 <div style="margin-bottom: 10px">
-                                                    <b>Structures manquantes :</b>
+                                                    <b>Structures manquant les {{ classificationMap[classificationId]?.name }} :</b>
                                                     <template v-if="getChildrenWithValue(orgUnit, 'missing_total', classificationId).length">
                                                         <div
                                                             v-for="child in getChildrenWithValue(orgUnit, 'missing_total', classificationId)"
@@ -202,7 +203,7 @@ defineExpose({
                                             <!-- Excess details -->
                                             <template v-if="(orgUnit.stat?.excess?.[classificationId] ?? 0) > 0">
                                                 <div>
-                                                    <b>Structures en excès :</b>
+                                                    <b>Structures ayant {{ classificationMap[classificationId]?.name }} en excès :</b>
                                                     <template v-if="getChildrenWithValue(orgUnit, 'excess', classificationId).length">
                                                         <div
                                                             v-for="child in getChildrenWithValue(orgUnit, 'excess', classificationId)"

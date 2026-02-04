@@ -239,7 +239,7 @@ const myRouterView = ref(null);
 
 const treeUpdated = () => {
     setTimeout(() => {
-        if (myRouterView.value) myRouterView.value.treeUpdated(currentNode);
+        if (myRouterView.value &&  myRouterView.value.treeUpdated) myRouterView.value.treeUpdated(currentNode);
     }, 100);
 };
 function gotoCareerSection(item) {
