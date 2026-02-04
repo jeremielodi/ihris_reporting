@@ -38,10 +38,10 @@ const render = () => {
             },
             yAxis: { type: 'value' },
             series: [
-                { name: 'Required', type: 'bar', data: props.required },
+                { name: 'Requis', type: 'bar', data: props.required },
                 { name: 'Actif', type: 'bar', data: props.actual },
                 { name: 'Carence', type: 'bar', itemStyle: { color: '#dc2626' }, data: props.missing },
-                { name: 'Pletore', type: 'bar', itemStyle: { color: '#f59e0b' }, data: props.excess }
+                { name: 'Pléthore', type: 'bar', itemStyle: { color: '#f59e0b' }, data: props.excess }
             ]
         },
         true

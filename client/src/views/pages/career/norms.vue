@@ -140,7 +140,7 @@ defineExpose({
                                 <th align="right">REQUIS</th>
                                 <th align="right">ACTIF</th>
                                 <th align="right">CARENCE</th>
-                                <th align="right">PLETORE</th>
+                                <th align="right">PLETHORE</th>
                             </tr>
                         </thead>
 

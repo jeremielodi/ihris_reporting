@@ -124,7 +124,7 @@ def _write_orgunit_table(ws, start_row: int, org_unit: dict, classification_map:
     """
     Ecrit:
     NORMES - orgUnit.name
-    CATEGORIE | REQUIS | ACTIF | CARENCE | PLETORE
+    CATEGORIE | REQUIS | ACTIF | CARENCE | PLETHORE
     """
     stat = org_unit.get("stat") or {}
 
@@ -133,7 +133,7 @@ def _write_orgunit_table(ws, start_row: int, org_unit: dict, classification_map:
     ws.merge_cells(start_row=start_row, start_column=1, end_row=start_row, end_column=5)
 
     header_row = start_row + 1
-    headers = ["CATEGORIE", "REQUIS", "ACTIF", "CARENCE", "PLETORE"]
+    headers = ["CATEGORIE", "REQUIS", "ACTIF", "CARENCE", "PLETHORE"]
     for i, h in enumerate(headers, start=1):
         cell = ws.cell(row=header_row, column=i, value=h)
         cell.font = Font(bold=True)
