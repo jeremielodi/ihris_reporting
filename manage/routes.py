@@ -41,6 +41,8 @@ from manage.services.organization_unit_type import organization_unit_type_api
 from manage.services.standards import standards
 from manage.services.norms import norm
 from manage.services.norms import norm_requirement
+from manage.services.document_type import docment_type
+from manage.services.document import document
 manageApiRouter = APIRouter()
 
 manageApiRouter.include_router(degree.apiRouter, tags=["degrees"])
@@ -85,3 +87,5 @@ manageApiRouter.include_router(standards.apiRouter, tags=["Standars"])
 manageApiRouter.include_router(organization_unit_type_api.apiRouter, tags=["OrgUnitType"])
 manageApiRouter.include_router(norm.apiRouter, tags=["Norms"])
 manageApiRouter.include_router(norm_requirement.APIRouter, tags=["Norm Requirements"])
+manageApiRouter.include_router(docment_type.apiRouter, tags=["Document type"])
+manageApiRouter.include_router(document.apiRouter, tags=["Document"])

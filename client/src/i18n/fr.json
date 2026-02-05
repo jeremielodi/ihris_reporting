@@ -831,7 +831,11 @@
         "ORG_UNIT_STANDARD_UPDATE":"Modification norme pour unité d'organisation",
         "ORG_UNIT_TYPE":"Type d'unité d'organisation",
         "ORG_UNIT_TYPE_NEW":"Nouveau type d'unité d'organisation",
-        "ORG_UNIT_TYPE_UPDATE":"Modification type d'unité d'organisation"
+        "ORG_UNIT_TYPE_UPDATE":"Modification type d'unité d'organisation",
+        "DOCUMENT_TYPE":"Type de document",
+        "DOCUMENT_TYPE_NEW":"Nouveau Type de document",
+        "DOCUMENT_TYPE_UPDATE":"Modification Type de document",
+        "ADMIN_DOCUMENTS":"Documents administratifs"
     },
     "WELCOME": {
         "TITLE": "Bienvenue sur iHRIS Manage !",

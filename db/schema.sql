@@ -813,6 +813,21 @@ CREATE TABLE public.hippo_permission (
 );
 
 
+-- Table: public.document_type
+
+-- DROP TABLE IF EXISTS public.document_type;
+
+CREATE TABLE IF NOT EXISTS public.document_type
+(
+    id character varying(255)  NOT NULL,
+    name character varying(255)  NOT NULL,
+    i2ce_hidden integer,
+    created ttimestamptz NOT NULL DEFAULT now(),
+    created_by character varying(255) ,
+    last_modified timestamptz NOT NULL DEFAULT now(),
+    last_modified_by character varying(255) ,
+    CONSTRAINT document_type_pkey PRIMARY KEY (id)
+);
 
 CREATE TABLE public.hippo_person (
     id character varying(255) NOT NULL,
@@ -2325,3 +2340,28 @@ CREATE UNIQUE INDEX ix_users_email ON public.users USING btree (email);
 CREATE INDEX ix_users_id ON public.users USING btree (id);
 
 
+-- Index: ix_document_type_created_by
+
+-- DROP INDEX IF EXISTS public.ix_document_type_created_by;
+
+CREATE INDEX IF NOT EXISTS ix_document_type_created_by
+    ON public.document_type USING btree
+    (created_by COLLATE pg_catalog."default" ASC NULLS LAST)
+    TABLESPACE pg_default;
+-- Index: ix_document_type_i2ce_hidden
+
+-- DROP INDEX IF EXISTS public.ix_document_type_i2ce_hidden;
+
+CREATE INDEX IF NOT EXISTS ix_document_type_i2ce_hidden
+    ON public.document_type USING btree
+    (i2ce_hidden ASC NULLS LAST)
+    TABLESPACE pg_default;
+-- Index: ix_document_type_last_modified_by
+
+-- DROP INDEX IF EXISTS public.ix_document_type_last_modified_by;
+
+CREATE INDEX IF NOT EXISTS ix_document_type_last_modified_by
+    ON public.document_type USING btree
+    (last_modified_by COLLATE pg_catalog."default" ASC NULLS LAST)
+    TABLESPACE pg_default;
+    

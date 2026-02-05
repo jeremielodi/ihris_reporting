@@ -227,7 +227,7 @@ async def get_role_actions(
     
     page_sql = text("DELETE FROM  public.hippo_role_actions  WHERE role_id =:role_id ")
 
-    pages_res = await session.execute(page_sql, {"role_id": data.role_id})
+    await session.execute(page_sql, {"role_id": data.role_id})
     for action_id in data.action_ids:
         sql= """
             INSERT INTO  public.hippo_role_actions(uuid, role_id, actions_id)

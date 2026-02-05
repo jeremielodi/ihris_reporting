@@ -62,33 +62,45 @@ function httpRequest(
 }
 
 // PDF stream request function
-function pdfStreamRequest(url: string, method: string, param: Record<string, any> = {}): Promise<any> {
+function pdfStreamRequest(
+  url: string,
+  method: 'GET' | 'POST',
+  param: Record<string, any> = {}
+): Promise<ArrayBuffer> {
   const _data = { ...param };
   delete _data.$$hashKey;
 
   const cache = AppCache.getSession() || {};
   NProgress.start();
+
   return axios({
     url,
     method,
-    data: _data,
+
+    // ✅ GET should use params; POST can use data
+    params: method === 'GET' ? _data : undefined,
+    data: method !== 'GET' ? _data : undefined,
+
     headers: {
-      'Content-Type': 'application/json',
+      // ✅ don’t force content-type for GET
+      ...(method !== 'GET' ? { 'Content-Type': 'application/json' } : {}),
+      Accept: 'application/pdf',
       'x-access-token': cache.token,
       Authorization: `Bearer ${cache.token}`,
     },
+
     responseType: 'arraybuffer',
   })
     .then((resp) => {
       NProgress.done();
-      return unwrapHttpResponse(resp);
+      // ✅ IMPORTANT: don’t JSON-unwrap binary
+      return resp.data as ArrayBuffer;
     })
     .catch((error) => {
       NProgress.done();
       return handleAuthError(error);
     });
 }
-
 // HTML stream request function
 function HTMLStreamRequest(url: string, method: string, param: Record<string, any> = {}): Promise<any> {
   const _data = { ...param };

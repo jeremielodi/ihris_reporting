@@ -68,7 +68,6 @@ onMounted(() => {
 });
 
 const onclickGetReport = () => {
-    currentNode.value = _AppCache.getCurrentNode();
     if (!currentNode.value) return;
     if (loading.value) return;
     loading.value = true;
@@ -278,12 +277,12 @@ const download = (url) => {
 
 const currrentTreePosition = ref(null);
 const updateReport = (node) => {
-    currentNode.value = node;
-    if (currrentTreePosition.value != exportFileName() || products.value.lenght == 0) onclickGetReport();
-    currrentTreePosition.value = exportFileName();
+    currentNode.value = node.value || node  ;
+    onclickGetReport();
 };
 defineExpose({
-    updateReport
+    updateReport,
+    treeUpdated: updateReport
 });
 const downloadExcelFile = () => {
     let settings = {
@@ -323,7 +322,7 @@ const downloadExcelFile = () => {
 </script>
 <template>
     <div>
-        <PyarmidPath :reload="onclickGetReport" />
+        <PyarmidPath :reload="updateReport" />
 
         <div class="card">
             <h5>COMPLÉTUDE DE PRESTATION</h5>

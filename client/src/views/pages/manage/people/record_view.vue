@@ -7,6 +7,7 @@ import ContactTypeService from '../contact_type/contact_type.service';
 import ContactService from '../contact/contact.service';
 import IdentificationService from '../identification/identification.service';
 import TimesheetService from '../timesheet/person_timesheet.service';
+import PdfViewer from '@/components/PdfViewer.vue';
 
 export default defineComponent({
     name: 'RecordView',
@@ -16,11 +17,16 @@ export default defineComponent({
             personId: null,
             person: { lastname: null, residence: null },
             employmentStatusInfos: [],
+            displayPdfViewerModal: false,
+            fileName: 'document.pdf',
+            docUrl: null,
+            selectedDocument : {},
             contactTypes: [],
             contacts: [],
             identifications: [],
             passportList: [],
             timesheetList: [],
+            documentList: [],
             loading: false,
             server: import.meta.env.VITE_SERVER_URL
         };
@@ -38,9 +44,24 @@ export default defineComponent({
             this.getContactTypes();
             this.getIdentifications();
             this.getTimeSheets(id);
+            this.getDocuments(id);
         }
     },
     methods: {
+        openPDF(doc) {
+            console.log(doc);
+            this.docUrl = doc.url;
+            this.selectedDocument = doc;
+            this.displayPdfViewerModal = true;
+        },
+        closePrfViewer() {
+            this.displayPdfViewerModal = false;
+        },
+        pdfDownloadFunction() {
+            this.fileName = `${this.selectedDocument.document_type_name}_${this.person.firstname}_${this.person.lastname}.pdf`;
+            const target = `/${this.selectedDocument.id}/pdf`;
+            return PeopleService.documents.dowloadPdf(target, this.fileName, true);
+        },
         getTimeSheets(id) {
             TimesheetService.person(id).then((timesheets) => {
                 this.timesheetList = timesheets;
@@ -72,6 +93,11 @@ export default defineComponent({
                 }
             });
         },
+        getDocuments(id) {
+            PeopleService.documents.list(id).then((documents) => {
+                this.documentList = documents;
+            });
+        },
         async getEmploymentStatusInfo(id) {
             try {
                 this.employmentStatusInfos = await EmploymnettInfoService.person(id);
@@ -98,7 +124,8 @@ export default defineComponent({
         viewFile(path) {
             window.open(`${this.server}uploads/${path}`, '_blank');
         }
-    }
+    },
+    components: { PdfViewer }
 });
 </script>
 <template>
@@ -413,6 +440,35 @@ export default defineComponent({
             <thead>
                 <tr>
                     <th colspan="2">
+                        <span>{{ $t('TREE.ADMIN_DOCUMENTS') }}</span>
+                        <span style="float: right">
+                            <InputGroup>
+                                <Button :label="$t('FORM.BUTTONS.ADD')" severity="contrast" @click="this.$router.push(`/manage/people_documents?personId=${personId}`)" />
+                            </InputGroup>
+                        </span>
+                    </th>
+                </tr>
+            </thead>
+            <tbody>
+                <template v-for="doc of this.documentList" :key="doc.id">
+                    <tr>
+                        <td colspan="2" class="bottomBorder">
+                            <div style="padding: 2px;">
+                                <b>{{ doc.document_type_name }}</b>
+                            </div>
+                            <span  @click="openPDF(doc)" style="cursor: pointer;">
+                                <i class="pi pi-file-pdf" style="font-size: 40px;"/>
+                                <span style="font-size: 12px;"> {{ doc.description }}</span>
+                            </span>
+                        </td>
+                    </tr>
+                </template>
+            </tbody>
+        </table>
+        <table class="table">
+            <thead>
+                <tr>
+                    <th colspan="2">
                         <span>{{ $t('TREE.TIMESHEET') }} (Timesheet)</span>
                         <span style="float: right">
                             <InputGroup>
@@ -482,6 +538,14 @@ export default defineComponent({
                 </tr>
             </tbody>
         </table>
+
+    <PdfViewer 
+      :fileName="fileName" 
+      :download-function="pdfDownloadFunction"
+      :url="docUrl"
+      :display="displayPdfViewerModal"
+      :close="closePrfViewer">
+    </PdfViewer>
     </div>
 </template>
 

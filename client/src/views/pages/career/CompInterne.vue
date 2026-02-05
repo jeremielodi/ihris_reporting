@@ -85,7 +85,6 @@ const showReportDetails = (v, label = '', data) => {
 };
 
 const onclickGetReport = () => {
-    currentNode.value = _AppCache.getCurrentNode();
     if (!currentNode.value) return;
     if (loading.value) return;
     loading.value = true;
@@ -141,15 +140,14 @@ const onclickGetReport = () => {
         });
 };
 
-const currrentTreePosition = ref(null);
 const updateReport = (node) => {
-    currentNode.value = node;
-    if (currrentTreePosition.value != exportFileName() || person_list.value.lenght == 0) onclickGetReport();
-    currrentTreePosition.value = exportFileName();
+    currentNode.value = node.value || node;
+    onclickGetReport();
 };
 
 defineExpose({
-    updateReport
+    updateReport,
+    treeUpdated: updateReport
 });
 
 const exportFileName = () => {
@@ -274,7 +272,7 @@ const showPersonDialog = () => {
 </script>
 <template>
     <div>
-         <PyarmidPath :reload="onclickGetReport"/>
+         <PyarmidPath :reload="updateReport"/>
        
     
     <div className="card">

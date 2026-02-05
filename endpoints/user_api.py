@@ -1,7 +1,7 @@
 from fastapi import APIRouter
 from datetime import datetime, timedelta
 from typing import Annotated
-from fastapi import Depends, HTTPException, status, Response
+from fastapi import Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
 from jose import JWTError, jwt
 from passlib.context import CryptContext
@@ -9,11 +9,8 @@ from pydantic import BaseModel
 from sqlalchemy.orm import Session
 from config.Database2 import SessionLocal
 from manage.database import SessionLocal
-from models.models import PersonValidator
 from models.usercrud import _get_access_facility, _login
-from sqlalchemy.future import select
-from fastapi.concurrency import run_in_threadpool
-from pydantic import BaseModel, EmailStr
+from pydantic import BaseModel
 # to get a string like this run:
 # openssl rand -hex 32
 

@@ -677,7 +677,31 @@ class HippoPersonPassport(Base):
     created_by = Column(String(255), nullable=True, index=True)
     i2ce_hidden = Column(Integer, nullable=True, index=True)
     created = Column(DateTime, default=datetime.datetime.now())
-    
+
+class DocumentType(Base):
+    __tablename__ = "document_type"
+    id = Column(String(255), primary_key=True)
+    name = Column(String(255), nullable=False)
+    i2ce_hidden = Column(Integer, nullable=True, index=True)
+    created = Column(DateTime, default=datetime.datetime.now())
+    created_by = Column(String(255), nullable=True, index=True)
+    last_modified = Column(DateTime, default=None)
+    last_modified_by = Column(String(255), nullable=True, index=True)
+
+class HippoPersonDocument(Base):
+    __tablename__ = "hippo_person_document"
+    id = Column(String(255), primary_key=True)
+    path = Column(String(255), nullable=False)
+    type_id =  Column(String(255), nullable=True, index=True)
+    description =  Column(String(255), nullable=True, index=True)
+    person_id =  Column(String(255), nullable=True, index=True)
+    created_by = Column(String(255), nullable=True, index=True)
+    i2ce_hidden = Column(Integer, nullable=True, index=True)
+    created = Column(DateTime, default=datetime.datetime.now())
+    created_by = Column(String(255), nullable=True, index=True)
+    last_modified = Column(DateTime, default=None)
+    last_modified_by = Column(String(255), nullable=True, index=True)
+       
 class HippoEmploymentStatusInfo(Base):
     __tablename__ = "hippo_employment_status_info"
     id = Column(String(255), primary_key=True)

@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
 from manage.database import SessionLocal, engine
-from models.models import Cadre, Classification, County, District, Facility, HealthArea, Job
+
 from models.training import dashboard_data, scheduled_training_course
 from sqlalchemy.ext.asyncio import AsyncSession
 

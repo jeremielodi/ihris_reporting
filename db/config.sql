@@ -21,6 +21,8 @@ INSERT INTO public.hippo_module_page (code, label, url, is_tree_item, module_id)
 ('contact_type_create', 'TREE.CONTACT_TYPE_NEW', '/manage/contact_type_create', 0, 5),
 ('org_unit_standards_registry', 'TREE.ORG_UNIT_STANDARD', '/manage/contactorg_unit_standards_registry_type_registry', 1, 5),
 ('org_unit_standards_create', 'TREE.ORG_UNIT_STANDARD_NEW', '/manage/org_unit_standards_create', 0, 5),
+('document_type_registry', 'TREE.DOCUMENT_TYPE', '/manage/document_type_registry', 1, 5),
+('document_type_create', 'TREE.DOCUMENT_TYPE_NEW', '/manage/document_type_create', 0, 5),
 ('degree_registry', 'TREE.DEGREE', '/manage/degree_registry', 1, 6),
 ('degree_create', 'TREE.DEGREE_NEW', '/manage/degree_create', 0, 6),
 ('educational_major_registry', 'TREE.EDUCATIONAL_MAJOR', '/manage/educational_major_registry', 1, 6),

@@ -813,7 +813,11 @@
         "ORG_UNIT_STANDARD_UPDATE":"Update organization unit standard",
         "ORG_UNIT_TYPE":"Organization unit type",
         "ORG_UNIT_TYPE_NEW":"New organization unit type",
-        "ORG_UNIT_TYPE_UPDATE":"Update organization unit type"
+        "ORG_UNIT_TYPE_UPDATE":"Update organization unit type",
+        "DOCUMENT_TYPE":"Document type",
+        "DOCUMENT_TYPE_NEW":"New document type",
+        "DOCUMENT_TYPE_UPDATE":"Update Document type",
+        "ADMIN_DOCUMENTS":"Administratives Documents"
     },
     "WELCOME": {
         "TITLE": "Welcome to iHRIS Manage!",

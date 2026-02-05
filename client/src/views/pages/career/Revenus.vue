@@ -77,7 +77,6 @@ onMounted(() => {
 
 
 const onclickGetReport = () => {
-     currentNode.value = _AppCache.getCurrentNode();
     if (!currentNode.value) return false;
     if (loading.value) return;
     if (selectedRevenu.value.length == 0) {
@@ -234,13 +233,10 @@ const download = (url) => {
         });
 };
 
-const currrentTreePosition = ref(null);
 const updateReport = (node) => {
-    currentNode.value = node;
-    if (currrentTreePosition.value != exportFileName() || products.value.lenght == 0) onclickGetReport();
-    currrentTreePosition.value = exportFileName();
+    if (node) currentNode.value = node.value || node;
+    onclickGetReport();
 };
-
 
 defineExpose({
     updateReport
@@ -248,7 +244,7 @@ defineExpose({
 </script>
 <template>
     <div style="margin-bottom: 10px;">
-        <PyarmidPath :reload="onclickGetReport"/>
+        <PyarmidPath :reload="updateReport"/>
     </div>
     <div className="card">
         <h5>RAPPORT SUR LA MOTIVATION</h5>

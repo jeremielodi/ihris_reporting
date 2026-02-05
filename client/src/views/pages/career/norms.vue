@@ -147,7 +147,7 @@ defineExpose({
 
                         <template v-if="orgUnit.stat">
                             <template v-for="classificationId in getFilteredClassifications(orgUnit)" :key="classificationId">
-                                <tr>
+                                <tr v-if="orgUnit.stat?.required || orgUnit.stat?.actual">
                                     <!-- click on category name to toggle details -->
                                     <td style="cursor: pointer; text-decoration: underline" @click="toggleDetails(orgUnit.id, 'mix', classificationId)">
                                         {{ classificationMap[classificationId]?.name || classificationId }}

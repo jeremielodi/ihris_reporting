@@ -3,7 +3,7 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.ext.asyncio import AsyncSession
 from manage.database import SessionLocal, engine
 from typing import List
-from uuid import UUID
+from endpoints.user_api import get_current_active_user
 
 from manage.services.norms.schema import (
     NormRequirementCreate,
@@ -22,10 +22,13 @@ async def get_session() -> AsyncSession:
 
 APIRouter = APIRouter()
 
-@APIRouter.post("/norm-requirements", response_model=NormRequirementRead, status_code=status.HTTP_201_CREATED)
+@APIRouter.post("/norm-requirements", 
+                response_model=NormRequirementRead, status_code=status.HTTP_201_CREATED,
+                dependencies=[Depends(get_current_active_user)],)
 async def create_norm(
     payload: NormRequirementCreate,
-    db: AsyncSession = Depends(get_session)
+    db: AsyncSession = Depends(get_session),
+    
 ):
 
     return await NormRequirementRepository.create(db, payload.organization_unit_type_id, payload.classification_id, payload.required)
@@ -70,7 +73,8 @@ async def get_norm(
 
 @APIRouter.put(
     "/norm-requirements/{id}",
-    response_model=NormRequirementRead
+    response_model=NormRequirementRead,
+    dependencies=[Depends(get_current_active_user)],
 )
 async def update_norm(
     id: str,
@@ -83,7 +87,8 @@ async def update_norm(
 
 @APIRouter.delete(
     "/norm-requirements/{organization_unit_type_id}/{classification_id}",
-    status_code=status.HTTP_204_NO_CONTENT
+    status_code=status.HTTP_204_NO_CONTENT,
+    dependencies=[Depends(get_current_active_user)],
 )
 async def delete_norm(
     organization_unit_type_id: str,

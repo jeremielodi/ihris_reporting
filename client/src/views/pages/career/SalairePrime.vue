@@ -5,6 +5,8 @@ import xlsx from 'json-as-xlsx';
 import { FilterMatchMode } from '@primevue/core/api';
 import _AppCache from '../../../service/appCache';
 import PyarmidPath from './PyarmidPath.vue';
+
+
 const props = defineProps({
     
     title: {
@@ -50,7 +52,6 @@ onMounted(() => {
 const onclickGetReport = () => {
     if (loadingReport.value) return;
 
-    currentNode.value = _AppCache.getCurrentNode();
     if (!currentNode.value) return;
     let url = `/reports/situation_salaire_prime?org_unit_id=${currentNode.value}&cadre_id${currentCadre.value.id}&job_id=${currentJob.value.id}&zs_filter=${zsFilter.value ? 1 : 0}`;
 
@@ -185,21 +186,19 @@ const downloadExcelFile = () => {
     xlsx(data, settings);
 };
 
-const currrentTreePosition = ref(null);
-
-const updateReport = (orgUnitId) => {
-    currentNode.value = orgUnitId;
-    if (currrentTreePosition.value != exportFileName() || report.value.lenght == 0) onclickGetReport();
-    currrentTreePosition.value = exportFileName();
+const updateReport = (node) => {
+    currentNode.value = node.value || node;
+    onclickGetReport();
 };
 
 defineExpose({
-    updateReport
+    updateReport,
+    treeUpdated: updateReport
 });
 </script>
 <template>
     <div>
-        <PyarmidPath :reload="onclickGetReport"/>
+        <PyarmidPath :reload="updateReport"/>
    
     <div className="card">
         <h5>SITUATION SALAIRE & PRIMES</h5>
@@ -288,5 +287,6 @@ defineExpose({
             </div>
         </div>
     </div>
+
  </div>
 </template>

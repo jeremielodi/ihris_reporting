@@ -394,6 +394,22 @@ const router = createRouter({
                     name: 'people_employment_status',
                     component: () => import('@/views/pages/manage/people/employment_status.vue')
                 },
+                
+                 {
+                    path: 'document_type_registry',
+                    name: 'document_type_registry',
+                    component: () => import('@/views/pages/manage/document_type/registry.vue')
+                },
+                {
+                    path: 'document_type_create',
+                    name: 'document_type_create',
+                    component: () => import('@/views/pages/manage/document_type/create.vue')
+                },
+                {
+                    path: 'people_documents',
+                    name: 'people_documents',
+                    component: () => import('@/views/pages/manage/people/documents.vue')
+                },
                 {
                     path: 'people_passport',
                     name: 'people_passport',
