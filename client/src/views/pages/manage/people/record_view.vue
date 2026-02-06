@@ -383,7 +383,7 @@ export default defineComponent({
                                 </thead>
                                 <tbody>
                                     <tr>
-                                        <td class="fieldName">{{ $t('FORM.LABELS.JOB') }}</td>
+                                        <td class="fieldName">{{ $t('FORM.LABELS.CATEGORY') }}</td>
                                         <td class="fieldValue">{{ info.classification_name }}</td>
                                     </tr>
                                     <tr>
@@ -391,7 +391,7 @@ export default defineComponent({
                                         <td class="fieldValue">{{ info.grade_name }}</td>
                                     </tr>
                                     <tr>
-                                        <td class="fieldName">{{ $t('FORM.LABELS.CATEGORY') }}</td>
+                                        <td class="fieldName">Poste</td>
                                         <td class="fieldValue">{{ info.cadre_name }}</td>
                                     </tr>
                                     <tr>
@@ -464,22 +464,27 @@ export default defineComponent({
                 </tr>
             </thead>
             <tbody>
-                <template v-for="doc of this.documentList" :key="doc.id">
+                
                     <tr>
-                        <td colspan="2" class="bottomBorder">
-                            <div style="padding: 2px">
+                        <td colspan="2">
+                            <template v-for="doc of this.documentList" :key="doc.id">
+                                <div class="docItem">
+                                    <div style="padding: 2px">
                                 <b>{{ doc.document_type_name }}</b>
                             </div>
                             <span @click="openPDF(doc)" style="cursor: pointer">
-                                <i class="pi pi-file-pdf" style="font-size: 40px" />
+                                <i class="pi pi-file-pdf" style="font-size: 20px" />
                                 <span style="font-size: 12px"> {{ doc.description }}</span>
                             </span>
                             <div style="float: right">
-                                <Button :label="$t('FORM.BUTTONS.DELETE')" severity="danger" @click="openDeleteDocumentConfirm(doc)" />
+                                <span class="docItem_delete" @click="openDeleteDocumentConfirm(doc)">
+                                    {{ $t('FORM.BUTTONS.DELETE') }}
+                                </span>
                             </div>
+                                </div>
+                            </template>
                         </td>
                     </tr>
-                </template>
             </tbody>
         </table>
         <table class="table">
@@ -655,5 +660,22 @@ tbody td {
 .manage-container {
     background: #efeeee !important;
     padding-bottom: 100px;
+}
+.docItem {
+    width: 45%;
+    margin: 10px;
+    min-width: 200px;
+    box-shadow: 0px -1px 10px rgb(196, 196, 201);
+    padding: 10px;
+    float: left;
+}
+
+.docItem_delete {
+    background-color: red;
+    padding: 5px;
+    color: white;
+    cursor: pointer;
+    border-radius: 5px;
+    font-size: 10px;
 }
 </style>

@@ -159,7 +159,7 @@ export default defineComponent({
                     <CadreSelect
                         id="cadre"
                         :value="this.employmnet_info.cadre"
-                        label="Categorie"
+                        label="Fonction/Poste"
                         :required="false"
                         :onChange="
                             (value) => {
@@ -172,7 +172,7 @@ export default defineComponent({
                     <ClassificationSelect
                         id="classification"
                         :value="this.employmnet_info.classification"
-                        label="Profession"
+                        label="Categorie professionnelle"
                         :required="true"
                         :onChange="
                             (value) => {
@@ -265,7 +265,7 @@ export default defineComponent({
                     <MyInputText
                         id="start_service_date"
                         :modelValue="this.employmnet_info.start_service_date"
-                        label="Date d'engagement"
+                        label="Date de prise de service"
                         type="date"
                         :maxVal="new Date()"
                         :required="true"
