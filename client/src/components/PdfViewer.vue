@@ -63,7 +63,7 @@ export default defineComponent({
     <Dialog v-if="display" :closable="false" position="top" :style="{ width: '80vw' }" :modal="true" :visible="display" footer="Footer">
         <div style="height: 85vw; padding: 0px">
             <div class="loader" v-if="showLoader"></div>
-            <div class="centered" v-if="showLoader">{{ $t('TABLE.COLUMNS.LOADING') }}..</div>
+            <div class="centered" v-if="showLoader">{{ $t('FORM.INFO.LOADING') }}..</div>
             <embed :src="content" v-if="!showLoader" style="width: 100%; height: 100%" />
         </div>
 
