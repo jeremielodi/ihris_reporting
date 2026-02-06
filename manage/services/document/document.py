@@ -14,7 +14,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from manage.database import SessionLocal, engine
 from endpoints.user_api import get_current_active_user
 from manage.services.document.schemas import DocumentCreate, DocumentRead
-from manage.models import HippoPersonDocument, DocumentType
+from manage.models import HippoPersonDocument, DocumentType, HippoAuditLog
 from sqlalchemy.future import select
 
 apiRouter = APIRouter()
@@ -181,6 +181,67 @@ async def upload_image(
 
     session.add(new_document)
     await session.commit()
+
+
+    auditLog = HippoAuditLog(id= uuid.uuid4(), user_id=current_user_id, operation=f'create document id:{new_document.id}, path: {new_document.path}')
+    session.add(auditLog)
+
+    try:
+        await session.commit()
+    except Exception as e:
+        await session.rollback()
+        raise HTTPException(
+                status_code=500,
+                detail=f"Failed to upload file in disk  {str(e)}",
+            )
     await session.refresh(new_document)
 
     return JSONResponse({"filename": stored_path, "url": url, "document_id": new_document.id})
+
+@apiRouter.delete(
+    "/documents/{document_id}",
+    dependencies=[Depends(get_current_active_user)],
+)
+async def delete_document(
+    document_id: str,
+    session: AsyncSession = Depends(get_session),
+    current_user_id: str = Depends(get_current_active_user),
+):
+    # find document
+    result = await session.execute(
+        select(HippoPersonDocument).where(HippoPersonDocument.id == document_id)
+    )
+    doc = result.scalar_one_or_none()
+    if not doc:
+        raise HTTPException(status_code=404, detail="Document not found")
+
+    # delete file on disk
+    file_path = UPLOAD_DIR / doc.path
+    if file_path.exists():
+        try:
+            file_path.unlink()
+        except Exception as e:
+            raise HTTPException(
+                status_code=500,
+                detail=f"Failed to delete file from disk: {str(e)}",
+            )
+
+    # delete DB record
+    await session.delete(doc)
+
+    auditLog = HippoAuditLog(id= uuid.uuid4(), user_id=current_user_id, operation=f'Delete document id:{doc.id}, path: {doc.path}')
+    session.add(auditLog)
+
+    try:
+        await session.commit()
+    except Exception as e:
+        await session.rollback()
+        raise HTTPException(
+                status_code=500,
+                detail=f"Failed to delete file from disk: {str(e)}",
+            )
+
+    return {
+        "detail": "Document deleted successfully",
+        "document_id": document_id,
+    }

@@ -32,3 +32,8 @@ CREATE TABLE norm_requirement (
     UNIQUE (organization_unit_type_id, classification_id)
 );
 
+
+--- le jeudi 5/01/2026
+INSERT INTO public.hippo_module_page (code, label, url, is_tree_item, module_id)  VALUES
+('document_type_registry', 'TREE.DOCUMENT_TYPE', '/manage/document_type_registry', 1, 5),
+('document_type_create', 'TREE.DOCUMENT_TYPE_NEW', '/manage/document_type_create', 0, 5);

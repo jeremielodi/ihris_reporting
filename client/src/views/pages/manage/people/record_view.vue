@@ -8,6 +8,7 @@ import ContactService from '../contact/contact.service';
 import IdentificationService from '../identification/identification.service';
 import TimesheetService from '../timesheet/person_timesheet.service';
 import PdfViewer from '@/components/PdfViewer.vue';
+import ConfirmModal from '@/components/ConfirmModal.vue';
 
 export default defineComponent({
     name: 'RecordView',
@@ -18,9 +19,10 @@ export default defineComponent({
             person: { lastname: null, residence: null },
             employmentStatusInfos: [],
             displayPdfViewerModal: false,
+            displayDeleteDocumentConfirm: false,
             fileName: 'document.pdf',
             docUrl: null,
-            selectedDocument : {},
+            selectedDocument: {},
             contactTypes: [],
             contacts: [],
             identifications: [],
@@ -61,6 +63,18 @@ export default defineComponent({
             this.fileName = `${this.selectedDocument.document_type_name}_${this.person.firstname}_${this.person.lastname}.pdf`;
             const target = `/${this.selectedDocument.id}/pdf`;
             return PeopleService.documents.dowloadPdf(target, this.fileName, true);
+        },
+        openDeleteDocumentConfirm(doc) {
+            this.selectedDocument = doc;
+            this.displayDeleteDocumentConfirm = true;
+        },
+        DeleteConfirmDialog(value) {
+            this.displayDeleteDocumentConfirm = false;
+            if (value) {
+                PeopleService.documents.delete(this.selectedDocument.id).then(() => {
+                    this.getDocuments(this.personId);
+                });
+            }
         },
         getTimeSheets(id) {
             TimesheetService.person(id).then((timesheets) => {
@@ -125,7 +139,7 @@ export default defineComponent({
             window.open(`${this.server}uploads/${path}`, '_blank');
         }
     },
-    components: { PdfViewer }
+    components: { PdfViewer, ConfirmModal }
 });
 </script>
 <template>
@@ -453,13 +467,16 @@ export default defineComponent({
                 <template v-for="doc of this.documentList" :key="doc.id">
                     <tr>
                         <td colspan="2" class="bottomBorder">
-                            <div style="padding: 2px;">
+                            <div style="padding: 2px">
                                 <b>{{ doc.document_type_name }}</b>
                             </div>
-                            <span  @click="openPDF(doc)" style="cursor: pointer;">
-                                <i class="pi pi-file-pdf" style="font-size: 40px;"/>
-                                <span style="font-size: 12px;"> {{ doc.description }}</span>
+                            <span @click="openPDF(doc)" style="cursor: pointer">
+                                <i class="pi pi-file-pdf" style="font-size: 40px" />
+                                <span style="font-size: 12px"> {{ doc.description }}</span>
                             </span>
+                            <div style="float: right">
+                                <Button :label="$t('FORM.BUTTONS.DELETE')" severity="danger" @click="openDeleteDocumentConfirm(doc)" />
+                            </div>
                         </td>
                     </tr>
                 </template>
@@ -539,13 +556,9 @@ export default defineComponent({
             </tbody>
         </table>
 
-    <PdfViewer 
-      :fileName="fileName" 
-      :download-function="pdfDownloadFunction"
-      :url="docUrl"
-      :display="displayPdfViewerModal"
-      :close="closePrfViewer">
-    </PdfViewer>
+        <PdfViewer :fileName="fileName" :download-function="pdfDownloadFunction" :url="docUrl" :display="displayPdfViewerModal" :close="closePrfViewer"> </PdfViewer>
+
+        <ConfirmModal :close="DeleteConfirmDialog" :display="displayDeleteDocumentConfirm"> </ConfirmModal>
     </div>
 </template>
 
