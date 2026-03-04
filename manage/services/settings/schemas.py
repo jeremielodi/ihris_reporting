@@ -3,7 +3,7 @@ from typing import Optional
 from datetime import datetime
 
 class HippoSettingBase(BaseModel):
-    id: Optional[str] = None  # Use Optional for id, as it may not be set on creation
+    id: Optional[int] = None  # Use Optional for id, as it may not be set on creation
     app_name:  Optional[str] = None
     app_version: Optional[str] = None
     responsible_name: Optional[str] = ''
@@ -13,7 +13,7 @@ class HippoSettingBase(BaseModel):
     created: Optional[datetime] = datetime.now()
 
 class HippoSettingCreate(HippoSettingBase):
-    id: Optional[str] = None
+    id: Optional[int] = None
     created: Optional[datetime] = datetime.now()
     last_modified: Optional[datetime] = datetime.now()  # Default to now if not provided
     app_name:str
@@ -25,7 +25,7 @@ class HippoSettingUpdate(HippoSettingBase):
 
 
 class HippoSettingRead(HippoSettingBase):
-    id: str
+    id: int
     app_name: str
     app_version:str
 

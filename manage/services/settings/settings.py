@@ -14,6 +14,7 @@ from manage.models import HippoSetting
 # Pydantic schemas (response + update validation)
 from manage.services.settings.schemas import (
     HippoSettingRead,
+    HippoSettingCreate,
     HippoSettingUpdate
 )
 
@@ -220,3 +221,38 @@ async def upload_image(
         "filename": filename,
         "url": url
     })
+
+@apiRouter.post(
+    "/settings/",
+    response_model=HippoSettingRead,
+    dependencies=[Depends(get_current_active_user)]
+)
+async def create_Setting(
+    Setting: HippoSettingCreate,
+    session: AsyncSession = Depends(get_session)
+):
+    """
+    Create a new Setting (application record).
+
+    - Requires authenticated active user.
+    - Optionally ensures uniqueness by app_name.
+    """
+
+    # Optional uniqueness check on app_name
+    if Setting.app_name:
+        result = await session.execute(
+            select(HippoSetting).where(HippoSetting.app_name == Setting.app_name)
+        )
+        existing = result.scalar_one_or_none()
+        if existing:
+            raise HTTPException(status_code=400, detail="Setting with this app_name already exists")
+
+    data = Setting.dict()
+    # data.pop("id", None)  # ensure DB auto-generates numeric ID
+
+    new_setting = HippoSetting(**data)
+    session.add(new_setting)
+    await session.commit()
+    await session.refresh(new_setting)
+
+    return new_setting

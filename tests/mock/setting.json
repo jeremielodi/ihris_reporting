@@ -1,0 +1,13 @@
+{
+  "setting_create": {
+    "id": 2,
+    "app_name": "iHRIS Reporting Test",
+    "app_version": "1.0.0",
+    "responsible_name": "Jeremie LODI",
+    "responsible_number": "+243000000000"
+  },
+  "setting_update": {
+    "responsible_name": "UPDATED NAME",
+    "responsible_number": "+243999999999"
+  }
+}
