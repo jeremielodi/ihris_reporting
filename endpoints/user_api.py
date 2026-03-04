@@ -187,7 +187,7 @@ async def reporting_login(userCreate: UserLoginModel,  db: Session = Depends(get
         data={"userid": user.id, "sub": user.username, "type": "reporting"},
         expires_delta=timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES),
     )
-
+    
     return UserLogin(
         user_id=user.id,
         username=user.username,

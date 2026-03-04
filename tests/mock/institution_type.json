@@ -1,0 +1,13 @@
+{
+  "institution_type": {
+    "name": "Public Hospital",
+    "code": "PUB_HOSP",
+    "parent": "|",
+    "remap": null,
+    "i2ce_hidden": 0
+  },
+  "institution_type_update": {
+    "code": "UPDATED",
+    "i2ce_hidden": 0
+  }
+}

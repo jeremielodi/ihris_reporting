@@ -1,0 +1,17 @@
+{
+  "classification": {
+    "name": "Doctor",
+    "code": "DOC",
+    "description": "Medical Doctor",
+    "parent": "|",
+    "remap": null,
+    "i2ce_hidden": 0
+  },
+  "classification_update": {
+    "description": "Updated description"
+  },
+  "classification_bulk": [
+    { "name": "Nurse", "code": "NUR", "description": "Nursing staff" },
+    { "name": "Pharmacist", "code": "PHA", "description": "Pharmacy staff" }
+  ]
+}

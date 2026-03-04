@@ -1,75 +1,199 @@
+# ---------------------------------------------------------
+# IMPORTS
+# ---------------------------------------------------------
 
-
+# ORM model
 from manage.models import HippoSalarySource
-from manage.services.salary_source.schemas import HippoSalarySourceRead, HippoSalarySourceCreate, HippoSalarySourceUpdate
+
+# Pydantic schemas (validation & serialization)
+from manage.services.salary_source.schemas import (
+    HippoSalarySourceRead,
+    HippoSalarySourceCreate,
+    HippoSalarySourceUpdate
+)
+
+# Async DB session
 from sqlalchemy.ext.asyncio import AsyncSession
+
+# FastAPI utilities
 from fastapi import APIRouter, Depends, HTTPException
+
+# SQLAlchemy ORM query builder
 from sqlalchemy.future import select
+
+# Database session factory
 from manage.database import SessionLocal, engine
+
+# Authentication dependency
 from endpoints.user_api import get_current_active_user
 
 
+# Create API router
 apiRouter = APIRouter()
 
+
+# ---------------------------------------------------------
+# Dependency: Get Async Database Session
+# ---------------------------------------------------------
 async def get_session() -> AsyncSession:
+    """
+    Provides an async database session.
+    Ensures proper session lifecycle management.
+    """
     async with SessionLocal() as session:
         yield session
 
-# Get all sources
-@apiRouter.get("/salary_sources/", response_model=list[HippoSalarySourceRead], dependencies=[Depends(get_current_active_user)],)
-async def get_sources(session: AsyncSession = Depends(get_session)):
-    result = await session.execute(select(HippoSalarySource).order_by(HippoSalarySource.name))
+
+# ---------------------------------------------------------
+# GET ALL SALARY SOURCES
+# ---------------------------------------------------------
+@apiRouter.get(
+    "/salary_sources/",
+    response_model=list[HippoSalarySourceRead],
+    dependencies=[Depends(get_current_active_user)],
+)
+async def get_salary_sources(session: AsyncSession = Depends(get_session)):
+    """
+    Retrieve all salary sources ordered alphabetically by name.
+    Requires authenticated user.
+    """
+    result = await session.execute(
+        select(HippoSalarySource).order_by(HippoSalarySource.name)
+    )
     sources = result.scalars().all()
     return sources
 
 
-# find a Cadre by id
-@apiRouter.get("/salary_sources/{cadre_id}", response_model=HippoSalarySourceRead, dependencies=[Depends(get_current_active_user)],)
-async def get_Cadre(cadre_id: str, session: AsyncSession = Depends(get_session)):
-    result = await session.execute(select(HippoSalarySource).where(HippoSalarySource.id == cadre_id))
-    Cadre = result.scalar_one_or_none()
-    if not Cadre:
-        raise HTTPException(status_code=404, detail="Cadre not found")
-    return Cadre
+# ---------------------------------------------------------
+# GET SALARY SOURCE BY ID
+# ---------------------------------------------------------
+@apiRouter.get(
+    "/salary_sources/{salary_source_id}",
+    response_model=HippoSalarySourceRead,
+    dependencies=[Depends(get_current_active_user)],
+)
+async def get_salary_source(
+    salary_source_id: str,
+    session: AsyncSession = Depends(get_session)
+):
+    """
+    Retrieve a single Salary Source by ID.
+    Returns 404 if not found.
+    """
+    result = await session.execute(
+        select(HippoSalarySource).where(
+            HippoSalarySource.id == salary_source_id
+        )
+    )
 
-@apiRouter.post("/salary_sources/", response_model=HippoSalarySourceRead, dependencies=[Depends(get_current_active_user)])
-async def create_Cadre(
-    Cadre:HippoSalarySourceCreate,
+    salary_source = result.scalar_one_or_none()
+
+    if not salary_source:
+        raise HTTPException(status_code=404, detail="Salary source not found")
+
+    return salary_source
+
+
+# ---------------------------------------------------------
+# CREATE SALARY SOURCE
+# ---------------------------------------------------------
+@apiRouter.post(
+    "/salary_sources/",
+    response_model=HippoSalarySourceRead,
+    dependencies=[Depends(get_current_active_user)]
+)
+async def create_salary_source(
+    salary_source: HippoSalarySourceCreate,
     session: AsyncSession = Depends(get_session),
 ):
-    Cadre_data = Cadre.dict()  # get dict from pydantic model
-    Cadre_data['id'] = f"cadre|{Cadre.name}"
-    
-    new_Cadre = HippoSalarySource(**Cadre_data)
-    session.add(new_Cadre)
-    await session.commit()
-    await session.refresh(new_Cadre)
-    return new_Cadre
+    """
+    Create a new Salary Source.
 
-# update an existing Cadre
-@apiRouter.put("/salary_sources/{cadre_id}", response_model=HippoSalarySourceRead)
-async def update_Cadre(cadre_id: str, Cadre:HippoSalarySourceUpdate, session: AsyncSession = Depends(get_session)):
-    result = await session.execute(select(HippoSalarySource).where(HippoSalarySource.id == cadre_id))
-    existing_Cadre = result.scalar_one_or_none()
-    if not existing_Cadre:
-        raise HTTPException(status_code=404, detail="Cadre not found")
-    
-    for key, value in Cadre.dict().items():
+    ID format: salary_source|<name>
+    """
+
+    # Convert Pydantic model to dictionary
+    salary_source_data = salary_source.dict()
+
+    # Generate ID (correct prefix)
+    salary_source_data['id'] = f"salary_source|{salary_source.name}"
+
+    # Create ORM instance
+    new_salary_source = HippoSalarySource(**salary_source_data)
+
+    session.add(new_salary_source)
+    await session.commit()
+    await session.refresh(new_salary_source)
+
+    return new_salary_source
+
+
+# ---------------------------------------------------------
+# UPDATE SALARY SOURCE
+# ---------------------------------------------------------
+@apiRouter.put(
+    "/salary_sources/{salary_source_id}",
+    response_model=HippoSalarySourceRead
+)
+async def update_salary_source(
+    salary_source_id: str,
+    salary_source: HippoSalarySourceUpdate,
+    session: AsyncSession = Depends(get_session)
+):
+    """
+    Update an existing Salary Source.
+
+    - Only non-null fields are updated.
+    - Returns 404 if not found.
+    """
+
+    result = await session.execute(
+        select(HippoSalarySource).where(
+            HippoSalarySource.id == salary_source_id
+        )
+    )
+
+    existing_salary_source = result.scalar_one_or_none()
+
+    if not existing_salary_source:
+        raise HTTPException(status_code=404, detail="Salary source not found")
+
+    # Apply partial update
+    for key, value in salary_source.dict().items():
         if value is not None:
-            setattr(existing_Cadre, key, value)
-    
-    await session.commit()
-    await session.refresh(existing_Cadre)
-    return existing_Cadre  
+            setattr(existing_salary_source, key, value)
 
-# delete a Cadre
-@apiRouter.delete("/salary_sources/{cadre_id}")
-async def delete_Cadre(cadre_id: str, session: AsyncSession = Depends(get_session)):
-    result = await session.execute(select(HippoSalarySource).where(HippoSalarySource.id == cadre_id))
-    existing_Cadre = result.scalar_one_or_none()
-    if not existing_Cadre:
-        raise HTTPException(status_code=404, detail="Cadre not found")
-    
-    await session.delete(existing_Cadre)
     await session.commit()
-    return {"detail": "Cadre deleted successfully"}
+    await session.refresh(existing_salary_source)
+
+    return existing_salary_source
+
+
+# ---------------------------------------------------------
+# DELETE SALARY SOURCE
+# ---------------------------------------------------------
+@apiRouter.delete("/salary_sources/{salary_source_id}")
+async def delete_salary_source(
+    salary_source_id: str,
+    session: AsyncSession = Depends(get_session)
+):
+    """
+    Delete a Salary Source by ID.
+    Returns 404 if not found.
+    """
+
+    result = await session.execute(
+        select(HippoSalarySource).where(
+            HippoSalarySource.id == salary_source_id
+        )
+    )
+
+    existing_salary_source = result.scalar_one_or_none()
+
+    if not existing_salary_source:
+        raise HTTPException(status_code=404, detail="Salary source not found")
+
+    await session.delete(existing_salary_source)
+    await session.commit()
+
+    return {"detail": "Salary source deleted successfully"}

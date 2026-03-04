@@ -1,0 +1,13 @@
+{
+  "identification_type": {
+    "name": "National ID",
+    "code": "NID",
+    "parent": "|",
+    "remap": null,
+    "i2ce_hidden": 0
+  },
+  "identification_type_update": {
+    "code": "UPDATED",
+    "i2ce_hidden": 0
+  }
+}

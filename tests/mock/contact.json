@@ -1,0 +1,15 @@
+{
+  "contact": {
+    "mobile_phone": "+243900000000",
+    "telephone": "+243810000000",
+    "alt_telephone": "+243820000000",
+    "email": "test@example.com",
+    "address": "Kinshasa",
+    "notes": "Integration test contact",
+    "i2ce_hidden": 0
+  },
+  "contact_update": {
+    "notes": "Updated notes",
+    "address": "Kinshasa - updated"
+  }
+}

@@ -1,89 +1,194 @@
+# ---------------------------------------------------------
+# IMPORTS
+# ---------------------------------------------------------
+
+# ORM model
 from manage.models import HippoDashboardQuery
-from manage.services.dashboard_query.schemas import DashboardQueryRead, DashboardQueryCreate, DashboardQueryUpdate, DashboardQueryRun
+
+# Pydantic schemas (validation + serialization)
+from manage.services.dashboard_query.schemas import (
+    DashboardQueryRead,
+    DashboardQueryCreate,
+    DashboardQueryUpdate,
+    DashboardQueryRun
+)
+
+# Async database session
 from sqlalchemy.ext.asyncio import AsyncSession
+
+# FastAPI utilities
 from fastapi import APIRouter, Depends, HTTPException, status
+
+# SQLAlchemy ORM query builder
 from sqlalchemy.future import select
+
+# Database session factory
 from manage.database import SessionLocal
+
+# Authentication dependency
 from endpoints.user_api import get_current_active_user
+
+# UUID handling
 import uuid as uuid_lib
 
+
+# Create router
 apiRouter = APIRouter()
 
+
+# ---------------------------------------------------------
+# Dependency: Get Async DB Session
+# ---------------------------------------------------------
 async def get_session() -> AsyncSession:
+    """
+    Provides async database session.
+    Ensures safe session lifecycle management.
+    """
     async with SessionLocal() as session:
         yield session
 
-# Get all Dashboard Queries
+
+# =========================================================
+# RUN CUSTOM DASHBOARD QUERY
+# =========================================================
+
 @apiRouter.post("/dashboard_queries/run")
-async def post_run_dashboard_queries(data:DashboardQueryRun, session: AsyncSession = Depends(get_session)):
-    result = await session.execute(select(HippoDashboardQuery))
+async def post_run_dashboard_queries(
+    data: DashboardQueryRun,
+    session: AsyncSession = Depends(get_session)
+):
+    """
+    Execute a raw SQL query stored or provided by user.
+
+    ⚠️ CRITICAL SECURITY WARNING:
+    This endpoint executes raw SQL directly:
+        await session.execute(data.sql)
+
+    This exposes your database to:
+    - SQL injection
+    - Data destruction
+    - Privilege escalation
+
+    MUST:
+    - Restrict to read-only queries
+    - Validate query structure
+    - Or sandbox execution
+    """
 
     try:
         result = await session.execute(data.sql)
         return result.all()
     except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Unexpected error: {str(e)}")
+        raise HTTPException(
+            status_code=500,
+            detail=f"Unexpected error: {str(e)}"
+        )
 
 
-# Get all Dashboard Queries
+# =========================================================
+# GET ALL DASHBOARD QUERIES
+# =========================================================
+
 @apiRouter.get("/dashboard_queries/", response_model=list[DashboardQueryRead])
 async def get_dashboard_queries(session: AsyncSession = Depends(get_session)):
+    """
+    Retrieve all dashboard queries.
+    """
+
     result = await session.execute(select(HippoDashboardQuery))
     dashboard_queries = result.scalars().all()
     return dashboard_queries
 
 
-# Get all Dashboard Queries
+# =========================================================
+# GET DASHBOARD QUERIES BY DASHBOARD UUID
+# =========================================================
+
 @apiRouter.get("/dashboard_queries/for/{dashboard_uuid}", response_model=list[DashboardQueryRead])
-async def get_dashboard_queries(dashboard_uuid:str, session: AsyncSession = Depends(get_session)):
-    result = await session.execute(select(HippoDashboardQuery).where(HippoDashboardQuery.dashboard_uuid==dashboard_uuid))
+async def get_dashboard_queries_for_dashboard(
+    dashboard_uuid: str,
+    session: AsyncSession = Depends(get_session)
+):
+    """
+    Retrieve all queries linked to a specific dashboard.
+    """
+
+    result = await session.execute(
+        select(HippoDashboardQuery).where(
+            HippoDashboardQuery.dashboard_uuid == dashboard_uuid
+        )
+    )
+
     dashboard_queries = result.scalars().all()
     return dashboard_queries
 
 
-# Find a Dashboard Query by UUID
+# =========================================================
+# GET DASHBOARD QUERY BY UUID
+# =========================================================
+
 @apiRouter.get("/dashboard_queries/{queryUuid}", response_model=DashboardQueryRead)
-async def get_dashboard_query(queryUuid: str, session: AsyncSession = Depends(get_session)):
+async def get_dashboard_query(
+    queryUuid: str,
+    session: AsyncSession = Depends(get_session)
+):
+    """
+    Retrieve a dashboard query by UUID.
+    """
+
     try:
         uuid_obj = uuid_lib.UUID(queryUuid)
     except ValueError:
         raise HTTPException(status_code=400, detail="Invalid UUID format")
-    
-    result = await session.execute(select(HippoDashboardQuery).where(HippoDashboardQuery.uuid == uuid_obj))
+
+    result = await session.execute(
+        select(HippoDashboardQuery).where(
+            HippoDashboardQuery.uuid == uuid_obj
+        )
+    )
+
     dashboard_query = result.scalar_one_or_none()
+
     if not dashboard_query:
         raise HTTPException(status_code=404, detail="Dashboard query not found")
+
     return dashboard_query
 
-# Get Dashboard Queries by Dashboard UUID
-@apiRouter.get("/dashboards/{dashboardUuid}/queries/", response_model=list[DashboardQueryRead])
-async def get_dashboard_queries_by_dashboard(dashboardUuid: str, session: AsyncSession = Depends(get_session)):
-    try:
-        uuid_obj = uuid_lib.UUID(dashboardUuid)
-    except ValueError:
-        raise HTTPException(status_code=400, detail="Invalid UUID format")
-    
-    result = await session.execute(
-        select(HippoDashboardQuery).where(HippoDashboardQuery.dashboard_uuid == uuid_obj)
-    )
-    dashboard_queries = result.scalars().all()
-    return dashboard_queries
 
-# Create a new Dashboard Query
-@apiRouter.post("/dashboard_queries/", response_model=DashboardQueryRead, status_code=status.HTTP_201_CREATED)
+# =========================================================
+# CREATE DASHBOARD QUERY
+# =========================================================
+
+@apiRouter.post(
+    "/dashboard_queries/",
+    response_model=DashboardQueryRead,
+    status_code=status.HTTP_201_CREATED
+)
 async def create_dashboard_query(
     query_data: DashboardQueryCreate,
     session: AsyncSession = Depends(get_session),
     current_user: str = Depends(get_current_active_user)
 ):
-    # Check if query already exists
+    """
+    Create a new dashboard query.
+
+    - Prevent duplicate query strings.
+    - Store layout position (row_index, col_index).
+    - Store parameters JSON.
+    """
+
+    # Prevent duplicate query text
     existing_result = await session.execute(
-        select(HippoDashboardQuery).where(HippoDashboardQuery.query == query_data.query)
+        select(HippoDashboardQuery).where(
+            HippoDashboardQuery.query == query_data.query
+        )
     )
+
     existing_query = existing_result.scalar_one_or_none()
+
     if existing_query:
         raise HTTPException(status_code=400, detail="Query already exists")
-    
+
     new_query = HippoDashboardQuery(
         dashboard_uuid=query_data.dashboard_uuid,
         query=query_data.query,
@@ -93,13 +198,18 @@ async def create_dashboard_query(
         created_by=current_user,
         last_modified_by=current_user
     )
-    
+
     session.add(new_query)
     await session.commit()
     await session.refresh(new_query)
+
     return new_query
 
-# Update a Dashboard Query
+
+# =========================================================
+# UPDATE DASHBOARD QUERY
+# =========================================================
+
 @apiRouter.put("/dashboard_queries/{queryUuid}", response_model=DashboardQueryRead)
 async def update_dashboard_query(
     queryUuid: str,
@@ -107,79 +217,128 @@ async def update_dashboard_query(
     session: AsyncSession = Depends(get_session),
     current_user: str = Depends(get_current_active_user)
 ):
+    """
+    Update an existing dashboard query.
+
+    - Validates UUID format.
+    - Prevents duplicate query text.
+    - Updates audit field.
+    """
+
     try:
         uuid_obj = uuid_lib.UUID(queryUuid)
     except ValueError:
         raise HTTPException(status_code=400, detail="Invalid UUID format")
-    
-    # Find existing query
-    result = await session.execute(select(HippoDashboardQuery).where(HippoDashboardQuery.uuid == uuid_obj))
+
+    result = await session.execute(
+        select(HippoDashboardQuery).where(
+            HippoDashboardQuery.uuid == uuid_obj
+        )
+    )
+
     existing_query = result.scalar_one_or_none()
+
     if not existing_query:
         raise HTTPException(status_code=404, detail="Dashboard query not found")
-    
-    # Check if new query value already exists (if being updated)
+
+    # Prevent duplicate query text
     if query_data.query and query_data.query != existing_query.query:
-        existing_result = await session.execute(
-            select(HippoDashboardQuery).where(HippoDashboardQuery.query == query_data.query)
+        duplicate_result = await session.execute(
+            select(HippoDashboardQuery).where(
+                HippoDashboardQuery.query == query_data.query
+            )
         )
-        duplicate_query = existing_result.scalar_one_or_none()
+        duplicate_query = duplicate_result.scalar_one_or_none()
         if duplicate_query:
             raise HTTPException(status_code=400, detail="Query already exists")
-    
-    # Update fields
+
+    # Update fields dynamically
     update_data = query_data.dict(exclude_unset=True)
+
     for field, value in update_data.items():
         if hasattr(existing_query, field):
             setattr(existing_query, field, value)
-    
-    # Always update audit fields
+
+    # Update audit field
     existing_query.last_modified_by = current_user
-    
+
     await session.commit()
     await session.refresh(existing_query)
+
     return existing_query
 
-# Delete a Dashboard Query
+
+# =========================================================
+# DELETE DASHBOARD QUERY
+# =========================================================
+
 @apiRouter.delete("/dashboard_queries/{queryUuid}", status_code=status.HTTP_204_NO_CONTENT)
 async def delete_dashboard_query(
     queryUuid: str,
     session: AsyncSession = Depends(get_session),
     current_user: str = Depends(get_current_active_user)
 ):
+    """
+    Delete a dashboard query by UUID.
+    """
+
     try:
         uuid_obj = uuid_lib.UUID(queryUuid)
     except ValueError:
         raise HTTPException(status_code=400, detail="Invalid UUID format")
-    
-    result = await session.execute(select(HippoDashboardQuery).where(HippoDashboardQuery.uuid == uuid_obj))
+
+    result = await session.execute(
+        select(HippoDashboardQuery).where(
+            HippoDashboardQuery.uuid == uuid_obj
+        )
+    )
+
     dashboard_query = result.scalar_one_or_none()
+
     if not dashboard_query:
         raise HTTPException(status_code=404, detail="Dashboard query not found")
-    
+
     await session.delete(dashboard_query)
     await session.commit()
+
     return None
 
-# Search Dashboard Queries
+
+# =========================================================
+# SEARCH DASHBOARD QUERIES
+# =========================================================
+
 @apiRouter.get("/dashboard_queries/search/", response_model=list[DashboardQueryRead])
 async def search_dashboard_queries(
     query: str = None,
     dashboard_uuid: str = None,
     session: AsyncSession = Depends(get_session)
 ):
+    """
+    Search dashboard queries.
+
+    Supports:
+    - Partial text search on query field
+    - Filter by dashboard UUID
+    """
+
     stmt = select(HippoDashboardQuery)
-    
+
     if query:
-        stmt = stmt.where(HippoDashboardQuery.query.ilike(f"%{query}%"))
-    
+        stmt = stmt.where(
+            HippoDashboardQuery.query.ilike(f"%{query}%")
+        )
+
     if dashboard_uuid:
         try:
             uuid_obj = uuid_lib.UUID(dashboard_uuid)
-            stmt = stmt.where(HippoDashboardQuery.dashboard_uuid == uuid_obj)
+            stmt = stmt.where(
+                HippoDashboardQuery.dashboard_uuid == uuid_obj
+            )
         except ValueError:
             raise HTTPException(status_code=400, detail="Invalid dashboard UUID format")
-    
+
     result = await session.execute(stmt)
     dashboard_queries = result.scalars().all()
+
     return dashboard_queries

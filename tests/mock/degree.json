@@ -1,0 +1,12 @@
+{
+  "degree": {
+    "name": "Bachelor",
+    "code": "BSC",
+    "parent": "|",
+    "remap": null,
+    "i2ce_hidden": 0
+  },
+  "degree_update": {
+    "code": "UPDATED"
+  }
+}

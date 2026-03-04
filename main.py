@@ -15,7 +15,7 @@ import weasyprint
 import logging
 from manage.database import  engine
 from manage.models import Base
-from manage.routes import manageApiRouter
+from manage.routes import router as manageApiRouter
 import os
 from pathlib import Path
 import endpoints.validation_api
@@ -88,7 +88,7 @@ app.include_router(endpoints.validation_api.router)
 
 @app.get("/")
 def home():
-    return {"massage": "iHRIS Reporting fast v1.3.1"}
+    return {"massage": "iHRIS Reporting v1.3.1"}
 
 
  

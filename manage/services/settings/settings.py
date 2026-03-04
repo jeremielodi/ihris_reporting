@@ -1,104 +1,222 @@
+# ---------------------------------------------------------
+# IMPORTS
+# ---------------------------------------------------------
 
+# OS utilities (file handling)
 import os
+
+# UUID generation (used for safe filename creation)
 import uuid
+
+# ORM model
 from manage.models import HippoSetting
-from manage.services.settings.schemas import HippoSettingRead, HippoSettingUpdate
+
+# Pydantic schemas (response + update validation)
+from manage.services.settings.schemas import (
+    HippoSettingRead,
+    HippoSettingUpdate
+)
+
+# Async DB session
 from sqlalchemy.ext.asyncio import AsyncSession
-from fastapi import APIRouter, Depends, UploadFile,File, HTTPException
+
+# FastAPI utilities
+from fastapi import APIRouter, Depends, UploadFile, File, HTTPException
+
+# SQLAlchemy query builder
 from sqlalchemy.future import select
+
+# Database session factory
 from manage.database import SessionLocal, engine
+
+# Authentication dependency
 from endpoints.user_api import get_current_active_user
+
+# Utility to create upload directory structure
 from manage.utils import createUploadDirs
+
+# JSON response helper
 from fastapi.responses import JSONResponse
 
+
+# Create API router
 apiRouter = APIRouter()
 
+
+# ---------------------------------------------------------
+# Dependency: Get Async DB Session
+# ---------------------------------------------------------
 async def get_session() -> AsyncSession:
+    """
+    Provides an async database session.
+    Ensures proper open/close lifecycle management.
+    """
     async with SessionLocal() as session:
         yield session
 
-# Get all settings
-@apiRouter.get("/settings/", response_model=list[HippoSettingRead], dependencies=[Depends(get_current_active_user)],)
+
+# ---------------------------------------------------------
+# GET ALL SETTINGS
+# ---------------------------------------------------------
+@apiRouter.get(
+    "/settings/",
+    response_model=list[HippoSettingRead],
+    dependencies=[Depends(get_current_active_user)],
+)
 async def get_settings(session: AsyncSession = Depends(get_session)):
+    """
+    Retrieve all application settings.
+    Requires authenticated user.
+    """
     result = await session.execute(select(HippoSetting))
     settings = result.scalars().all()
     return settings
 
 
-# find a Setting by id
+# ---------------------------------------------------------
+# GET SETTING BY ID
+# ---------------------------------------------------------
 @apiRouter.get("/settings/{setting_id}", response_model=HippoSettingRead)
 async def get_Setting(setting_id: int, session: AsyncSession = Depends(get_session)):
-    result = await session.execute(select(HippoSetting).where(HippoSetting.id == setting_id))
+    """
+    Retrieve a single setting by its ID.
+    Returns 404 if not found.
+    """
+    result = await session.execute(
+        select(HippoSetting).where(HippoSetting.id == setting_id)
+    )
+
     Setting = result.scalar_one_or_none()
+
     if not Setting:
         raise HTTPException(status_code=404, detail="Setting not found")
+
     return Setting
 
 
-# update an existing Setting
+# ---------------------------------------------------------
+# UPDATE SETTING
+# ---------------------------------------------------------
 @apiRouter.put("/settings/{setting_id}", response_model=HippoSettingRead)
-async def update_Setting(setting_id: int, Setting:HippoSettingUpdate, session: AsyncSession = Depends(get_session)):
-    result = await session.execute(select(HippoSetting).where(HippoSetting.id == setting_id))
+async def update_Setting(
+    setting_id: int,
+    Setting: HippoSettingUpdate,
+    session: AsyncSession = Depends(get_session)
+):
+    """
+    Update an existing setting.
+
+    - Only non-null fields are updated.
+    - 'id' and 'created' fields are protected.
+    """
+
+    result = await session.execute(
+        select(HippoSetting).where(HippoSetting.id == setting_id)
+    )
     existing_Setting = result.scalar_one_or_none()
+
     if not existing_Setting:
         raise HTTPException(status_code=404, detail="Setting not found")
-    
+
+    # Apply partial update (ignore id & created fields)
     for key, value in Setting.dict().items():
-        if value != None and (key != 'id') and (key != 'created'):
+        if value is not None and key not in ('id', 'created'):
             setattr(existing_Setting, key, value)
+
     await session.commit()
     await session.refresh(existing_Setting)
-    return existing_Setting  
+
+    return existing_Setting
 
 
+# ---------------------------------------------------------
+# UPLOAD LOGO IMAGE
+# ---------------------------------------------------------
 @apiRouter.post("/settings/logo/upload/{appId}")
 async def upload_image(
-    appId:int, 
+    appId: int,
     username: str = Depends(get_current_active_user),
-    session: AsyncSession = Depends(get_session), file: UploadFile = File(...)):
-    # Basic content-type check
+    session: AsyncSession = Depends(get_session),
+    file: UploadFile = File(...)
+):
+    """
+    Upload a logo image for a specific application setting.
+
+    Security Measures:
+    - Validates content-type starts with 'image/'
+    - Validates file extension against allowed types
+    - Generates safe random filename using UUID
+    - Streams file to disk (avoids loading entire file in memory)
+    """
+
+    # -----------------------------------------------------
+    # Validate Content-Type
+    # -----------------------------------------------------
     if not file.content_type.startswith("image/"):
         raise HTTPException(status_code=400, detail="Only image files are allowed")
 
-    # Read a small head chunk to validate type; then stream the rest
+    # Read first 1KB for initial validation
     head = await file.read(1024)
-    
-    ALLOWED_TYPES = {"jpeg","jpg", "png", "webp", "gif"}
-    root, ext  = os.path.splitext(file.filename)
-    ext = ext.replace('.','')
+
+    # Allowed extensions
+    ALLOWED_TYPES = {"jpeg", "jpg", "png", "webp", "gif"}
+
+    # Extract extension
+    root, ext = os.path.splitext(file.filename)
+    ext = ext.replace('.', '').lower()
+
     if ext not in ALLOWED_TYPES:
         raise HTTPException(status_code=400, detail="Unsupported image type")
 
-    # Build a safe filename
-    
+    # -----------------------------------------------------
+    # Generate Safe Filename
+    # -----------------------------------------------------
     datePath, passportDir = createUploadDirs("logo")
+
+    # Randomized filename prevents collisions & path traversal
     filename = f"{uuid.uuid4().hex}.{ext}"
+
+    # Absolute file destination path
     dest = passportDir / filename
+
+    # Relative filename stored in DB
     filename = f"{datePath}/{filename}"
-    # Write the head + remaining body to disk (streaming, avoids loading entire file)
+
+    # -----------------------------------------------------
+    # Stream File to Disk (Memory Efficient)
+    # -----------------------------------------------------
     with dest.open("wb") as f:
+        # Write first chunk
         f.write(head)
-        # stream remaining chunks
+
+        # Stream remaining file in 1MB chunks
         while True:
             chunk = await file.read(1024 * 1024)
             if not chunk:
                 break
             f.write(chunk)
 
-    # Optionally: save path in DB here
-
-    url = f"/uploads/{filename}"
-    
-    result = await session.execute(select(HippoSetting).where(HippoSetting.id == appId))
+    # -----------------------------------------------------
+    # Update Setting Record
+    # -----------------------------------------------------
+    result = await session.execute(
+        select(HippoSetting).where(HippoSetting.id == appId)
+    )
     existing_Setting = result.scalar_one_or_none()
+
     if not existing_Setting:
         raise HTTPException(status_code=404, detail="Setting not found")
-    
+
+    # Save relative file path in DB
     setattr(existing_Setting, 'logo', filename)
 
     await session.commit()
     await session.refresh(existing_Setting)
 
-    return JSONResponse({"filename": filename, "url": url})
+    # Public URL (assuming /uploads is served statically)
+    url = f"/uploads/{filename}"
 
-
+    return JSONResponse({
+        "filename": filename,
+        "url": url
+    })

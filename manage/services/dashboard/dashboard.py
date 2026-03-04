@@ -1,22 +1,64 @@
+# ---------------------------------------------------------
+# IMPORTS
+# ---------------------------------------------------------
+
+# SQLAlchemy ORM query builder
 from sqlalchemy.future import select
+from sqlalchemy import text
+
+# FastAPI utilities
 from fastapi import APIRouter, HTTPException, Depends, status
+
+# Async database session
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy import  text
+
+# Dashboard schemas
 from manage.services.dashboard.schemas import Dashboard, RoleDashboardAssign
+
+# Authentication dependency
 from endpoints.user_api import get_current_active_user
+
+# ORM model
 from manage.models import HippoDashboard
+
+# Database session factory
 from manage.database import SessionLocal
+
+# Standard typing
 from typing import Any, Dict, List, Annotated
+
+# UUID generator
 import uuid
 
+
+# Create router
 router = APIRouter()
 
+
+# ---------------------------------------------------------
+# Dependency: Get Async DB Session
+# ---------------------------------------------------------
 async def get_session() -> AsyncSession:
+    """
+    Provides async database session.
+    Ensures proper session lifecycle.
+    """
     async with SessionLocal() as session:
         yield session
 
+
+# =========================================================
+# GET ALL DASHBOARDS
+# =========================================================
+
 @router.get("/dashboards/", response_model=list[Dashboard])
 async def get_dashboards(session: AsyncSession = Depends(get_session)):
+    """
+    Retrieve all dashboards.
+
+    Returns:
+        List of dashboards stored in hippo_dashboard table.
+    """
     try:
         result = await session.execute(select(HippoDashboard))
         dashboards = result.scalars().all()
@@ -26,48 +68,82 @@ async def get_dashboards(session: AsyncSession = Depends(get_session)):
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail=f"Error fetching dashboards: {str(e)}"
         )
-# In get_dashboard_by_uuid and other UUID parameter methods
 
-# In get_dashboard_by_uuid and other UUID parameter methods
+
+# =========================================================
+# GET DASHBOARD BY UUID
+# =========================================================
+
 @router.get("/dashboards/{dashboard_uuid}", response_model=Dashboard)
 async def get_dashboard_by_uuid(
-    dashboard_uuid: str,  # Change from uuid.UUID to str
+    dashboard_uuid: str,
     session: AsyncSession = Depends(get_session),
 ):
-    
+    """
+    Retrieve a specific dashboard by UUID.
+    """
     result = await session.execute(
         select(HippoDashboard).where(HippoDashboard.uuid == dashboard_uuid)
     )
-    row = result.scalar_one_or_none()
-    if not row:
-        raise HTTPException(status_code=404, detail="Dashboard not found")
-    return row
 
-@router.post("/dashboards/", response_model=Dashboard, status_code=status.HTTP_201_CREATED)
+    dashboard = result.scalar_one_or_none()
+
+    if not dashboard:
+        raise HTTPException(status_code=404, detail="Dashboard not found")
+
+    return dashboard
+
+
+# =========================================================
+# CREATE DASHBOARD
+# =========================================================
+
+@router.post(
+    "/dashboards/",
+    response_model=Dashboard,
+    status_code=status.HTTP_201_CREATED
+)
 async def create_dashboard(
     data: Dashboard,
     session: AsyncSession = Depends(get_session),
     current_user_id: str = Depends(get_current_active_user),
 ):
+    """
+    Create a new dashboard.
+
+    - Generates UUID automatically.
+    - Stores audit fields (created_by, last_modified_by).
+    """
     try:
         data_dict = data.dict()
-        # Convert UUID to string for database insertion
+
+        # Generate unique UUID
         data_dict['uuid'] = str(uuid.uuid4())
+
+        # Audit fields
         data_dict['created_by'] = current_user_id
         data_dict['last_modified_by'] = current_user_id
-        
+
         new_dashboard = HippoDashboard(**data_dict)
+
         session.add(new_dashboard)
         await session.commit()
         await session.refresh(new_dashboard)
+
         return new_dashboard
+
     except Exception as e:
         await session.rollback()
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail=f"Error creating dashboard: {str(e)}"
         )
-    
+
+
+# =========================================================
+# UPDATE DASHBOARD
+# =========================================================
+
 @router.put("/dashboards/{dashboardUuid}", response_model=Dashboard)
 async def update_dashboard(
     dashboardUuid: str,
@@ -75,6 +151,13 @@ async def update_dashboard(
     session: AsyncSession = Depends(get_session),
     current_user_id: str = Depends(get_current_active_user)
 ):
+    """
+    Update an existing dashboard.
+
+    - Validates UUID format.
+    - Only allows specific fields to be updated.
+    - Automatically updates audit field.
+    """
     try:
         # Validate UUID format
         try:
@@ -82,41 +165,39 @@ async def update_dashboard(
         except ValueError:
             raise HTTPException(status_code=400, detail="Invalid UUID format")
 
-        # Convert UUID to string for database query
         dashboard_uuid_str = str(uuid_obj)
-        
-        # Find existing dashboard
+
+        # Fetch existing dashboard
         result = await session.execute(
             select(HippoDashboard).where(HippoDashboard.uuid == dashboard_uuid_str)
         )
         existing_dashboard = result.scalar_one_or_none()
-        
+
         if not existing_dashboard:
             raise HTTPException(
                 status_code=status.HTTP_404_NOT_FOUND,
                 detail="Dashboard not found"
             )
-        
-        # Define fields that can be updated
-        allowed_update_fields = ['mb_dashboard_uuid', 'label', 'last_modified_by']
-        
-        # Update only allowed fields
+
+        # Only allow controlled fields
+        allowed_update_fields = ['mb_dashboard_uuid', 'label']
+
         update_data = data.dict(exclude_unset=True)
-        
+
         for field, value in update_data.items():
             if field in allowed_update_fields:
-                # Convert UUID values to strings if needed
                 if isinstance(value, uuid.UUID):
                     value = str(value)
                 setattr(existing_dashboard, field, value)
-        
-        # Always update audit fields
+
+        # Always update audit field
         existing_dashboard.last_modified_by = current_user_id
-        
+
         await session.commit()
         await session.refresh(existing_dashboard)
+
         return existing_dashboard
-        
+
     except HTTPException:
         raise
     except Exception as e:
@@ -126,27 +207,35 @@ async def update_dashboard(
             detail=f"Error updating dashboard: {str(e)}"
         )
 
-# Optional: Add delete endpoint
+
+# =========================================================
+# DELETE DASHBOARD
+# =========================================================
+
 @router.delete("/dashboards/{dashboard_uuid}", status_code=status.HTTP_204_NO_CONTENT)
 async def delete_dashboard(
     dashboard_uuid: str,
     session: AsyncSession = Depends(get_session),
 ):
+    """
+    Delete dashboard by UUID.
+    """
+
     try:
         result = await session.execute(
             select(HippoDashboard).where(HippoDashboard.uuid == dashboard_uuid)
         )
         dashboard = result.scalar_one_or_none()
-        
+
         if not dashboard:
             raise HTTPException(
                 status_code=status.HTTP_404_NOT_FOUND,
                 detail="Dashboard not found"
             )
-        
+
         await session.delete(dashboard)
         await session.commit()
-        
+
     except HTTPException:
         raise
     except Exception as e:
@@ -157,14 +246,23 @@ async def delete_dashboard(
         )
 
 
-# get dashboards and pages for a user by user id
+# =========================================================
+# GET DASHBOARDS FOR ROLE (WITH ASSIGNMENT FLAG)
+# =========================================================
+
 @router.get("/dashboards/role/{role_id}")
-async def get_dashboards_for_user(
+async def get_dashboards_for_role(
     role_id: str,
     session: AsyncSession = Depends(get_session),
 ):
-   
-    # 2) Per-module pages with affected flag, use hippo_user_role to know user's roles and dashboards
+    """
+    Retrieve all dashboards and mark which ones are assigned to a given role.
+
+    Returns:
+        affected = 1 if assigned
+        affected = 0 if not assigned
+    """
+
     page_sql = text("""
        SELECT 
             d.uuid,
@@ -173,45 +271,54 @@ async def get_dashboards_for_user(
             CASE WHEN rd.dashboard_uuid IS NOT NULL THEN 1 ELSE 0 END as affected    
         FROM  hippo_dashboard  as d
         LEFT JOIN (
-				SELECT dashboard_uuid
-				FROM public.hippo_role_dashboard 
-			    WHERE role_id = :role_id
-		
-		)rd ON rd.dashboard_uuid = d.uuid
+            SELECT dashboard_uuid
+            FROM hippo_role_dashboard 
+            WHERE role_id = :role_id
+        ) rd ON rd.dashboard_uuid = d.uuid
     """)
-   
 
-    pages_res = await session.execute(page_sql, {"role_id": role_id })
-    return pages_res.mappings().all()  
-
+    pages_res = await session.execute(page_sql, {"role_id": role_id})
+    return pages_res.mappings().all()
 
 
-# get dashboards and pages for a user by user id
-@router.get("/dashboards/user/assinged")
+# =========================================================
+# GET DASHBOARDS ASSIGNED TO CURRENT USER
+# =========================================================
+
+@router.get("/dashboards/user/assigned")
 async def get_dashboards_for_user(
     session: AsyncSession = Depends(get_session),
     current_user_id: str = Depends(get_current_active_user),
 ):
+    """
+    Retrieve dashboards assigned to current user
+    through role membership.
+    """
+
     sql = text("""
        SELECT DISTINCT
             d.uuid,
             d.mb_dashboard_id,
             d.label   
-        FROM  hippo_dashboard  as d
+        FROM hippo_dashboard d
         JOIN (
-				SELECT dashboard_uuid
-				FROM public.hippo_role_dashboard 
-			    WHERE role_id IN (
-                    SELECT role_id
-                    FROM  public.hippo_user_role
-                    WHERE user_id = :user_id
-                )
-		)rd ON rd.dashboard_uuid = d.uuid
+            SELECT dashboard_uuid
+            FROM hippo_role_dashboard 
+            WHERE role_id IN (
+                SELECT role_id
+                FROM hippo_user_role
+                WHERE user_id = :user_id
+            )
+        ) rd ON rd.dashboard_uuid = d.uuid
     """)
-   
 
-    pages_res = await session.execute(sql, {"user_id": current_user_id })
-    return pages_res.mappings().all()  
+    pages_res = await session.execute(sql, {"user_id": current_user_id})
+    return pages_res.mappings().all()
+
+
+# =========================================================
+# ASSIGN DASHBOARDS TO ROLE
+# =========================================================
 
 @router.post("/dashboards/role", status_code=status.HTTP_201_CREATED)
 async def assign_dashboards_to_role(
@@ -219,7 +326,17 @@ async def assign_dashboards_to_role(
     session: AsyncSession = Depends(get_session),
     current_user_id: str = Depends(get_current_active_user),
 ):
-    # Verify role exists
+    """
+    Assign dashboards to a role.
+
+    Process:
+    1. Validate role exists
+    2. Validate dashboards exist
+    3. Delete previous assignments
+    4. Insert new assignments in bulk
+    """
+
+    # Validate role
     role_exists = await session.execute(
         text("SELECT 1 FROM hippo_role WHERE id = :role_id"),
         {"role_id": data.role_id},
@@ -227,43 +344,26 @@ async def assign_dashboards_to_role(
     if role_exists.scalar() is None:
         raise HTTPException(status_code=404, detail="Role not found")
 
-    # Verify all dashboard UUIDs exist (convert to strings)
-    if data.dashboard_uuids:
-        dashboard_uuids_str = [str(uuid) for uuid in data.dashboard_uuids if uuid]
-        placeholders = ", ".join([f"'{uuid_str}'" for uuid_str in dashboard_uuids_str])
-        
-        existing_dashboards = await session.execute(
-            text(f"SELECT uuid FROM hippo_dashboard WHERE uuid IN ({placeholders})")
-        )
-        existing_uuids = {str(row[0]) for row in existing_dashboards}
-        
-        missing_uuids = set(dashboard_uuids_str) - existing_uuids
-        if missing_uuids:
-            raise HTTPException(
-                status_code=404,
-                detail=f"Dashboards not found: {', '.join(missing_uuids)}"
-            )
-
-    # Transaction: delete old assignments and insert new ones
     try:
-        # Delete current assignments for this role
+        # Remove old assignments
         await session.execute(
             text("DELETE FROM hippo_role_dashboard WHERE role_id = :role_id"),
             {"role_id": data.role_id}
         )
 
-        # Bulk insert new assignments (convert UUIDs to strings)
+        # Insert new assignments
         if data.dashboard_uuids:
             rows = [
                 {
                     "uuid": str(uuid.uuid4()),
                     "role_id": data.role_id,
-                    "dashboard_uuid": str(dashboard_uuid),  # Convert to string
+                    "dashboard_uuid": str(dashboard_uuid),
                     "created_by": current_user_id,
                     "last_modified_by": current_user_id
                 }
                 for dashboard_uuid in data.dashboard_uuids
             ]
+
             await session.execute(
                 text("""
                     INSERT INTO hippo_role_dashboard 
@@ -274,11 +374,12 @@ async def assign_dashboards_to_role(
             )
 
         await session.commit()
+
         return {
             "role_id": data.role_id,
             "dashboards_assigned": data.dashboard_uuids or []
         }
-        
+
     except Exception as e:
         await session.rollback()
         raise HTTPException(

@@ -1204,7 +1204,7 @@ class OrganizationUnitStandards(Base):
     i2ce_hidden = Column(Integer, default=0)
 
 class OrganizationLevel(Base):
-    __tablename__ = "organisation_level"
+    __tablename__ = "organization_level"
     id = Column(String(255), primary_key=True)
     name = Column(String(255))
     level = Column(Integer)

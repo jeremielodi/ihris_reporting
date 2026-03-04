@@ -1,14 +1,43 @@
+# ---------------------------------------------------------
+# IMPORTS
+# ---------------------------------------------------------
+
+# ORM models (Org Unit view/table + audit + entity map)
 from manage.models import ViewOrgUnitList, HippoEntityMap, HippoAuditLog
-from manage.services.organization_units.schemas import ViewOrgUnitListRead, OrgUnitCreate, OrgUnitUpdate
+
+# Pydantic schemas (request validation + response serialization)
+from manage.services.organization_units.schemas import (
+    ViewOrgUnitListRead,
+    OrgUnitCreate,
+    OrgUnitUpdate
+)
+
+# Async database session
 from sqlalchemy.ext.asyncio import AsyncSession
+
+# FastAPI utilities
 from fastapi import APIRouter, Depends, HTTPException, Response
 from fastapi.responses import StreamingResponse
+
+# SQLAlchemy query builder for ORM-style queries
 from sqlalchemy.future import select
+
+# Database session factory
 from manage.database import SessionLocal, engine
+
+# Authentication dependency (protects endpoints)
 from endpoints.user_api import get_current_active_user
+
+# Raw SQL execution
 from sqlalchemy import text
+
+# Utility service for numbering/id generation (currently not used in this file)
 from manage.services.entity_map import entity_map
+
+# Utility function to generate org unit IDs
 from manage.utils import generate_unit_id
+
+# Misc
 import uuid
 import json
 import io
@@ -17,111 +46,230 @@ from typing import List
 from datetime import datetime
 
 
+# Create API router instance
 apiRouter = APIRouter()
 
+
+# ---------------------------------------------------------
+# Dependency: Get Async DB Session
+# ---------------------------------------------------------
 async def get_session() -> AsyncSession:
+    """
+    Provides an async database session to endpoints.
+    Ensures proper session lifecycle management (open/close).
+    """
     async with SessionLocal() as session:
         yield session
 
-@apiRouter.post("/organization_units", response_model=ViewOrgUnitListRead, dependencies=[Depends(get_current_active_user)])
+
+# ---------------------------------------------------------
+# CREATE ORGANIZATION UNIT
+# ---------------------------------------------------------
+@apiRouter.post(
+    "/organization_units",
+    response_model=ViewOrgUnitListRead,
+    dependencies=[Depends(get_current_active_user)]
+)
 async def create_org_unit(
-    orgUnit:OrgUnitCreate,
+    orgUnit: OrgUnitCreate,
     session: AsyncSession = Depends(get_session),
     current_user_id: str = Depends(get_current_active_user),
 ):
+    """
+    Create a new organization unit.
 
-    orgUnitData = orgUnit.dict()  # get dict from pydantic model
+    - Generates a new org unit ID using `generate_unit_id`.
+    - Inserts the org unit in `organization_unit` (via ViewOrgUnitList model).
+    - Creates an audit log entry (HippoAuditLog).
+    """
+
+    # Convert Pydantic model -> dict
+    orgUnitData = orgUnit.dict()
+
+    # Generate an ID with prefix based on org unit level (e.g. orgUnit|3xxxxx)
     orgUnitId = generate_unit_id(prefix=f"orgUnit|{orgUnit.level}", length=10)
     orgUnitData['id'] = orgUnitId
-    
+
+    # Create ORM instance and stage it for insertion
     new_orgUnit = ViewOrgUnitList(**orgUnitData)
     session.add(new_orgUnit)
 
-    auditLog = HippoAuditLog(id= uuid.uuid4(), user_id=current_user_id, operation=f'add new org unit {orgUnitId}')
+    # Audit trail: record who created the org unit
+    auditLog = HippoAuditLog(
+        id=uuid.uuid4(),
+        user_id=current_user_id,
+        operation=f'add new org unit {orgUnitId} - {new_orgUnit.name}'
+    )
     session.add(auditLog)
 
+    # Commit transaction safely
     try:
         await session.commit()
     except Exception:
         await session.rollback()
         raise
 
+    # NOTE: This second commit is redundant because you already committed above.
+    # Keeping it as-is (comment only), but you can safely remove the next line.
     await session.commit()
+
+    # Refresh to get DB-generated fields (if any)
     await session.refresh(new_orgUnit)
     return new_orgUnit
 
-@apiRouter.put("/organization_units/{org_id}",)
-async def update_person(org_id: str,
-    orgUnit:OrgUnitUpdate, 
+
+# ---------------------------------------------------------
+# UPDATE ORGANIZATION UNIT
+# ---------------------------------------------------------
+@apiRouter.put("/organization_units/{org_id}")
+async def update_org_unit(
+    org_id: str,
+    orgUnit: OrgUnitUpdate,
     session: AsyncSession = Depends(get_session),
     current_user_id: str = Depends(get_current_active_user),
 ):
-  
-    result = await session.execute(select(ViewOrgUnitList).where(ViewOrgUnitList.id == org_id))
+    """
+    Update an existing organization unit by ID.
+
+    - Loads org unit via ORM query.
+    - Applies non-null fields from request (excluding 'created').
+    - Sets last_modified_by for auditing.
+    - Creates audit log entry.
+    """
+
+    # Fetch existing org unit
+    result = await session.execute(
+        select(ViewOrgUnitList).where(ViewOrgUnitList.id == org_id)
+    )
     existing_org_unit = result.scalar_one_or_none()
+
     if not existing_org_unit:
         raise HTTPException(status_code=404, detail="Org Unit not found")
-    
+
+    # Apply incoming fields (partial update behavior)
     for key, value in orgUnit.dict().items():
-        if value != None and key != 'created':
+        if value is not None and key != 'created':
             setattr(existing_org_unit, key, value)
 
+    # Track who modified the org unit
     setattr(existing_org_unit, "last_modified_by", current_user_id)
 
-    auditLog = HippoAuditLog(id= uuid.uuid4(), user_id=current_user_id, operation=f'update new orgUnit {org_id}, {orgUnit.name}')
+    # Audit trail: record update action
+    auditLog = HippoAuditLog(
+        id=uuid.uuid4(),
+        user_id=current_user_id,
+        operation=f'update new orgUnit {org_id}, {orgUnit.name}'
+    )
     session.add(auditLog)
 
     await session.commit()
     await session.refresh(existing_org_unit)
-    return existing_org_unit  
+    return existing_org_unit
 
 
-# Get all healthareas
-@apiRouter.get("/organization_units", response_model=list[ViewOrgUnitListRead], dependencies=[Depends(get_current_active_user)],)
+# ---------------------------------------------------------
+# GET ALL ORGANIZATION UNITS
+# ---------------------------------------------------------
+@apiRouter.get(
+    "/organization_units",
+    response_model=list[ViewOrgUnitListRead],
+    dependencies=[Depends(get_current_active_user)],
+)
 async def get_OrganisationUnit(db: AsyncSession = Depends(get_session)):
+    """
+    Return all organization units.
+
+    Uses a raw SQL query against the `organization_unit` table.
+    """
+
     result = await db.execute(text("""
         SELECT *
-        FROM organization_unit                                      
+        FROM organization_unit
     """))
+
+    # mappings() returns dict-like rows (safer for JSON responses)
     rows = result.mappings().all()
     return rows
 
 
-# Get all organization_units details
-@apiRouter.get("/organization_units/{id}", response_model=ViewOrgUnitListRead, dependencies=[Depends(get_current_active_user)],)
-async def get_OrganisationUnit(id:str,db: AsyncSession = Depends(get_session)):
+# ---------------------------------------------------------
+# GET ORGANIZATION UNIT DETAILS BY ID
+# ---------------------------------------------------------
+@apiRouter.get(
+    "/organization_units/{id}",
+    response_model=ViewOrgUnitListRead,
+    dependencies=[Depends(get_current_active_user)],
+)
+async def get_OrganisationUnit(id: str, db: AsyncSession = Depends(get_session)):
+    """
+    Return one organization unit by ID.
+
+    WARNING: this uses f-string SQL interpolation, which risks SQL injection.
+    Prefer parameterized queries (like you did in /path endpoint).
+    """
+
     result = await db.execute(text(f"""
         SELECT *
-        FROM organization_unit 
-        WHERE id='{id}'                                     
+        FROM organization_unit
+        WHERE id='{id}'
     """))
+
     rows = result.mappings().all()
     if len(rows) == 0:
         raise HTTPException(status_code=404, detail="OrgUnit not found")
+
     return rows[0]
 
 
-# Get all healthareas
-@apiRouter.get("/organization_units/children/{parentId}", response_model=list, dependencies=[Depends(get_current_active_user)],)
-async def get_OrganisationUnit(parentId:str,db: AsyncSession = Depends(get_session)):
-    
+# ---------------------------------------------------------
+# GET CHILDREN OF A PARENT ORG UNIT
+# ---------------------------------------------------------
+@apiRouter.get(
+    "/organization_units/children/{parentId}",
+    response_model=list,
+    dependencies=[Depends(get_current_active_user)],
+)
+async def get_OrganisationUnit(parentId: str, db: AsyncSession = Depends(get_session)):
+    """
+    Return direct children of an org unit, ordered by name.
+
+    WARNING: uses f-string SQL interpolation (SQL injection risk).
+    Prefer parameterized query (WHERE parent=:parentId).
+    """
+
     result = await db.execute(text(f"""
         SELECT *
-        FROM organization_unit 
-        WHERE parent='{parentId}' 
-        ORDER BY name                     
+        FROM organization_unit
+        WHERE parent='{parentId}'
+        ORDER BY name
     """))
+
     rows = result.all()
     return rows
 
-# Get all organization_units tree from parent id
-@apiRouter.get("/organization_units/tree/{parentId}", response_model=list, dependencies=[Depends(get_current_active_user)],)
-async def get_OrganisationUnitTree(parentId:str,db: AsyncSession = Depends(get_session)):
-    
+
+# ---------------------------------------------------------
+# GET ORG UNIT TREE (DOWNWARD) FROM A PARENT ID
+# ---------------------------------------------------------
+@apiRouter.get(
+    "/organization_units/tree/{parentId}",
+    response_model=list,
+    dependencies=[Depends(get_current_active_user)],
+)
+async def get_OrganisationUnitTree(parentId: str, db: AsyncSession = Depends(get_session)):
+    """
+    Returns a hierarchical tree (downward recursion) starting from parentId.
+
+    - Uses a recursive CTE.
+    - Tracks path to avoid cycles (c.id <> ALL(t.path_ids)).
+    - Returns: id, name, parent, level, path_text ordered by path_ids.
+    """
+
     result = await db.execute(text(f"""
         WITH RECURSIVE tree AS (
 
-            SELECT 
+            -- Start node
+            SELECT
                 id,
                 name,
                 parent,
@@ -133,7 +281,8 @@ async def get_OrganisationUnitTree(parentId:str,db: AsyncSession = Depends(get_s
 
             UNION ALL
 
-            SELECT 
+            -- Recursive step: add children
+            SELECT
                 c.id,
                 c.name,
                 c.parent,
@@ -146,120 +295,167 @@ async def get_OrganisationUnitTree(parentId:str,db: AsyncSession = Depends(get_s
         )
         SELECT id, name, parent, level, path_text
         FROM tree
-        ORDER BY path_ids;                 
+        ORDER BY path_ids;
     """))
+
     rows = result.all()
     return rows
 
 
-# Get all healthareas
-@apiRouter.get("/organization_units/path/{parentId}", response_model=list, dependencies=[Depends(get_current_active_user)],)
-async def get_OrgUnitUpTree(parentId:str,db: AsyncSession = Depends(get_session)):
-    
+# ---------------------------------------------------------
+# GET ORG UNIT PATH (UPWARD) TO ROOT
+# ---------------------------------------------------------
+@apiRouter.get(
+    "/organization_units/path/{parentId}",
+    response_model=list,
+    dependencies=[Depends(get_current_active_user)],
+)
+async def get_OrgUnitUpTree(parentId: str, db: AsyncSession = Depends(get_session)):
+    """
+    Returns the path from a node up to the root (upward recursion).
+
+    - Uses a recursive CTE "up".
+    - Adds a 'hops' counter to sort from root -> leaf (DESC).
+    - Uses a parameterized query (:id) to avoid SQL injection.
+    """
+
     result = await db.execute(text("""
        WITH RECURSIVE up AS (
-            SELECT id, name, parent,  level, 0 AS hops
+            SELECT id, name, parent, level, 0 AS hops
             FROM organization_unit
-            WHERE id =:id
+            WHERE id = :id
 
             UNION ALL
+
             SELECT p.id, p.name, p.parent, p.level, u.hops + 1
             FROM organization_unit p
             JOIN up u ON p.id = u.parent
         )
         SELECT *
         FROM up
-        ORDER BY hops DESC;   
-               
-    """), { 'id': parentId})
+        ORDER BY hops DESC;
+    """), {'id': parentId})
+
     rows = result.all()
     return rows
 
-# Export organization units to XLSX
-@apiRouter.get("/organization_units/export/xlsx/", dependencies=[Depends(get_current_active_user)])
+
+# ---------------------------------------------------------
+# EXPORT ORGANIZATION UNITS TO XLSX
+# ---------------------------------------------------------
+@apiRouter.get(
+    "/organization_units/export/xlsx/",
+    dependencies=[Depends(get_current_active_user)]
+)
 async def export_org_units_to_xlsx(
     db: AsyncSession = Depends(get_session),
     current_user_id: str = Depends(get_current_active_user)
 ):
     """
-    Export all organization units to Excel format with columns: id, name, code, parent, level
+    Export all organization units to an Excel (.xlsx) file.
+
+    - Queries columns: id, name, code, parent, level.
+    - Builds an in-memory Excel file with pandas + openpyxl.
+    - Auto-adjusts column widths.
+    - Records an audit log entry.
+    - Returns a StreamingResponse as an attachment download.
     """
     try:
-        # Query all organization units
+        # Fetch org units in a stable order (level then name)
         result = await db.execute(text("""
             SELECT id, name, code, parent, level
             FROM organization_unit
             ORDER BY level, name
         """))
+
         rows = result.mappings().all()
-        
         if not rows:
             raise HTTPException(status_code=404, detail="No organization units found")
-        
-        # Convert to DataFrame
+
+        # Convert rows -> DataFrame for easier export to Excel
         df = pd.DataFrame([dict(row) for row in rows])
-        
-        # Reorder columns to match requested format
+
+        # Ensure column order matches expected export format
         df = df[['id', 'name', 'code', 'parent', 'level']]
-        
-        # Create Excel file in memory
+
+        # Create an Excel file in memory (BytesIO)
         output = io.BytesIO()
         with pd.ExcelWriter(output, engine='openpyxl') as writer:
             df.to_excel(writer, sheet_name='Organization Units', index=False)
-            
-            # Auto-adjust column widths
+
+            # Auto-adjust column widths for readability
             worksheet = writer.sheets['Organization Units']
             for column in worksheet.columns:
                 max_length = 0
                 column_letter = column[0].column_letter
                 for cell in column:
                     try:
-                        if len(str(cell.value)) > max_length:
-                            max_length = len(str(cell.value))
-                    except:
+                        max_length = max(max_length, len(str(cell.value)))
+                    except Exception:
                         pass
-                adjusted_width = min(max_length + 2, 50)
-                worksheet.column_dimensions[column_letter].width = adjusted_width
-        
+                worksheet.column_dimensions[column_letter].width = min(max_length + 2, 50)
+
+        # Reset stream position before sending it
         output.seek(0)
-        
-        # Create audit log
+
+        # Audit trail: record export action
         audit_log = HippoAuditLog(
-            id=uuid.uuid4(), 
-            user_id=current_user_id, 
+            id=uuid.uuid4(),
+            user_id=current_user_id,
             operation='export organization units to xlsx'
         )
         db.add(audit_log)
         await db.commit()
-        
-        # Return file as download
+
+        # Build a timestamped filename
         filename = f"organization_units_export_{datetime.now().strftime('%Y%m%d_%H%M%S')}.xlsx"
+
+        # Stream file as downloadable attachment
         return StreamingResponse(
             output,
             media_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
             headers={"Content-Disposition": f"attachment; filename={filename}"}
         )
-        
+
     except Exception as e:
+        # Convert unexpected errors into a standard HTTP 500 response
         raise HTTPException(status_code=500, detail=f"Export failed: {str(e)}")
 
-# Import organization units from JSON array
-@apiRouter.post("/organization_units/import/json", dependencies=[Depends(get_current_active_user)])
+
+# ---------------------------------------------------------
+# IMPORT ORGANIZATION UNITS FROM JSON ARRAY
+# ---------------------------------------------------------
+@apiRouter.post(
+    "/organization_units/import/json",
+    dependencies=[Depends(get_current_active_user)]
+)
 async def import_org_units_from_json(
     org_units_data: List[dict],
     session: AsyncSession = Depends(get_session),
     current_user_id: str = Depends(get_current_active_user)
 ):
     """
-    Import organization units from JSON array
-    Expected fields in each object: name, code, parent, level
-    ID will be auto-generated if not provided
+    Import organization units from a JSON array.
+
+    Expected fields per item:
+      - name (required)
+      - level (required)
+      - code (optional)
+      - parent (optional)
+      - id (optional: if provided, it will be used)
+
+    Behavior:
+      - If 'id' is missing, generate it using generate_unit_id(prefix=orgUnit|<level>).
+      - Inserts each org unit in the DB (no upsert currently).
+      - Collects row-level errors and returns them in response.
+      - Records an audit log entry with import counts.
     """
     try:
         imported_count = 0
-        updated_count = 0
+        updated_count = 0  # NOTE: not currently used; no update/upsert logic implemented
         errors = []
-        
+
+        # Process each incoming object
         for index, org_unit_data in enumerate(org_units_data):
             try:
                 # Validate required fields
@@ -267,14 +463,20 @@ async def import_org_units_from_json(
                 for field in required_fields:
                     if field not in org_unit_data:
                         errors.append(f"Row {index + 1}: Missing required field '{field}'")
-                        continue
-                
-                
-                # Create new organization unit
-                org_unit_id = generate_unit_id(prefix=f"orgUnit|{org_unit_data['level']}", length=10)
-                if org_unit_data['id'] is not None :
+                        # Skip current row (continue the outer loop)
+                        raise ValueError("Missing required fields")
+
+                # Generate new organization unit ID unless provided
+                org_unit_id = generate_unit_id(
+                    prefix=f"orgUnit|{org_unit_data['level']}",
+                    length=10
+                )
+
+                # If caller provided an ID, use it (but be careful with None)
+                if org_unit_data.get('id') is not None:
                     org_unit_id = org_unit_data['id']
-                
+
+                # Create ORM instance
                 new_org_unit = ViewOrgUnitList(
                     id=org_unit_id,
                     name=org_unit_data['name'],
@@ -282,24 +484,27 @@ async def import_org_units_from_json(
                     parent=org_unit_data.get('parent'),
                     level=org_unit_data['level']
                 )
-                    
+
+                # Stage for insertion
                 session.add(new_org_unit)
                 imported_count += 1
-                    
+
             except Exception as e:
+                # Capture per-row errors without stopping the full import
                 errors.append(f"Row {index + 1}: {str(e)}")
                 continue
-        
-        # Create audit log
+
+        # Audit trail: record import action summary
         audit_log = HippoAuditLog(
             id=uuid.uuid4(),
             user_id=current_user_id,
             operation=f'import organization units from json - {imported_count} imported, {updated_count} updated'
         )
         session.add(audit_log)
-        
+
         await session.commit()
-        
+
+        # Return import summary + errors
         return {
             "message": "Import completed",
             "imported_count": imported_count,
@@ -307,7 +512,8 @@ async def import_org_units_from_json(
             "error_count": len(errors),
             "errors": errors
         }
-        
+
     except Exception as e:
+        # Rollback on fatal error
         await session.rollback()
         raise HTTPException(status_code=500, detail=f"Import failed: {str(e)}")

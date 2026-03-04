@@ -1,0 +1,10 @@
+{
+  "org_unit_type": {
+    "id": "HOSPITAL",
+    "name": "HOSPITAL",
+    "position": 1
+  },
+  "org_unit_type_update": {
+    "position": 99
+  }
+}

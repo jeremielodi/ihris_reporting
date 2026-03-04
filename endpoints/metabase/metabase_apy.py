@@ -18,13 +18,9 @@ load_dotenv()
 METABASE_API_URL = os.getenv("METABASE_API_URL")
 METABASE_API_KEY = os.getenv("METABASE_API_KEY")
 
-
-
 async def get_session() -> AsyncSession:
     async with SessionLocal() as session:
         yield session
-
-
 
 
 # Connection pool for reuse
@@ -82,12 +78,12 @@ async def build_request_parameters(id: int, data: List[RequestionParamers]) -> L
         param = param_map.get(query.name.upper())
         if param:
             request_queries.append({
-                "id": param['id'],
-                "type": param['type'],
-                "value": [query.value],
-                "target": [
-                    "dimension",
-                    ["template-tag", param['slug']]
+                'id': param['id'],
+                'type': param['type'],
+                'value': [query.value],
+                'target': [
+                    'dimension',
+                    ['template-tag', param['slug']]
                 ]
             })
     
@@ -159,20 +155,19 @@ async def get_question_data(data: List[RequestionParamers], id: int):
             param = param_map.get(query.name.upper())
             if param:
                 request_queries.append({
-                    "id": param['id'],
-                    "type": param['type'],
-                    "value": [query.value],
-                    "target": [
-                        "dimension",
-                        ["template-tag", param['slug']]
+                    'id': param['id'],
+                    'type': param['type'],
+                    'value': [query.value],
+                    'target': [
+                        'dimension',
+                        ['template-tag', param['slug']]
                     ]
                 })
-        print(request_queries)
         # Execute the data request
         data_response = await client.post(api_url, headers=headers, json={
-            "ignore_cache": False,
-            "collection_preview": False,
-            "parameters": request_queries
+            'ignore_cache': False,
+            'collection_preview': False,
+            'parameters': request_queries
         })
         data_response.raise_for_status()
         result = data_response.json()
@@ -196,6 +191,8 @@ async def get_question_data(data: List[RequestionParamers], id: int):
         raise HTTPException(status_code=502, detail=f"Metabase API request failed: {str(e)}")
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Unexpected error: {str(e)}")
+
+
 
 @router.post("/mb_report_question_data/{id}/csv")
 async def get_question_data_as_csv(data: List[RequestionParamers], id: int):

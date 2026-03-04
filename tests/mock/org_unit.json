@@ -1,0 +1,27 @@
+{
+  "org_unit": {
+    "name": "Test Org Unit",
+    "code": "TST-OU",
+    "parent": null,
+    "type": "facility",
+    "level": "1"
+  },
+
+  "org_unit_update": {
+    "name": "Test Org Unit Updated",
+    "code": "TST-OU-UPD"
+  },
+
+  "org_unit_import_json": [
+    {
+      "name": "Imported OU A",
+      "level": "2",
+      "code": "IMP-A"
+    },
+    {
+      "name": "Imported OU B",
+      "level": "2",
+      "code": "IMP-B"
+    }
+  ]
+}

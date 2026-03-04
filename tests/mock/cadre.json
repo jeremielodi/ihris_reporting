@@ -1,0 +1,18 @@
+{
+  "cadre": {
+    "name": "Clinical",
+    "code": "CLIN",
+    "description": "Clinical cadre",
+    "translate_key": "cadre.clinical",
+    "parent": "|",
+    "remap": null,
+    "i2ce_hidden": 0
+  },
+  "cadre_update": {
+    "description": "Updated cadre description"
+  },
+  "cadre_bulk": [
+    { "name": "Admin", "code": "ADM", "description": "Administration cadre", "translate_key": "cadre.admin" },
+    { "name": "Lab", "code": "LAB", "description": "Laboratory cadre", "translate_key": "cadre.lab" }
+  ]
+}

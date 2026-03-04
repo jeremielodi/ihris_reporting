@@ -29,3 +29,10 @@ class HippoMaritalStatusRead(HippoMaritalStatusBase):
 
     class Config:
         orm_mode = True
+
+class HippoMaritalStatusCreate(HippoMaritalStatusBase):
+    name: str
+
+
+class HippoMaritalStatusUpdate(HippoMaritalStatusBase):
+    pass

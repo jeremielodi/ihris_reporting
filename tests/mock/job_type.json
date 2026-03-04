@@ -1,0 +1,18 @@
+{
+  "job_type": {
+    "name": "Permanent",
+    "code": "PERM",
+    "description": "Permanent contract",
+    "parent": "|",
+    "remap": null,
+    "i2ce_hidden": 0
+  },
+  "job_type_update": {
+    "code": "UPDATED",
+    "description": "Updated description"
+  },
+  "job_type_bulk": [
+    { "name": "Contractual", "code": "CONT", "description": "Contract staff" },
+    { "name": "Volunteer", "code": "VOL", "description": "Volunteer staff" }
+  ]
+}

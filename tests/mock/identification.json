@@ -1,0 +1,21 @@
+{
+  "identification_type": {
+    "name": "National_ID",
+    "code": "NID",
+    "parent": "|",
+    "remap": null,
+    "i2ce_hidden": 0
+  },
+  "identification": {
+    "person_id": "person|12345",
+    "number": "0001",
+    "country": null,
+    "expiration_date": null,
+    "acquisition_date": null,
+    "i2ce_hidden": 0
+  },
+  "identification_update": {
+    "number": "0010",
+    "expiration_date": "2035-12-31"
+  }
+}

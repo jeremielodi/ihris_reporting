@@ -1,0 +1,28 @@
+{
+    "person": {
+        "firstname": "John",
+        "middlename": null,
+        "lastname": "Doe",
+        "gender": "Male",
+        "address": "Kinshasa",
+        "birthplace": "Kinshasa",
+        "birthdate": "1992-03-13",
+        "recruitment_date": "2020-01-01",
+        "email": "john.doe@example.com",
+        "marital_status": "Single",
+        "nationality": null,
+        "residence": null,
+        "degree": null,
+        "dependents": 0,
+        "i2ce_hidden": 0
+    },
+    "person_update": {
+        "address": "Gombe",
+        "dependents": 2,
+        "lastname": "Doe",
+        "gender": "Male",
+        "birthplace": "Kinshasa",
+        "birthdate": "1992-03-13",
+        "marital_status": "Single"
+    }
+}

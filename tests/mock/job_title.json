@@ -1,0 +1,15 @@
+{
+  "job_title": {
+    "name": "Nurse",
+    "cadre": "cadre|clinical",
+    "classification": "classification|nurse",
+    "parent": "|",
+    "remap": null,
+    "i2ce_hidden": 0
+  },
+  "job_title_update": {
+    "cadre": "cadre|admin",
+    "classification": "classification|updated",
+    "i2ce_hidden": 0
+  }
+}
