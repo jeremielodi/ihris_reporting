@@ -84,7 +84,7 @@ export default defineComponent({
             <div class="grid">
                 <div class="col-12">
                     <hr />
-                    <button type="submit" class="p-button p-component p-button-primary">
+                    <button data-testid="submitButton" type="submit" class="p-button p-component p-button-primary">
                         <span class="p-button-label">
                             {{ $t('FORM.BUTTONS.SUBMIT') }}
                         </span>

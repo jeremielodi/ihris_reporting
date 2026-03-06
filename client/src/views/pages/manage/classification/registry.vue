@@ -52,7 +52,7 @@ export default defineComponent({
         closeImportDialog(data) {
             if (data) {
                 ClassificationService.import(data)
-                    .then((res) => {
+                    .then(() => {
                         this.displayImportModal = false;
                         NotifyService.success(this, '', null);
                         this.loadData();
@@ -96,8 +96,8 @@ export default defineComponent({
                                 <i class="pi pi-search"></i>
                             </InputGroupAddon>
                             <InputText v-model="filters1['global'].value" placeholder="Search" />
-                            <Button :label="$t('FORM.BUTTONS.ADD')" @click="this.$router.push('/manage/classification_create')" icon="pi pi-plus" />
-                            <Button :label="$t('FORM.BUTTONS.IMPORT')" severity="secondary" @click="openImportModal()" icon="pi pi-upload" />
+                            <Button data-testid="addButton" :label="$t('FORM.BUTTONS.ADD')" @click="this.$router.push('/manage/classification_create')" icon="pi pi-plus" />
+                            <Button data-testid="importButton" :label="$t('FORM.BUTTONS.IMPORT')" severity="secondary" @click="openImportModal()" icon="pi pi-upload" />
                         </InputGroup>
                     </span>
                 </div>
@@ -110,8 +110,8 @@ export default defineComponent({
             <Column field="code" :header="$t('FORM.LABELS.CODE')" />
             <Column field="description" :header="$t('FORM.LABELS.DESCRIPTION')" />
             <Column field="actions" :header="$t('Actions')" style="width: 80px">
-                <template #body="{ data }">
-                    <ClassificationAction :entity="data" action-id="classifAction" />
+                <template #body="{ data, index }">
+                    <ClassificationAction :entity="data" :action-id="'classifAction' + (index + 1)" />
                 </template>
             </Column>
         </DataTable>

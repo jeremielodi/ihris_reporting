@@ -1,8 +1,11 @@
 <template>
   <div class="surface-ground flex align-items-center justify-content-center min-h-screen min-w-screen overflow-hidden">
     <div class="flex flex-column align-items-center justify-content-center">
-      <div>
-        <form @submit.prevent="login" style="width: 100%">
+      <div @keydown="(e) => {
+        console.log(e.key);
+        if(e.key.toLowerCase() =='enter') this.login();
+      }">
+        
           <div class="w-full surface-card py-8 px-5 sm:px-6 border-round-2xl" style="border-radius: 3px">
             <div class="text-center mb-5" v-if="appSetting">
               <img :src="server + 'uploads/'+ appSetting.logo" alt="Image" height="70" class="mb-3" />
@@ -36,20 +39,22 @@
                 autocomplete="current-password"
               />
 
-              <div class="flex align-items-center justify-content-between mb-5 ml-2 gap-5">
-                <small class="text-pink-800">{{ errorMsg || validationError }}</small>
+              <div  
+              class="flex align-items-center justify-content-between mb-5 ml-2 gap-5">
+                <small v-if="errorDisplay" class="text-pink-800">{{ errorMsg || validationError }}</small>
               </div>
 
               <Button
+                data-testid="submit"
                 :loading="loading"
                 :disabled="loading"
                 label="Se connecter"
                 class="w-full p-3 border-round-3xl"
-                type="submit"
+                @click="login"
               />
             </div>
           </div>
-        </form>
+      
       </div>
     </div>
   </div>
@@ -61,11 +66,11 @@
 import { defineComponent } from "vue";
 import AppConfig from "@/layout/AppConfig.vue";
 import apiService from "@/service/ApiService";
-import router from "@/router"; // adjust if your path differs
 import InputText from "primevue/inputtext";
 import Password from "primevue/password";
 import Button from "primevue/button";
 import SettingService from '@/views/pages/manage/setting/setting.service';
+import UserService from '@/views/pages/manage/user/user.service';
 
 interface LoginResponse {
   token: string;
@@ -95,6 +100,9 @@ export default defineComponent({
     };
   },
   computed: {
+    errorDisplay(): string {
+      return this.errorMsg || this.validationError;
+    },
     usernameInvalid(): boolean {
       return this.username.trim().length < 1;
     },
@@ -117,18 +125,19 @@ export default defineComponent({
 
       if (this.usernameInvalid || this.passwordInvalid) {
         this.validationError = "Nom d’utilisateur ou mot de passe non valide.";
+
         return;
       }
 
       this.loading = true;
       try {
         // Send credentials in POST body (safer than query string)
-        const res = await apiService.post<LoginResponse>("/users/reporting/login", {
+        const res = await UserService.users.login({
           username: this.username,
           password: this.password,
         });
-        this.storeToken(res.data);
-        window.location = '/';
+        this.storeToken(res);
+        this.$router.push("/");
       } catch (err: any) {
         const code = err?.code as string | undefined;
         const status = err?.response?.status as number | undefined;
@@ -166,6 +175,7 @@ export default defineComponent({
       if (data.validator !== undefined) {
         localStorage.setItem("validator", data.validator);
       }
+      
     },
   },
 });

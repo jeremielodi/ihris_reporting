@@ -7,6 +7,7 @@ venv/*
 env/*
 log/*
 data/*
+
 # config/Database.py
 
 ./pgdata
@@ -52,3 +53,5 @@ client/public/themes/viva-light/
 client/public/themes/viva-dark/
 client/public/themes/mira/
 client/public/themes/nano/
+
+client/test-results/

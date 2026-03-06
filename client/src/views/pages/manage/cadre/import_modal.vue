@@ -172,7 +172,7 @@ export default defineComponent({
         </div>
         <template #footer>
             <Button :label="$t('FORM.BUTTONS.CANCEL')" @click="closeDialog" class="p-button-text" />
-            <Button type="submit" @click="submit()" :label="$t('FORM.BUTTONS.IMPORT')" :disabled="loading" />
+            <Button data-testid="submitImportButton" type="submit" @click="submit()" :label="$t('FORM.BUTTONS.IMPORT')" :disabled="loading" />
         </template>
     </Dialog>
 </template>

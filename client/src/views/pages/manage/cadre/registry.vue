@@ -52,7 +52,7 @@ export default defineComponent({
         closeImportDialog(data) {
             if (data) {
                 CadreService.import(data)
-                    .then((res) => {
+                    .then(() => {
                         this.displayImportModal = false;
                         NotifyService.success(this, '', null);
                         this.getCadres();
@@ -84,9 +84,9 @@ export default defineComponent({
                                 <i class="pi pi-search"></i>
                             </InputGroupAddon>
                             <InputText v-model="filters1['global'].value" placeholder="Search" />
-                            <Button :label="$t('FORM.BUTTONS.ADD')" @click="this.$router.push('/manage/cadre_create')"
+                            <Button data-testid="addButton" :label="$t('FORM.BUTTONS.ADD')" @click="this.$router.push('/manage/cadre_create')"
                                 icon="pi pi-plus" />
-                             <Button :label="$t('FORM.BUTTONS.IMPORT')" severity="secondary" @click="openImportModal()" icon="pi pi-upload" />
+                             <Button data-testid="importButton" :label="$t('FORM.BUTTONS.IMPORT')" severity="secondary" @click="openImportModal()" icon="pi pi-upload" />
                         </InputGroup>
                     </span>
                 </div>
@@ -104,8 +104,8 @@ export default defineComponent({
                 </template>
             </Column>
             <Column field="actions" :header="$t('Actions')" style="width: 80px;">
-                <template #body="{ data }">
-                    <CadreAction :entity="data" action-id="${data.id}" />
+                <template #body="{ data, index }">
+                    <CadreAction :entity="data" :action-id="'cadreAction' + (index + 1)" />
                 </template>
             </Column>
         </DataTable>

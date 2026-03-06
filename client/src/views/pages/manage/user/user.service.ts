@@ -2,8 +2,13 @@ import PrototypeApiService from '@/service/httpService';
 function UserService() {
     const baseUrl = '/manage/users';
     const service = new PrototypeApiService(baseUrl);
+    service.users = new PrototypeApiService('/users');
     service.auth = (user) => {
         return service.post(`/log/in`, user);
+    };
+
+    service.users.login = (user) => {
+        return service.users.post(`/reporting/login`, user);
     };
 
     service.logout = () => {

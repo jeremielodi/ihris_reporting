@@ -74,7 +74,7 @@ export default defineComponent({
                                 <i class="pi pi-search"></i>
                             </InputGroupAddon>
                             <InputText v-model="filters1['global'].value" placeholder="Search" /> 
-                            <Button :label="$t('FORM.BUTTONS.ADD')" @click="this.$router.push('/manage/institution_type_create')" icon="pi pi-plus"/>
+                            <Button data-testid="addButton" :label="$t('FORM.BUTTONS.ADD')" @click="this.$router.push('/manage/institution_type_create')" icon="pi pi-plus"/>
                            </InputGroup>
                     </span>
                 </div>
@@ -84,8 +84,8 @@ export default defineComponent({
             <Column field="code" :header="$t('FORM.LABELS.CODE')" /> 
             <Column field="name" :header="$t('FORM.LABELS.NAME')" /> 
             <Column field="actions" :header="$t('Actions')" style="width: 80px;">
-                <template #body="{ data }">
-                    <Institution_typeAction :entity="data" action-id="${data.id}" />
+                <template #body="{ data, index }">
+                    <Institution_typeAction :entity="data" :action-id="'institutionTypeAction' + (index + 1)" />
                 </template>
             </Column>
         </DataTable>

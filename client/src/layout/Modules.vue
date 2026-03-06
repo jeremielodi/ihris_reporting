@@ -51,7 +51,7 @@ export default defineComponent({
                                     <span class="flex justify-content-center align-items-center bg-green-400 border-round" style="height: 3.5rem; width: 3.5rem">
                                         <i class="text-50 pi pi-fw pi-cog text-2xl"></i>
                                     </span>
-                                    <span class="ml-4 flex flex-column">
+                                    <span class="ml-4 flex flex-column" data-testid="manage">
                                         <span class="text-900 lg:text-xl font-medium mb-0 block">iHRIS Manage</span>
                                         <span class="text-600 lg:text-xl">Enregistrement des agents, configuration du système</span>
                                     </span>

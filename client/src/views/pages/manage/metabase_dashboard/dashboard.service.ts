@@ -7,10 +7,10 @@ function DashboardService() {
         return service.get(`/role/${roleId}`);
     };
     service.assigned = () => {
-        return service.get(`/user/assinged`);
+        return service.get(`/user/assigned`);
     };
 
-    service.assignToRole =  (data) => {
+    service.assignToRole = (data) => {
         return service.post(`/role`, data);
     };
     return service;

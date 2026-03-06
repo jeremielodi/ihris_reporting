@@ -1,4 +1,3 @@
-
 <script>
 import { defineComponent } from 'vue';
 import Contact_typeService from './contact_type.service';
@@ -48,21 +47,9 @@ export default defineComponent({
 
 <template>
     <div class="card manage-container" style="height: 90vh">
-        <DataTable
-            :value="contact_types"
-            v-model:selection="selectedUser"
-            dataKey="id"
-            showGridlines
-            stripedRows
-            resizableColumns
-            columnResizeMode="fit"
-            scrollable
-            scrollHeight="flex"
-            responsiveLayout="scroll"
-            :filters="filters1"
-            selectionMode="single"
-            :loading="loading"
-        >
+        <DataTable :value="contact_types" v-model:selection="selectedUser" dataKey="id" showGridlines stripedRows
+            resizableColumns columnResizeMode="fit" scrollable scrollHeight="flex" responsiveLayout="scroll"
+            :filters="filters1" selectionMode="single" :loading="loading">
             <template #header>
                 <h4>{{ $t('TREE.CONTACT_TYPE') }}</h4>
                 <div class="flex justify-content-between flex-column sm:flex-row">
@@ -73,18 +60,20 @@ export default defineComponent({
                             <InputGroupAddon>
                                 <i class="pi pi-search"></i>
                             </InputGroupAddon>
-                            <InputText v-model="filters1['global'].value" placeholder="Search" /> 
-                            <Button :label="$t('FORM.BUTTONS.ADD')" @click="this.$router.push('/manage/contact_type_create')" icon="pi pi-plus"/>
-                           </InputGroup>
+                            <InputText v-model="filters1['global'].value" placeholder="Search" />
+                            <Button data-testid="addButton" :label="$t('FORM.BUTTONS.ADD')"
+                                @click="this.$router.push('/manage/contact_type_create')" icon="pi pi-plus" />
+                        </InputGroup>
                     </span>
                 </div>
             </template>
 
-            <Column selectionMode="single" style="width: 20px"></Column><Column field="name" :header="$t('FORM.LABELS.NAME')" /> 
-<Column field="code" :header="$t('FORM.LABELS.CODE')" /> 
-<Column field="actions" :header="$t('Actions')" style="width: 80px;">
-                <template #body="{ data }">
-                    <Contact_typeAction :entity="data" action-id="${data.id}" />
+            <Column selectionMode="single" style="width: 20px"></Column>
+            <Column field="name" :header="$t('FORM.LABELS.NAME')" />
+            <Column field="code" :header="$t('FORM.LABELS.CODE')" />
+            <Column field="actions" :header="$t('Actions')" style="width: 80px;">
+                <template #body="{ data, index }">
+                    <Contact_typeAction :entity="data" :action-id="'contactTypeAction' + (index + 1)" />
                 </template>
             </Column>
         </DataTable>
@@ -94,12 +83,13 @@ export default defineComponent({
     </div>
 </template>
 <style scoped>
-.p-datatable.p-datatable-gridlines .p-datatable-tbody > tr > td {
+.p-datatable.p-datatable-gridlines .p-datatable-tbody>tr>td {
     border-width: 1px;
     font-size: 12px;
     padding: 1px;
     padding-left: 2px;
 }
+
 .p-column-title {
     font-size: 14px;
 }
@@ -108,13 +98,13 @@ export default defineComponent({
     padding: 2px !important;
     font-size: 10px;
 }
+
 .p-filter-column .p-inputtext {
     height: 30px;
 }
+
 .p-filter-column .p-column-filter-menu-button,
 .p-filter-column .p-column-filter-clear-button {
     display: none !important;
 }
 </style>
-
-

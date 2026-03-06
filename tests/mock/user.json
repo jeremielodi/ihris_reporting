@@ -1,0 +1,25 @@
+{
+  "user_create": {
+    "username": "testuser",
+    "password": "Passw0rd!",
+    "email": "testuser@example.com",
+    "firstname": "Test",
+    "lastname": "User",
+    "facility_id": "orgUnit|1"
+  },
+
+  "user_update": {
+    "username": "testuser_updated",
+    "password": "NewPassw0rd!",
+    "email": "testuser_updated@example.com",
+    "firstname": "TestUpdated",
+    "lastname": "UserUpdated",
+    "facility_id": "orgUnit|1"
+  },
+
+  "user_change_password": {
+    "old_password": "Passw0rd!",
+    "new_password": "Passw0rd!_NEW",
+    "confirm_password": "Passw0rd!_NEW"
+  }
+}

@@ -1,6 +1,7 @@
 {
   "contact_type": {
     "name": "professional",
+    "code":"PERSONAL",
     "parent": "|",
     "remap": null,
     "i2ce_hidden": 0
