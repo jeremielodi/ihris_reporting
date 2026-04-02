@@ -1,6 +1,6 @@
 {
   "user_create": {
-    "username": "testuser",
+    "username": "testuser@example.com",
     "password": "Passw0rd!",
     "email": "testuser@example.com",
     "firstname": "Test",

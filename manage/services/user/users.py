@@ -32,6 +32,13 @@ async def get_user(user_id: str, session: AsyncSession = Depends(get_session)):
     if not user:
         raise HTTPException(status_code=404, detail="User not found")
     
+    result2 = await session.execute(select(HippoAccessFacility).where(HippoAccessFacility.parent == user_id))
+    accessFacility = result2.scalar_one_or_none()
+    if not accessFacility:
+        raise HTTPException(status_code=404, detail=f"Access facility not not found for user {user_id}")
+    
+    user.facility_id = accessFacility.location
+
     return user
 
 

@@ -11,7 +11,8 @@ export default defineComponent({
         required: { type: Boolean, default: false },
         label: { type: String, required: true },
         value: { type: Object, default: null },
-        getAllNodes:  { type: Boolean, default: false },
+        hideLabel: { type: Boolean, default: false },
+        getAllNodes: { type: Boolean, default: false },
         onChange: { type: Function, default: () => {} }
     },
     data() {
@@ -30,25 +31,24 @@ export default defineComponent({
     },
     watch: {
         value(newVal) {
+            console.log('Value prop changed:', newVal);
             if (newVal) {
                 if (newVal.key === this.currentNode.key) return;
-                
-                if(!newVal.name) {
-                    OrgUnitService.read(newVal.key)
-                        .then(res => {
+
+                if (!newVal.name) {
+                    OrgUnitService.read(newVal.key).then((res) => {
                         this.currentNode = {
                             id: res.id,
                             key: res.id,
                             label: res.name
                         };
                     });
-                }
-                else {
+                } else {
                     this.currentNode = {
-                    id: newVal.id,
-                    key: newVal.key || newVal.id,
-                    label: newVal.name
-                };
+                        id: newVal.id,
+                        key: newVal.key || newVal.id,
+                        label: newVal.name
+                    };
                 }
             } else {
                 this.currentNode = {};
@@ -72,12 +72,12 @@ export default defineComponent({
 
 <template>
     <div class="grid" style="padding: 10px; margin-top: 5px">
-        <div class="col-12" style="padding: 0px; padding-bottom: 4px; font-size: 15px">
+        <div v-if="!hideLabel" class="col-12" style="padding: 0px; padding-bottom: 4px; font-size: 15px">
             <label :for="id"> {{ $t(label) }} <span v-if="required" style="color: red">*</span></label>
         </div>
         <div class="col-12 p-link" style="padding: 0px">
             <InputGroup>
-                <InputText type="text" placeholder="Select an organisation unit" :id="id" :disabled="displayModal" v-model="this.currentNode.label" @click="displayModal = true" :class="{ 'p-invalid': showInvalidMsg }" />
+                <InputText type="text" placeholder="Select an organisation unit" :id="id" :data-testid="id" :disabled="displayModal" v-model="this.currentNode.label" @click="displayModal = true" :class="{ 'p-invalid': showInvalidMsg }" />
                 <Button icon="pi pi-search" severity="secondary" @click="openModal()" />
             </InputGroup>
 

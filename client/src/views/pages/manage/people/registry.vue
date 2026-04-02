@@ -21,7 +21,6 @@ export default defineComponent({
     created() {
         this.loadPeopleList();
         this.init();
-
     },
     methods: {
         async init() {
@@ -61,6 +60,9 @@ export default defineComponent({
         gotoView(id) {
             this.$router.push(`/manage/people_record_view?id=${id}`);
         },
+        gotoImport() {
+            this.$router.push(`/manage/people_import`);
+        },
         loadPeopleList() {
             this.loading = true;
             PeopleService.read()
@@ -87,9 +89,23 @@ export default defineComponent({
 
 <template>
     <div class="card manage-container" style="height: 90vh">
-        <DataTable :value="payment_frequencys" v-model:selection="selectedUser" paginator :rows="100" dataKey="id"
-            showGridlines stripedRows resizableColumns columnResizeMode="fit" scrollable scrollHeight="flex"
-            responsiveLayout="scroll" :filters="filters1" selectionMode="single" :loading="loading">
+        <DataTable
+            :value="payment_frequencys"
+            v-model:selection="selectedUser"
+            paginator
+            :rows="100"
+            dataKey="id"
+            showGridlines
+            stripedRows
+            resizableColumns
+            columnResizeMode="fit"
+            scrollable
+            scrollHeight="flex"
+            responsiveLayout="scroll"
+            :filters="filters1"
+            selectionMode="single"
+            :loading="loading"
+        >
             <template #header>
                 <h4>{{ $t('TREE.PEOPLE_LIST') }}</h4>
                 <div class="flex justify-content-between flex-column sm:flex-row">
@@ -100,11 +116,11 @@ export default defineComponent({
                             <InputGroupAddon>
                                 <i class="pi pi-search"></i>
                             </InputGroupAddon>
-                            <InputText v-model="matricule" @update:modelValue="searchPeople()"
-                                placeholder="Matricule" />
+                            <InputText v-model="matricule" @update:modelValue="searchPeople()" placeholder="Matricule" />
                             <InputText v-model="searchText" @update:modelValue="searchPeople()" placeholder="Noms" />
-                            <Button v-if="canEditPerson" :label="$t('FORM.BUTTONS.ADD')"
-                                @click="this.$router.push('/manage/people_create')" icon="pi pi-plus" />
+                            <Button v-if="canEditPerson" :label="$t('FORM.BUTTONS.ADD')" @click="this.$router.push('/manage/people_create')" icon="pi pi-plus" />
+
+                            <Button v-if="canEditPerson" :label="$t('IMPORT')" @click="gotoImport()" severity="secondary" icon="pi pi-plus" />
                         </InputGroup>
                     </span>
                 </div>
@@ -130,7 +146,7 @@ export default defineComponent({
     </div>
 </template>
 <style scoped>
-.p-datatable.p-datatable-gridlines .p-datatable-tbody>tr>td {
+.p-datatable.p-datatable-gridlines .p-datatable-tbody > tr > td {
     border-width: 1px;
     font-size: 12px;
     padding: 1px;

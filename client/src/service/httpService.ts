@@ -181,7 +181,6 @@ export default class Api {
     if (Object.keys(params || {}).length > 0) {
       target += `?${this.serelize(params || {})}`;
     }
-    console.log(target);
     return this.request(target, 'GET', params);
   }
 

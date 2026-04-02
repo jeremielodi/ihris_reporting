@@ -1,4 +1,6 @@
 <script>
+import * as XLSX from 'xlsx';
+import { saveAs } from 'file-saver';
 import { defineComponent } from 'vue';
 import DegreeService from './degreeService';
 import DegreeAction from './actions.vue';
@@ -11,7 +13,19 @@ export default defineComponent({
             degrees: [],
             selectedUser: null,
             loading: false,
-             filters1: { global: { value: null, matchMode: FilterMatchMode.CONTAINS } }
+            exportOptions: [
+                {
+                    label: 'Export Excel',
+                    icon: 'pi pi-file-excel',
+                    command: () => this.exportExcel()
+                },
+                {
+                    label: 'Export CSV',
+                    icon: 'pi pi-file',
+                    command: () => this.exportCSV()
+                }
+            ],
+            filters1: { global: { value: null, matchMode: FilterMatchMode.CONTAINS } }
         };
     },
     created() {
@@ -22,6 +36,19 @@ export default defineComponent({
         DegreeAction
     },
     methods: {
+        gotoAdd() {
+            this.$router.push('/manage/degree_create');
+        },
+
+        // 🔥 Get filtered or full data
+        getExportData() {
+            const data = this.degrees;
+
+            return data.map((d) => ({
+                id: d.id,
+                name: d.name
+            }));
+        },
         getDegrees() {
             this.loading = true;
             DegreeService.read()
@@ -41,6 +68,44 @@ export default defineComponent({
         },
         onFilter(event) {
             this.filters = event.filters;
+        },
+        // =========================
+        // EXPORT CSV
+        // =========================
+        exportCSV() {
+            const data = this.getExportData();
+
+            const worksheet = XLSX.utils.json_to_sheet(data);
+            const csv = XLSX.utils.sheet_to_csv(worksheet);
+
+            const blob = new Blob([csv], {
+                type: 'text/csv;charset=utf-8;'
+            });
+
+            saveAs(blob, 'degrees.csv');
+        },
+
+        // =========================
+        // EXPORT EXCEL
+        // =========================
+        exportExcel() {
+            const data = this.getExportData();
+
+            const worksheet = XLSX.utils.json_to_sheet(data);
+            const workbook = XLSX.utils.book_new();
+
+            XLSX.utils.book_append_sheet(workbook, worksheet, 'Degrees');
+
+            const excelBuffer = XLSX.write(workbook, {
+                bookType: 'xlsx',
+                type: 'array'
+            });
+
+            const blob = new Blob([excelBuffer], {
+                type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;charset=UTF-8'
+            });
+
+            saveAs(blob, 'degrees.xlsx');
         }
     }
 });
@@ -74,16 +139,17 @@ export default defineComponent({
                             <InputGroupAddon>
                                 <i class="pi pi-search"></i>
                             </InputGroupAddon>
-                            <InputText v-model="filters1['global'].value" placeholder="Search" /> 
-                            <Button :label="$t('FORM.BUTTONS.ADD')" @click="this.$router.push('/manage/degree_create')" icon="pi pi-plus"/>
-                           </InputGroup>
+                            <InputText v-model="filters1['global'].value" placeholder="Search" />
+                            <Button :label="$t('FORM.BUTTONS.ADD')" @click="gotoAdd()" icon="pi pi-plus" />
+                            <SplitButton label="Export" icon="pi pi-download" severity="info" :model="exportOptions" />
+                        </InputGroup>
                     </span>
                 </div>
             </template>
 
             <Column selectionMode="single" style="width: 20px"></Column>
 
-            <Column field="name" :header="$t('FORM.LABELS.NAME')"/>
+            <Column field="name" :header="$t('FORM.LABELS.NAME')" />
             <Column field="actions" :header="$t('Actions')" style="width: 80px">
                 <template #body="{ data }">
                     <DegreeAction :entity="data" action-id="degreeAction" />
@@ -102,6 +168,7 @@ export default defineComponent({
     padding: 1px;
     padding-left: 2px;
 }
+
 .p-column-title {
     font-size: 14px;
 }
@@ -110,9 +177,11 @@ export default defineComponent({
     padding: 2px !important;
     font-size: 10px;
 }
+
 .p-filter-column .p-inputtext {
     height: 30px;
 }
+
 .p-filter-column .p-column-filter-menu-button,
 .p-filter-column .p-column-filter-clear-button {
     display: none !important;

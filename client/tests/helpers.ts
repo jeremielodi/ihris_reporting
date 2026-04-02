@@ -13,8 +13,13 @@ async function login(page) {
     await page.getByTestId('submit').click();
 }
 
+async function fillPassword(page, id, password) {
+    const pwd = await page.getByTestId(id).locator('input[type="password"]');
+    return pwd.fill(password);
+}
+
 function sleep(time:number) {
     return new Promise(resolve => setTimeout(resolve, time));
 }
 
-export { login, sleep };
+export { login, sleep, fillPassword };

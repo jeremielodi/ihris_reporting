@@ -44,8 +44,7 @@ export default defineComponent({
         },
         validate() {
             const options = {
-                name: this.grade.name,
-                parentError: this.gradeId ? this.gradeId == this.grade.parent : true
+                name: this.grade.name
             };
             let validKey = true;
             for (const key of Object.keys(options)) {
@@ -89,7 +88,7 @@ export default defineComponent({
             <div class="grid">
                 <div class="col-12">
                     <hr />
-                    <button type="submit" class="p-button p-component p-button-primary">
+                    <button data-testid="submitButton" type="submit" class="p-button p-component p-button-primary">
                         <span class="p-button-label">
                             {{ $t('FORM.BUTTONS.SUBMIT') }}
                         </span>
@@ -112,7 +111,7 @@ export default defineComponent({
                         "
                         :validationTrigger="formSubmitted"
                     />
-                     <MyInputText
+                    <MyInputText
                         id="description"
                         v-model="grade.description"
                         label="FORM.LABELS.DESCRIPTION"

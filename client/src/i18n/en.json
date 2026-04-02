@@ -230,6 +230,7 @@
             "ENTRY": "Entry",
             "ENTRY_EXIT": "Entry Exit",
             "EXIT": "Exit",
+            "ERROR": "Error",
             "ERROR_403": "Error 403",
             "ERROR_404": "Error 404",
             "EXCHANGE_RATE": "Exchange Rate",

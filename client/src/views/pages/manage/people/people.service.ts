@@ -12,6 +12,7 @@ function _PeopleService() {
     service.passport.list = (personId) => {
         return service.passport.get(`/upload/${personId}`);
     };
+
     service.documents = new PrototypeApiService('/manage/documents');
     service.documents.upload = (file, typeId, personId, description) => {
         const form = new FormData();
@@ -22,6 +23,10 @@ function _PeopleService() {
     };
     service.documents.dowloadPdf = async (target, fileName, returnFile) => {
         return service.documents.getPdfStream(target, {});
+    };
+
+    service.importList = (orgUnitId, data) => {
+        return service.post(`/import/${orgUnitId}`, data);
     };
 
     service.documents.list = (personId) => {

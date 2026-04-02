@@ -6,14 +6,30 @@ import { FilterMatchMode } from '@primevue/core/api';
 import ImportModal from './import_modal.vue';
 import NotifyService from '@/service/Notify.service';
 
+// ✅ Export libs
+import * as XLSX from 'xlsx';
+import { saveAs } from 'file-saver';
+
 export default defineComponent({
     name: 'DegreeRegistry',
     data() {
         return {
-            degrees: [],
+            classifications: [],
             selectedUser: null,
             loading: false,
             displayImportModal: false,
+            exportOptions: [
+                {
+                    label: 'Export Excel',
+                    icon: 'pi pi-file-excel',
+                    command: () => this.exportExcel()
+                },
+                {
+                    label: 'Export CSV',
+                    icon: 'pi pi-file',
+                    command: () => this.exportCSV()
+                }
+            ],
             filters1: { global: { value: null, matchMode: FilterMatchMode.CONTAINS } }
         };
     },
@@ -29,8 +45,8 @@ export default defineComponent({
         loadData() {
             this.loading = true;
             ClassificationService.read()
-                .then((degrees) => {
-                    this.degrees = degrees;
+                .then((classifications) => {
+                    this.classifications = classifications;
                 })
                 .catch((error) => {
                     console.error('Error fetching user data:', error);
@@ -63,6 +79,57 @@ export default defineComponent({
             } else {
                 this.displayImportModal = false;
             }
+        },
+         // =========================
+        // EXPORT CSV
+        // =========================
+        exportCSV() {
+            const data = this.getExportData();
+
+            const worksheet = XLSX.utils.json_to_sheet(data);
+            const csv = XLSX.utils.sheet_to_csv(worksheet);
+
+            const blob = new Blob([csv], {
+                type: 'text/csv;charset=utf-8;'
+            });
+
+            saveAs(blob, 'classifications.csv');
+        },
+
+        // =========================
+        // EXPORT HELPERS
+        // =========================
+        getExportData() {
+            const data = this.classifications;
+
+            return data.map((c) => ({
+                id: c.id,
+                name: c.name,
+                code: c.code || '',
+                description: c.description || ''
+            }));
+        },
+        // =========================
+        // EXPORT EXCEL
+        // =========================
+        exportExcel() {
+            const data = this.getExportData();
+
+            const worksheet = XLSX.utils.json_to_sheet(data);
+            const workbook = XLSX.utils.book_new();
+
+            XLSX.utils.book_append_sheet(workbook, worksheet, 'Classifications');
+
+            const excelBuffer = XLSX.write(workbook, {
+                bookType: 'xlsx',
+                type: 'array'
+            });
+
+            const blob = new Blob([excelBuffer], {
+                type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;charset=UTF-8'
+            });
+
+            saveAs(blob, 'classifications.xlsx');
         }
     }
 });
@@ -71,7 +138,7 @@ export default defineComponent({
 <template>
     <div class="card manage-container" style="height: 90vh">
         <DataTable
-            :value="degrees"
+            :value="classifications"
             v-model:filters="filters1"
             v-model:selection="selectedUser"
             dataKey="id"
@@ -98,6 +165,15 @@ export default defineComponent({
                             <InputText v-model="filters1['global'].value" placeholder="Search" />
                             <Button data-testid="addButton" :label="$t('FORM.BUTTONS.ADD')" @click="this.$router.push('/manage/classification_create')" icon="pi pi-plus" />
                             <Button data-testid="importButton" :label="$t('FORM.BUTTONS.IMPORT')" severity="secondary" @click="openImportModal()" icon="pi pi-upload" />
+                            <SplitButton
+                                label="Export"
+                                icon="pi pi-download"
+                                :model="exportOptions"
+                                @click="exportExcel"
+                                class="p-button-outlined"
+                                severity="info"
+                            />
+
                         </InputGroup>
                     </span>
                 </div>
@@ -116,7 +192,7 @@ export default defineComponent({
             </Column>
         </DataTable>
         <div>
-            <b>{{ degrees.length }} {{ $t('TREE.CLASSIFICATIONS') }} </b>
+            <b>{{ classifications.length }} {{ $t('TREE.CLASSIFICATIONS') }} </b>
         </div>
 
         <ImportModal ref="importModal" :close="closeImportDialog" :display="displayImportModal" />

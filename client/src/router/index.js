@@ -329,6 +329,11 @@ const router = createRouter({
                     component: () => import('@/views/pages/manage/payment_frequency/registry.vue')
                 },
                 {
+                    path: 'people_import',
+                    name: 'people_import',
+                    component: () => import('@/views/pages/manage/people/import/peopleImport.vue')
+                },
+                {
                     path: 'people_registry',
                     name: 'people_registry',
                     component: () => import('@/views/pages/manage/people/registry.vue')

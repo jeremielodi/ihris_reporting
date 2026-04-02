@@ -16,7 +16,7 @@ export default defineComponent({
                 username: null,
                 email: null,
                 firstname: null,
-                lastname: null,
+                lastname: null
             }
         };
     },
@@ -25,21 +25,14 @@ export default defineComponent({
         if (id) {
             this.userId = id;
             UserService.read(id).then((user) => {
-                setTimeout(() => {
-                    this.user = user;
-                    this.user.i2ce_hidden = !!user.i2ce_hidden;
-                    this.user.facility_id = user.access_facility_id;
-                    this.user.facility = {
-                        id: user.access_facility_id,
-                        name: user.access_facility_name
-                    };
-                }, 400);
+                this.user = user;
+                this.user.i2ce_hidden = !!user.i2ce_hidden;
             });
         }
     },
     components: {
         MyInputText,
-        PyramidSelect,
+        PyramidSelect
     },
     methods: {
         reset() {
@@ -54,17 +47,21 @@ export default defineComponent({
                 email: util.isEmail(this.user.email),
                 username: this.user.username,
                 facility_id: this.user.facility_id,
-                password: this.user.password && (this.user.password.length >= 5 ? this.user.password : null),
+                password: this.user.password && (this.user.password.length >= 5 ? this.user.password : null)
             };
 
             if (!this.userId) {
                 options.password = this.user.password;
+            }
+            if (this.userId) {
+                delete options.password;
             }
 
             let validKey = true;
             for (const key of Object.keys(options)) {
                 if (!options[key]) {
                     validKey = false;
+                    console.log(`Validation failed for ${key}:`, options[key]);
                     break;
                 }
             }
@@ -103,7 +100,7 @@ export default defineComponent({
             <div class="grid">
                 <div class="col-12">
                     <hr />
-                    <button type="submit" class="p-button p-component p-button-primary">
+                    <button data-testid="submitButton" type="submit" class="p-button p-component p-button-primary">
                         <span class="p-button-label">
                             {{ $t('FORM.BUTTONS.SUBMIT') }}
                         </span>
@@ -151,14 +148,13 @@ export default defineComponent({
                         "
                         :validationTrigger="formSubmitted"
                     />
-    
                 </div>
                 <div class="col-12 lg:col-1 xl:col-1 p-field"></div>
 
                 <div class="col-12 lg:col-5 xl:col-5 p-field">
                     <PyramidSelect
-                        id="access"
-                        :value="this.user.facility"
+                        id="accessLevel"
+                        :value="{ key: this.user.facility_id }"
                         label="FORM.LABELS.ACCESS_LEVEL"
                         :required="true"
                         :getAllNodes="true"

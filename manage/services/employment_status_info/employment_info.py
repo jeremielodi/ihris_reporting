@@ -216,6 +216,7 @@ async def get_employement_infos(
     db: AsyncSession = Depends(get_session),
     username: str = Depends(get_current_active_user),
 ):
+    
     """
     Retrieve full employment history for a given person.
 
@@ -263,7 +264,7 @@ async def get_employement_infos(
             ON jt.id = empSt.job_type
     """
 
-    result = await db.execute(text(sql,  {"person_id": person_id}))
+    result = await db.execute(text(sql), {"person_id": person_id})
     rows = result.mappings().all()
 
     return rows

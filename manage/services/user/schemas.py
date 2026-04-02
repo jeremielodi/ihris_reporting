@@ -31,8 +31,8 @@ class HippoUserRead(HippoUserBase):
     firstname: Optional[str] = None
     lastname: Optional[str] = None
     username: Optional[str] = None
-    access_facility_id : Optional[str] = None  #
-    access_facility_name : Optional[str] = None  #
+    facility_id : Optional[str] = None  #
+    facility_name : Optional[str] = None  #
     class Config:
         orm_mode = True
 

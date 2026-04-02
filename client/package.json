@@ -6,11 +6,7 @@
         "build": "vite build",
         "preview": "vite preview",
         "lint": "eslint . --ext .vue,.js,.jsx,.cjs,.mjs --fix --ignore-path .gitignore",
-        "test": "vitest",
-        "test:browser": "vitest --browser=chromium",
-        "test:browser:ui": "vitest --browser=chromium --ui",
-        "test:browser:headless": "vitest --browser.headless --browser=chromium",
-        "test:coverage": "vitest --coverage"
+        "test": "npx playwright test --ui"
     },
     "dependencies": {
         "@playwright/test": "^1.58.2",
@@ -49,7 +45,9 @@
         "vue3-html2pdf": "^1.1.2",
         "vue3-plotly": "^0.0.7",
         "vue3-spinner": "^0.0.17",
-        "vuex": "^4.1.0"
+        "vuex": "^4.1.0",
+        "xlsx": "^0.18.5",
+        "xslx": "^1.0.0"
     },
     "devDependencies": {
         "@rushstack/eslint-patch": "^1.1.4",

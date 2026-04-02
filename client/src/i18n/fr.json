@@ -237,6 +237,7 @@
             "ENTRY": "Entrées",
             "ENTRY_EXIT": "Entrées Sorties",
             "EXIT": "Sorties",
+            "ERROR": "Erreur",
             "ERROR_403": "Erreur 403",
             "ERROR_404": "Erreur 404",
             "EXCHANGE_RATE": "Taux de change",

@@ -49,7 +49,6 @@ async def _get_access_facility(db: Session, userid: str) -> Dict[str, Any]:
 
     if access and access.location:
         loc = access.location  # e.g. "facility|...", "health_area|...", etc.
-        print(access.location)
         facilityaResult = await db.execute(
                     select(ViewOrgUnitList).where(ViewOrgUnitList.id == loc)
                 )

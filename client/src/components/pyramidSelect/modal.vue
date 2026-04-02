@@ -136,7 +136,7 @@ export default defineComponent({
 
             <div style="float: right; width: 100%">
                 <Button style="float: right" :label="$t('FORM.BUTTONS.CANCEL')" @click="closeDialog" class="p-button-text" />
-                <Button style="float: right" v-if="currentNode" type="submit" @click="submit" :label="$t('FORM.LABELS.SELECT')" />
+                <Button data-testid="selectButton" style="float: right" v-if="currentNode" type="submit" @click="submit" :label="$t('FORM.LABELS.SELECT')" />
             </div>
         </template>
     </Dialog>

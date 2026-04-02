@@ -13,9 +13,14 @@ VALUES ('user|admin', 'ihris', 'Admin', NULL, 'admin@test.com',
         '$2b$12$jfGSa9zY2C.LjW2HeYPnY.zig.DzOh1bXE.sjYorbcoFvBQStn6ci')
 ON CONFLICT (id) DO NOTHING;
 
+-- 1.1)  create organization units for admin user (adjust location if needed)
+INSERT INTO public.organization_unit (id, parent, created, last_modified, name, type)
+VALUES ('orgUnit|1', NULL, NOW(), NOW(), 'DR Congo', 'country')
+ON CONFLICT (id) DO NOTHING;
+
 -- 2) Access facility for the admin (adjust location if needed)
 INSERT INTO public.hippo_access_facility (id, parent, created, last_modified, location)
-VALUES ('access|admin|country|CD', 'user|admin', NOW(), NOW(), 'country|CD')
+VALUES ('access_facility|1', 'user|admin', NOW(), NOW(), 'orgUnit|1')
 ON CONFLICT (id) DO NOTHING;
 
 -- 3) Superuser role (assignable = 1)

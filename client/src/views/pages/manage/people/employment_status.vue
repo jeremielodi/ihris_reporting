@@ -200,7 +200,7 @@ export default defineComponent({
 
 
                     <PyramidSelect
-                        id="access"
+                        id="facility"
                         :value="{ key: this.employmnet_info.facility_id }"
                         label="FORM.LABELS.FACILITY"
                         :required="true"

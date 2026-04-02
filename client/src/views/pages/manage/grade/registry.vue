@@ -96,9 +96,9 @@ export default defineComponent({
                                 <i class="pi pi-search"></i>
                             </InputGroupAddon>
                             <InputText v-model="filters1['global'].value" placeholder="Search" /> 
-                            <Button :label="$t('FORM.BUTTONS.ADD')" @click="this.$router.push('/manage/grade_create')" icon="pi pi-plus"/>
-                             <Button :label="$t('FORM.BUTTONS.IMPORT')" severity="secondary" @click="openImportModal()" icon="pi pi-upload" />
-                           </InputGroup>
+                            <Button data-testid="addButton" :label="$t('FORM.BUTTONS.ADD')" @click="this.$router.push('/manage/grade_create')" icon="pi pi-plus"/>
+                            <Button data-testid="importButton" :label="$t('FORM.BUTTONS.IMPORT')" severity="secondary" @click="openImportModal()" icon="pi pi-upload" />
+                        </InputGroup>
                     </span>
                 </div>
             </template>
@@ -107,8 +107,8 @@ export default defineComponent({
 
             <Column field="name" :header="$t('FORM.LABELS.NAME')" />
             <Column field="actions" :header="$t('Actions')" style="width: 80px;">
-                <template #body="{ data }">
-                    <GradeAction :entity="data" action-id="gradeAction" />
+                <template #body="{ data, index }">
+                    <GradeAction :entity="data" :action-id="'gradeAction' + (index + 1)" />
                 </template>
             </Column>
         </DataTable>

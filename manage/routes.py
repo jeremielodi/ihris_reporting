@@ -20,7 +20,7 @@ from manage.services.employment_status import employment_status
 from manage.services.reason_departure import reason_departure
 from manage.services.payment_frequency import payment_frequency
 from manage.services.marital_status import marital_status
-from manage.services.people import people
+from manage.services.people import people, people_import_api
 from manage.services.employment_status_info import employment_info
 from manage.services.organization_units import units
 from manage.services.passport import passport
@@ -65,6 +65,7 @@ router.include_router(payment_frequency.apiRouter, tags=["reason_departures"])
 router.include_router(marital_status.apiRouter, tags=["marital_status"])
 router.include_router(units.apiRouter, tags=["organization_units"])
 router.include_router(people.apiRouter, tags=["people"])
+router.include_router(people_import_api.apiRouter, tags=["people_import"])
 router.include_router(employment_info.apiRouter, tags=["employment_infos"])
 router.include_router(passport.apiRouter, tags=["persion_passport"])
 router.include_router(contact_type.apiRouter, tags=["contact_types"])

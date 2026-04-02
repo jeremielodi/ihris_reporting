@@ -95,7 +95,7 @@ export default defineComponent({
         </div>
         <template #footer>
             <Button id="cancelButton" :label="$t('FORM.BUTTONS.CANCEL')" @click="closeDialog" class="p-button-text" />
-            <Button id="submitButton" type="submit" @click="submit" :label="user.id ? $t('FORM.BUTTONS.UPDATE') : $t('FORM.BUTTONS.SAVE')" />
+            <Button data-testid="submitButton" id="submitButton" type="submit" @click="submit" :label="user.id ? $t('FORM.BUTTONS.UPDATE') : $t('FORM.BUTTONS.SAVE')" />
         </template>
     </Dialog>
 </template>

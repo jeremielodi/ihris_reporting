@@ -1,10 +1,9 @@
-
 import PrototypeApiService from '@/service/httpService';
-function GenderService() {
+function _GenderService() {
     const baseUrl = '/manage/genders';
     const service = new PrototypeApiService(baseUrl);
     return service;
 }
 
-const a = GenderService();
-export default a;
+const GenderService = _GenderService();
+export default GenderService;

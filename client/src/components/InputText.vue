@@ -72,7 +72,7 @@ export default defineComponent({
         </div>
         <div class="col-12" style="padding: 0px">
             <template v-if="type === 'password'">
-                <Password v-model="textValue" :id="id" :invalid="showInvalidMsg" toggleMask @input="onChangeInput" :feedback="false" :showIcon="true" :inputStyle="{ width: '100%' }" />
+                <Password v-model="textValue" :id="id" :data-testid="id" :invalid="showInvalidMsg" toggleMask @input="onChangeInput" :feedback="false" :showIcon="true" :inputStyle="{ width: '100%' }" />
             </template>
 
             <template v-if="type === 'number'">

@@ -75,7 +75,7 @@ export default defineComponent({
                                 <i class="pi pi-search"></i>
                             </InputGroupAddon>
                             <InputText v-model="filters1['global'].value" placeholder="Search" /> 
-                            <Button :label="$t('FORM.BUTTONS.ADD')" @click="this.$router.push('/manage/user_create')" icon="pi pi-plus"/>
+                            <Button data-testid="addButton" :label="$t('FORM.BUTTONS.ADD')" @click="this.$router.push('/manage/user_create')" icon="pi pi-plus"/>
                            </InputGroup>
                     </span>
                 </div>
@@ -127,8 +127,8 @@ export default defineComponent({
             </Column>
 
             <Column field="actions" :header="$t('Actions')" style="width: 80px">
-                <template #body="{ data }">
-                    <UserAction :entity="data" action-id="userAction" />
+                <template #body="{ data, index }">
+                    <UserAction :entity="data" :action-id="'userAction' + (index + 1)" />
                 </template>
             </Column>
         </DataTable>
