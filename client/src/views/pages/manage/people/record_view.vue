@@ -269,15 +269,15 @@ export default defineComponent({
                                 <td class="fieldValue">{{ identification.number }}</td>
                             </tr>
                             <tr>
-                                <td class="fieldName">{{ $t('Date of Issue') }}</td>
+                                <td class="fieldName">{{ $t('FORM.LABELS.ACQUISITION_DATE') }}</td>
                                 <td class="fieldValue">{{ identification.acquisition_date }}</td>
                             </tr>
                             <tr>
-                                <td class="fieldName">{{ $t(' Date of Expiration') }}</td>
+                                <td class="fieldName">{{ $t('FORM.LABELS.EXPIRATION_DATE') }}</td>
                                 <td class="fieldValue">{{ identification.expiration_date }}</td>
                             </tr>
                             <tr>
-                                <td class="fieldName">{{ $t('Country of Issue') }}</td>
+                                <td class="fieldName">{{ $t('FORM.LABELS.COUNTRY') }}</td>
                                 <td class="fieldValue">{{ identification.country_name }}</td>
                             </tr>
                         </tbody>

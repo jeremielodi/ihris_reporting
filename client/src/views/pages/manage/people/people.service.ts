@@ -1,4 +1,5 @@
 import PrototypeApiService from '@/service/httpService';
+
 function _PeopleService() {
     const baseUrl = '/manage/people';
     const service = new PrototypeApiService(baseUrl);

@@ -95,8 +95,12 @@ export default defineComponent({
                 return;
             }
             const formated = Object.assign({}, this.person);
-            formated.birthdate = UtilService.formatDate(new Date(formated.birthdate), 'YYYY-MM-DD');
-            formated.recruitment_date = UtilService.formatDate(new Date(formated.recruitment_date), 'YYYY-MM-DD');
+            if (formated.birthdate) {
+                formated.birthdate = UtilService.formatDate(new Date(formated.birthdate), 'YYYY-MM-DD');
+            }
+            if (formated.recruitment_date) {
+                formated.recruitment_date = UtilService.formatDate(new Date(formated.recruitment_date), 'YYYY-MM-DD');
+            }
             delete formated.created;
             const operation = this.personId ? personService.update(this.personId, formated) : personService.create(formated);
             operation

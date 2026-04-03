@@ -118,7 +118,9 @@ export default defineComponent({
             this.person_timesheet.person_id = this.personId;
 
             const formated = Object.assign({}, this.person_timesheet);
-            formated.month_year = UtilService.formatDate(new Date(formated.month_year), 'YYYY-MM-DD');
+            if (formated.month_year) {
+                formated.month_year = UtilService.formatDate(new Date(formated.month_year), 'YYYY-MM-DD');
+            }
             delete formated.created;
 
             const operation = this.person_timesheetId ? Person_TimesheetService.update(this.person_timesheetId, formated) : Person_TimesheetService.create(formated);

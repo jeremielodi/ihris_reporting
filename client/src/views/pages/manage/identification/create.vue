@@ -67,8 +67,13 @@ export default defineComponent({
             }
 
             const formated = Object.assign({}, this.identification);
-            formated.acquisition_date = UtilService.formatDate(new Date(formated.acquisition_date), 'YYYY-MM-DD');
-            formated.expiration_date = UtilService.formatDate(new Date(formated.expiration_date), 'YYYY-MM-DD');
+            if (formated.acquisition_date) {
+                formated.acquisition_date = UtilService.formatDate(new Date(formated.acquisition_date), 'YYYY-MM-DD');
+            }
+            if (formated.expiration_date) {
+                formated.expiration_date = UtilService.formatDate(new Date(formated.expiration_date), 'YYYY-MM-DD');
+            }
+
             delete formated.created;
             const service = IdentificationService;
             const operation = this.identificationId ? service.update(this.identificationId, formated) : service.create(formated);

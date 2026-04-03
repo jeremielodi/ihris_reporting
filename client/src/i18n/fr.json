@@ -322,7 +322,7 @@
             "DELETE_FILE": "Supprimer le fichier",
             "MALE": "Homme",
             "MATRICULATION": "Matricule",
-            "MARITAL_STATUS": "Etat Civil",
+            "MARITAL_STATUS": "Situation matrimoniale",
             "MAX_CREDIT": "Crédit Max",
             "MAX_CREDIT_INFO": "La valeur de crédit maximum de ce groupe débiteur peut recueillir avant d'être mis en garde. Une valeur de 0 signifie aucune limite maximale.",
             "MEDICAL_NONMEDICAL_STAFF": "Employés médicaux et non médicaux",

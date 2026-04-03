@@ -415,17 +415,17 @@ export default defineComponent({
             </div>
 
             <PyramidSelect
-                        id="orgUnitId"
-                        :value="{ key: this.orgUnitId }"
-                        label=""
-                        :hideLabel="true"
-                        :required="true"
-                        :onChange="
-                            (value) => {
-                                this.orgUnitId = value.key;
-                            }
-                        "
-                        :validationTrigger="formSubmitted"
+                id="orgUnitId"
+                :value="{ key: this.orgUnitId }"
+                label=""
+                :hideLabel="true"
+                :required="true"
+                :onChange="
+                    (value) => {
+                        this.orgUnitId = value.key;
+                    }
+                "
+                :validationTrigger="formSubmitted"
             />
 
             <InputText v-model="globalFilter" :placeholder="$t('FORM.BUTTONS.SEARCH')" />

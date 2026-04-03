@@ -100,9 +100,12 @@ export default defineComponent({
             }
             const formated = Object.assign({}, this.employmnet_info);
             formated.person_id = this.personId;
-            formated.employment_date = UtilService.formatDate(formated.employment_date, 'YYYY-MM-DD');
-            formated.start_service_date = UtilService.formatDate(formated.start_service_date, 'YYYY-MM-DD');
-
+            if (formated.employment_date) {
+                formated.employment_date = UtilService.formatDate(formated.employment_date, 'YYYY-MM-DD');
+            }
+            if (formated.start_service_date) {
+                formated.start_service_date = UtilService.formatDate(formated.start_service_date, 'YYYY-MM-DD');
+            }
             delete formated.created;
             const operation = this.employmnet_infoId ? EmploymnettInfoService.update(this.employmnet_infoId, formated) : EmploymnettInfoService.create(formated);
             operation

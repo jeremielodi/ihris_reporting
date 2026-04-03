@@ -22,10 +22,8 @@ class HippoPersonIdentificationCreate(HippoPersonIdentificationBase):
 
     @validator("acquisition_date", pre=True)
     def parse_acquisition_date(cls, v):
-        print(v)
         # Accept "1992-03-13", "1992-03-13T00:00:00", or "...Z"
         if isinstance(v, str):
-            print(v)
             v = v.replace("Z", "+00:00")
             # keep only the date portion if a datetime string is provided
             return date.fromisoformat(v.split("T")[0])
@@ -33,10 +31,8 @@ class HippoPersonIdentificationCreate(HippoPersonIdentificationBase):
 
     @validator("expiration_date", pre=True)
     def parse_expiration_date(cls, v):
-        print(v)
         # Accept "1992-03-13", "1992-03-13T00:00:00", or "...Z"
         if isinstance(v, str):
-            print(v)
             v = v.replace("Z", "+00:00")
             # keep only the date portion if a datetime string is provided
             return date.fromisoformat(v.split("T")[0])

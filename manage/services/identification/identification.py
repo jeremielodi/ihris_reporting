@@ -173,7 +173,6 @@ async def create_identification(
     await session.commit()
     await session.refresh(new_identification)
 
-    print(new_identification)
     return new_identification
 
 

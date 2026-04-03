@@ -37,3 +37,9 @@ CREATE TABLE norm_requirement (
 INSERT INTO public.hippo_module_page (code, label, url, is_tree_item, module_id)  VALUES
 ('document_type_registry', 'TREE.DOCUMENT_TYPE', '/manage/document_type_registry', 1, 5),
 ('document_type_create', 'TREE.DOCUMENT_TYPE_NEW', '/manage/document_type_create', 0, 5);
+
+
+--- vendredi 6/02/2026
+INSERT INTO public.hippo_module_page (code, label, url, is_tree_item, module_id)  VALUES
+('identification_type_registry', 'TREE.IDENTIFICATION_TYPE', '/manage/identification_type_registry', 1, 5),
+('identification_type_create', 'TREE.IDENTIFICATION_TYPE_NEW', '/manage/identification_type_create', 0, 5);
