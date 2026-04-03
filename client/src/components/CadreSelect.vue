@@ -29,19 +29,28 @@ export default defineComponent({
     watch: {
         // When numeric value changes, fetch the selected classification object
         value(newVal) {
-            if (newVal !== null && newVal !== undefined) {
-                const result = this.cadres.filter((r) => r.id === newVal)[0];
-                this.dropdownValue = result;
-            } else {
-                this.dropdownValue = null;
-            }
+            this.setValue(newVal);
         }
     },
     async mounted() {
         const result = await CadreService.read(null, {});
         this.cadres = result || [];
+         this.setValue(this.value);
     },
     methods: {
+        setValue(newVal) {
+            if (newVal !== null && newVal !== undefined) {
+                if (typeof newVal == 'object') {
+                    const result = this.cadres.filter((r) => r.id === newVal.id)[0];
+                    this.dropdownValue = result;
+                } else {
+                    const result = this.cadres.filter((r) => r.id === newVal)[0];
+                    this.dropdownValue = result;
+                }
+            } else {
+                this.dropdownValue = null;
+            }
+        },
         onSelect(e) {
             const classification = e.value || this.dropdownValue;
             this.dropdownValue = classification;

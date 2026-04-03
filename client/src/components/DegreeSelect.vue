@@ -28,19 +28,23 @@ export default defineComponent({
     watch: {
         // When numeric value changes, fetch the selected degree object
         value(newVal) {
+            this.setValue(newVal);
+        }
+    },
+    async mounted() {
+        const result = await degreeService.read(null, {});
+        this.degrees = result || [];
+        this.setValue(this.value);
+    },
+    methods: {
+        setValue(newVal) {
             if (newVal !== null && newVal !== undefined) {
                 const result = this.degrees.filter((r) => r.id === newVal)[0];
                 this.dropdownValue = result;
             } else {
                 this.dropdownValue = null;
             }
-        }
-    },
-    async mounted() {
-        const result = await degreeService.read(null, {});
-        this.degrees = result || [];
-    },
-    methods: {
+        },
         onSelect(e) {
             const degree = e.value || this.dropdownValue;
             this.dropdownValue = degree;

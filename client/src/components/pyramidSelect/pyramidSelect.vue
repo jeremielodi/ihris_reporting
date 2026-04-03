@@ -31,9 +31,19 @@ export default defineComponent({
     },
     watch: {
         value(newVal) {
-            console.log('Value prop changed:', newVal);
+            this.setValue(newVal);
+        }
+    },
+    async mounted() {
+        if (this.value) {
+            this.setValue(this.value);
+        }
+    },
+    methods: {
+        setValue(newVal) {
             if (newVal) {
                 if (newVal.key === this.currentNode.key) return;
+                if (!newVal.key || !newVal.key) return;
 
                 if (!newVal.name) {
                     OrgUnitService.read(newVal.key).then((res) => {
@@ -53,9 +63,8 @@ export default defineComponent({
             } else {
                 this.currentNode = {};
             }
-        }
-    },
-    methods: {
+        
+        },
         closeDialog(node) {
             if (node) {
                 this.onChange(node);

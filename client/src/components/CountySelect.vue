@@ -29,21 +29,24 @@ export default defineComponent({
     watch: {
         // When numeric value changes, fetch the selected classification object
         value(newVal) {
-            
-            if (newVal !== null && newVal !== undefined) {
-               this.find(newVal);
-            } else {
-                this.dropdownValue = null;
-            }
+            this.setValue(newVal);
         }
     },
     async mounted() {
         const result = await CountyService.read(null, {});
         this.countys = result || [];
+        this.setValue(this.value);
     },
     methods: {
+        setValue(newVal) {
+            if (newVal !== null && newVal !== undefined) {
+               this.find(newVal);
+            } else {
+                this.dropdownValue = null;
+            }
+        },
         find(id) {
-            CountyService.read(id).then(county => {
+            CountyService.read(id).then((country) => {
                  this.dropdownValue = county;
             })
         },
