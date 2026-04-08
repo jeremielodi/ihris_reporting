@@ -95,12 +95,17 @@ export default defineComponent({
                 formated.birthdate = UtilService.formatDate(new Date(formated.birthdate), 'YYYY-MM-DD');
             }
 
-            PeopleService.read(null, {
+            const parameters = {
                 lastname: formated.lastname,
-                middlename: formated.middlename,
-                firstname: formated.firstname,
                 birthdate: formated.birthdate
-            })
+            };
+            if (formated.firstname) {
+                parameters.firstname = formated.firstname;
+            }
+            if (formated.middlename) {
+                parameters.middlename = formated.middlename;
+            }
+            PeopleService.read(null, parameters)
                 .then((listPerson) => {
                     this.listExistingPersons = listPerson;
                 })
