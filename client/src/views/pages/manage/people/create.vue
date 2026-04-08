@@ -1,7 +1,7 @@
 <script>
 import { defineComponent } from 'vue';
 import MyInputText from '@/components/InputText.vue';
-import personService from './people.service';
+import PeopleService from './people.service';
 import NotifyService from '@/service/Notify.service';
 import UtilService from '@/service/UtilService.js';
 import GenderSelect from '@/components/GenderSelect.vue';
@@ -19,6 +19,8 @@ export default defineComponent({
             formSubmitted: false,
             personId: null,
             canEditPerson: false,
+            personExists: false,
+            listExistingPersons: [],
             person: { lastname: null, residence: null, dependents: 0 }
         };
     },
@@ -26,7 +28,7 @@ export default defineComponent({
         const { id } = this.$route.query;
         if (id) {
             this.personId = id;
-            personService.read(id).then((person) => {
+            PeopleService.read(id).then((person) => {
                 setTimeout(() => {
                     this.person = person;
                     this.person.gender = person.gender_id;
@@ -79,7 +81,6 @@ export default defineComponent({
             let validKey = true;
             for (const key of Object.keys(options)) {
                 if (!options[key]) {
-                    console.log(key);
                     validKey = false;
                     break;
                 }
@@ -87,7 +88,31 @@ export default defineComponent({
 
             return validKey;
         },
+        searchExisting() {
+            const formated = Object.assign({}, this.person);
+            if (this.personId || !formated.birthdate || !formated.lastname) return;
+            if (formated.birthdate) {
+                formated.birthdate = UtilService.formatDate(new Date(formated.birthdate), 'YYYY-MM-DD');
+            }
+
+            PeopleService.read(null, {
+                lastname: formated.lastname,
+                middlename: formated.middlename,
+                firstname: formated.firstname,
+                birthdate: formated.birthdate
+            })
+                .then((listPerson) => {
+                    this.listExistingPersons = listPerson;
+                })
+                .catch((error) => {
+                    console.error('Error fetching user data:', error);
+                })
+                .finally(() => {
+                    this.loading = false;
+                });
+        },
         createPerson() {
+            if (this.listExistingPersons.length > 0) return;
             this.formSubmitted = true;
             const isValid = this.validate();
             if (!isValid) {
@@ -102,7 +127,7 @@ export default defineComponent({
                 formated.recruitment_date = UtilService.formatDate(new Date(formated.recruitment_date), 'YYYY-MM-DD');
             }
             delete formated.created;
-            const operation = this.personId ? personService.update(this.personId, formated) : personService.create(formated);
+            const operation = this.personId ? PeopleService.update(this.personId, formated) : PeopleService.create(formated);
             operation
                 .then((response) => {
                     NotifyService.success(this, '', null);
@@ -126,7 +151,7 @@ export default defineComponent({
         <form @submit.prevent="createPerson" style="width: 100%">
             <div class="col-12">
                 <hr />
-                <button type="submit" class="p-button p-component p-button-primary">
+                <button type="submit" class="p-button p-component p-button-primary" v-if="listExistingPersons.length == 0">
                     <span class="p-button-label">
                         {{ $t('FORM.BUTTONS.SUBMIT') }}
                     </span>
@@ -138,6 +163,21 @@ export default defineComponent({
             </div>
 
             <div class="grid blockPanel">
+                <div v-if="listExistingPersons.length > 0" class="col-12">
+                    <div v-for="p in this.listExistingPersons" :key="p.id">
+                        <span style="color: #9ca3af">{{ $t('FORM.LABELS.EXISTING_PERSON') }}: </span>
+                        <p
+                            @click="
+                                () => {
+                                    this.$router.push(`/manage/people_record_view?id=${p.id}`);
+                                }
+                            "
+                            style="color: red; background: #fee2e2; padding: 10px; border-radius: 5px; cursor: pointer"
+                        >
+                            <i class="pi pi-eye" style="font-size: 1.4rem"></i> {{ p.lastname }}, {{ p.firstname }} - {{ p.birthdate }}, {{ p.degree  }}
+                        </p>
+                    </div>
+                </div>
                 <div class="col-12 lg:col-5 xl:col-5 p-field">
                     <MyInputText
                         id="lastname"
@@ -147,6 +187,7 @@ export default defineComponent({
                         @onChange="
                             (value) => {
                                 person.lastname = value;
+                                searchExisting();
                             }
                         "
                         :validationTrigger="formSubmitted"
@@ -185,6 +226,7 @@ export default defineComponent({
                         @onChange="
                             (value) => {
                                 person.birthplace = value;
+                                searchExisting();
                             }
                         "
                         :validationTrigger="formSubmitted"
@@ -200,6 +242,7 @@ export default defineComponent({
                         @onChange="
                             (value) => {
                                 this.person.birthdate = value;
+                                searchExisting();
                             }
                         "
                         :validationTrigger="formSubmitted"

@@ -3,6 +3,8 @@
 # ---------------------------------------------------------
 
 # ORM models (User, Person, EntityMap for incremental numbering, and AuditLog)
+from datetime import date
+
 from manage.models import HippoUser, HippoPerson, HippoEntityMap, HippoAuditLog
 
 # Pydantic schemas for People (create/update/read + query params)
@@ -21,7 +23,7 @@ from fastapi import APIRouter, Depends, HTTPException
 
 # SQLAlchemy ORM query builder (used for update)
 from sqlalchemy.future import select
-
+from fastapi import Depends
 # Database session factory
 from manage.database import SessionLocal, engine
 
@@ -60,7 +62,7 @@ async def get_session() -> AsyncSession:
 # ---------------------------------------------------------
 # INTERNAL QUERY HELPER: lookup people with joins + filters
 # ---------------------------------------------------------
-async def lookUp(id: str, queryParameters: PeopelQueryParameters | None, db: AsyncSession):
+async def lookUp(id: str, queryParameters = PeopelQueryParameters, db: AsyncSession = Depends(get_session)):
     """
     Generic people lookup query used by multiple endpoints.
 
@@ -71,6 +73,7 @@ async def lookUp(id: str, queryParameters: PeopelQueryParameters | None, db: Asy
     - Supports filters:
       - by person id
       - by name (firstname or lastname)
+      - by birthdate (exact match)
       - by matricule (via hippo_person_identification)
     - Limits results to 25 to avoid heavy responses.
     """
@@ -131,6 +134,7 @@ async def lookUp(id: str, queryParameters: PeopelQueryParameters | None, db: Asy
         where_clauses.append("p.id = :person_id")
         params["person_id"] = id
 
+   
     # Filter by name/matricule if queryParameters provided
     if queryParameters is not None:
         if queryParameters.name is not None:
@@ -139,6 +143,30 @@ async def lookUp(id: str, queryParameters: PeopelQueryParameters | None, db: Asy
             where_clauses.append("p.firstname ILIKE :name OR p.lastname ILIKE :name")
             params["name"] = f"%{queryParameters.name}%"
 
+        if queryParameters.firstname is not None:
+                    # NOTE: This condition should ideally be grouped with parentheses.
+                    # Current version: "A OR B" can interact badly with other AND clauses.
+            where_clauses.append("p.firstname ILIKE :firstname")
+            params["firstname"] = queryParameters.firstname
+
+        if queryParameters.middlename is not None:
+                    # NOTE: This condition should ideally be grouped with parentheses.
+                    # Current version: "A OR B" can interact badly with other AND clauses.
+            where_clauses.append("p.middlename ILIKE :middlename")
+            params["middlename"] = queryParameters.middlename
+
+        if queryParameters.lastname is not None:
+                    # NOTE: This condition should ideally be grouped with parentheses.
+                    # Current version: "A OR B" can interact badly with other AND clauses.
+            where_clauses.append("p.lastname ILIKE :lastname")
+            params["lastname"] = queryParameters.lastname
+
+        if queryParameters.lastname is not None:
+                    # NOTE: This condition should ideally be grouped with parentheses.
+                    # Current version: "A OR B" can interact badly with other AND clauses.
+            where_clauses.append("p.lastname ILIKE :lastname")
+            params["lastname"] = queryParameters.lastname
+
         if queryParameters.matricule is not None:
             # Filter by identification number (matricule) through identification table
             where_clauses.append(
@@ -146,12 +174,17 @@ async def lookUp(id: str, queryParameters: PeopelQueryParameters | None, db: Asy
             )
             params["matricule"] = f"%{queryParameters.matricule}%"
 
+        if queryParameters.birthdate is not None:
+            where_clauses.append("p.birthdate = :birthdate")
+            params["birthdate"] = queryParameters.birthdate  # Convert date to string for SQL
+
+    print(params)
     # Append WHERE clause if any filters exist
     if where_clauses:
         sql += " WHERE " + " AND ".join(where_clauses)
 
     # Hard limit to prevent huge responses
-    sql += " LIMIT 25"
+    sql += " LIMIT 25 "
 
     # Execute query safely with bound parameters
     result = await db.execute(text(sql), params)
@@ -171,6 +204,10 @@ async def lookUp(id: str, queryParameters: PeopelQueryParameters | None, db: Asy
 async def get_peoples(
     name: str = None,
     matricule: str = None,
+    lastname: str = None,
+    firstname: str = None,
+    middlename: str = None,
+    birthdate: str = None,
     db: AsyncSession = Depends(get_session)
 ):
     """
@@ -180,7 +217,7 @@ async def get_peoples(
     - name: searches firstname or lastname using ILIKE
     - matricule: searches in hippo_person_identification.number using ILIKE
     """
-    result = await lookUp(None, PeopelQueryParameters(name=name, matricule=matricule), db)
+    result = await lookUp(None, PeopelQueryParameters(name=name, firstname=firstname, middlename=middlename, lastname=lastname, birthdate=birthdate, matricule=matricule), db)
     return result
 
 

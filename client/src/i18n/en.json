@@ -16,6 +16,7 @@
             "DEPENDENTS": "Persons in charge",
             "SELECT_FILE": "File selection",
             "APP_NAME": "Application name",
+            "EXISTING_PERSON":"Existing Person",
             "LOGO": "Logo",
             "VERSION": "Version",
             "RESPONSIBLE_NAME": "Responsible name",

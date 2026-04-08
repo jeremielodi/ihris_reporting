@@ -11,6 +11,7 @@
             "OLD_PASSWORD": "Ancien mot de passe",
             "CONFIRM_PASSWORD": "Confirmer le mot de passe",
             "LEVEL": "Niveau",
+            "EXISTING_PERSON": "Un agent avec le meme nom et date de naissance existe deja",
             "DEPENDENTS": "Personnes en charge",
             "START_SERVICE_DATE": "Date de prise de service",
             "RECUITMENT_DATE": "Date de récrutement",

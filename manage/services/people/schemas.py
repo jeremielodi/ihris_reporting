@@ -35,7 +35,6 @@ class HippoPersonCreate(HippoPersonBase):
     def parse_birthdate(cls, v):
         # Accept "1992-03-13", "1992-03-13T00:00:00", or "...Z"
         if isinstance(v, str):
-            print('istring')
             v = v.replace("Z", "+00:00")
             # keep only the date portion if a datetime string is provided
             return date.fromisoformat(v.split("T")[0])
@@ -66,7 +65,21 @@ class HippoPersonRead(HippoPersonBase):
         orm_mode = True
 
 
-class PeopelQueryParameters(HippoPersonBase):
-    id: Optional[str] 
+class PeopelQueryParameters(BaseModel):
+    
     name: Optional[str] 
+    lastname : Optional[str]
+    middlename : Optional[str]
+    firstname : Optional[str]
     matricule: Optional[str]
+    birthdate: Optional[date]
+    id: Optional[str] 
+
+    @validator("birthdate", pre=True)
+    def parse_birthdate(cls, v):
+        # Accept "1992-03-13", "1992-03-13T00:00:00", or "...Z"
+        if isinstance(v, str):
+            v = v.replace("Z", "+00:00")
+            # keep only the date portion if a datetime string is provided
+            return date.fromisoformat(v.split("T")[0])
+        return v
