@@ -99,10 +99,10 @@ export default defineComponent({
                 lastname: formated.lastname,
                 birthdate: formated.birthdate
             };
-            if (formated.firstname) {
+            if (this.person.firstname) {
                 parameters.firstname = formated.firstname;
             }
-            if (formated.middlename) {
+            if (this.person.middlename) {
                 parameters.middlename = formated.middlename;
             }
             PeopleService.read(null, parameters)
