@@ -90,6 +90,7 @@ async def lookUp(id: str, queryParameters = PeopelQueryParameters, db: AsyncSess
             p.birthplace,
             p.residence,
             p.dependents,
+            p.recruitment_doc_ref,
             gender.id as gender_id,
             gender.name as gender,
             hc.id as nationality_id,
@@ -112,6 +113,7 @@ async def lookUp(id: str, queryParameters = PeopelQueryParameters, db: AsyncSess
                 nationality,
                 gender,
                 marital_status,
+                recruitment_doc_ref,
                 degree
             FROM hippo_person 
             ORDER BY created ASC

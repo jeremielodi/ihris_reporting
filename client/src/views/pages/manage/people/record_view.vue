@@ -226,6 +226,13 @@ export default defineComponent({
                     <td class="fieldName">{{ $t('FORM.LABELS.NATIONALITY') }}</td>
                     <td class="fieldValue">{{ person.nationality }}</td>
                 </tr>
+
+                 <tr>
+                    <td class="fieldName">{{ $t('FORM.LABELS.REF_STARTING_DOC') }}</td>
+                    <td class="fieldValue">{{ person.recruitment_doc_ref }}</td>
+                </tr>
+                
+
             </tbody>
         </table>
 

@@ -654,6 +654,7 @@ class HippoPerson(Base):
     birthplace = Column(String)
     birthdate = Column(Date, nullable=True)
     recruitment_date = Column(Date, nullable=True)
+    recruitment_doc_ref = Column(String(255), nullable=True)
     email = Column(String(255), nullable=True)
     marital_status = Column(String(255), nullable=True, index=True)
     nationality = Column(String(255), nullable=True, index=True)

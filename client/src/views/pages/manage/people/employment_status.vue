@@ -186,22 +186,7 @@ export default defineComponent({
                     />
 
 
-                    <MyInputText
-                        id="employment_date"
-                        :modelValue="this.employmnet_info.employment_date"
-                        :label="$t('FORM.LABELS.STARTING_DATE')"
-                        type="date"
-                        :maxVal="new Date()"
-                        :required="true"
-                        @onChange="
-                            (value) => {
-                                this.employmnet_info.employment_date = value;
-                            }
-                        "
-                        :validationTrigger="formSubmitted"
-                    />
-
-
+                  
                     <PyramidSelect
                         id="facility"
                         :value="{ key: this.employmnet_info.facility_id }"
@@ -217,6 +202,22 @@ export default defineComponent({
                     />
 
 
+                      <MyInputText
+                        id="employment_date"
+                        :modelValue="this.employmnet_info.employment_date"
+                        :label="$t('FORM.LABELS.STARTING_DATE')"
+                        type="date"
+                        :maxVal="new Date()"
+                        :required="true"
+                        @onChange="
+                            (value) => {
+                                this.employmnet_info.employment_date = value;
+                            }
+                        "
+                        :validationTrigger="formSubmitted"
+                    />
+
+
                 </div>
                 <div class="col-12 lg:col-1 xl:col-1 p-field"></div>
 
@@ -225,7 +226,7 @@ export default defineComponent({
                    <MyInputText
                         id="comm_affectation"
                         v-model="this.employmnet_info.position_decision_ref"
-                        label="Ref commission d'affectation"
+                        :label="$t('FORM.LABELS.REF_POSITION_DECISION_DOC')"
                         type="text"
                         :required="false"
                         @onChange="
@@ -239,7 +240,7 @@ export default defineComponent({
                     <MyInputText
                         id="ref_engagement"
                         v-model="this.employmnet_info.ref_engagement"
-                        :label="$t('FORM.LABELS.REF_STARTING_DOC')"
+                        :label="$t('FORM.LABELS.REF_ENGAMENT_DOC')"
                         type="text"
                         :required="false"
                         @onChange="
@@ -253,7 +254,7 @@ export default defineComponent({
                     <EmployeeStatusSelect
                         id="employee_status"
                         :value="this.employmnet_info.employee_status"
-                        label="TREE.EMPLOYMENT_STATUS"
+                        label="TREE.EMPLOYEE_STATUS"
                         :required="false"
                         :onChange="
                             (value) => {

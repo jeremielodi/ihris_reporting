@@ -832,6 +832,7 @@ CREATE TABLE public.hippo_person (
     birthplace text,
     birthdate date,
     recruitment_date date,
+    recruitment_doc_ref VARCHAR(255),
     email VARCHAR(255),
     marital_status VARCHAR(255),
     nationality VARCHAR(255),

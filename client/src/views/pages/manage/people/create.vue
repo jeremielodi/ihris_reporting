@@ -311,6 +311,20 @@ export default defineComponent({
                         :validationTrigger="formSubmitted"
                     />
 
+                    <MyInputText
+                        id="recruitment_doc_ref"
+                        v-model="this.person.recruitment_doc_ref"
+                        :label="$t('FORM.LABELS.REF_STARTING_DOC')"
+                        type="text"
+                        :required="false"
+                        @onChange="
+                            (value) => {
+                                this.person.recruitment_doc_ref = value;
+                            }
+                        "
+                        :validationTrigger="formSubmitted"
+                    />
+
                     <PyramidSelect
                         id="residence"
                         :value="{ key: this.person.residence }"

@@ -12,6 +12,7 @@ class HippoPersonBase(BaseModel):
     birthplace: Optional[str] = None
     birthdate: Optional[date] = None
     recruitment_date: Optional[date] = None
+    recruitment_doc_ref: Optional[str] = None
     email: Optional[str] = None      
     marital_status: Optional[str] = None
     nationality: Optional[str] = None
