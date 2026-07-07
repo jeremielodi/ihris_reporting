@@ -143,6 +143,17 @@ const router = createRouter({
                     name: 'classification_create',
                     component: () => import('@/views/pages/manage/classification/create.vue')
                 },
+
+                {
+                    path: 'employee_status_registry',
+                    name: 'employee_status_registry',
+                    component: () => import('@/views/pages/manage/employee_status/registry.vue')
+                },
+                  {
+                    path: 'employee_status_create',
+                    name: 'employee_status_create',
+                    component: () => import('@/views/pages/manage/employee_status/create.vue')
+                },
                 {
                     path: 'grade_registry',
                     name: 'grade_registry',

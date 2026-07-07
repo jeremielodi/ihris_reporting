@@ -116,10 +116,13 @@ export default defineComponent({
                             <InputGroupAddon>
                                 <i class="pi pi-search"></i>
                             </InputGroupAddon>
-                            <InputText v-model="matricule" @update:modelValue="searchPeople()" placeholder="Matricule" />
-                            <InputText v-model="searchText" @update:modelValue="searchPeople()" placeholder="Noms" />
-                            <Button v-if="canEditPerson" :label="$t('FORM.BUTTONS.ADD')" @click="this.$router.push('/manage/people_create')" icon="pi pi-plus" />
+                            <InputText v-model="matricule" placeholder="Matricule" />
+                            <InputText v-model="searchText" placeholder="Noms" />
 
+                            <Button  :label="$t('FORM.BUTTONS.SEARCH')" icon="pi pi-search" @click="searchPeople()"/>
+                             <span style="width: 30px;"></span>
+                            <Button v-if="canEditPerson" :label="$t('FORM.BUTTONS.ADD')" @click="this.$router.push('/manage/people_create')" icon="pi pi-plus" />
+                           
                             <Button v-if="canEditPerson" :label="$t('IMPORT')" @click="gotoImport()" severity="secondary" icon="pi pi-plus" />
                         </InputGroup>
                     </span>

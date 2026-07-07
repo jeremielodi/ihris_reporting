@@ -777,6 +777,11 @@
         "REASON_DEPARTURE": "Reason for Departure",
         "REASON_DEPARTURE_NEW": "New Reason for Departure",
         "REASON_DEPARTURE_UPDATE": "Update Reason for Departure",
+
+        "EMPLOYEE_STATUS": "Employee Status",
+        "EMPLOYEE_STATUS_NEW": "New Employee Status",
+        "EMPLOYEE_STATUS_UPDATE": "Update Employee Status",
+
         "EMPLOYMENT_STATUS": "Employment Status",
         "EMPLOYMENT_STATUS_NEW": "New Employment Status",
         "EMPLOYMENT_STATUS_UPDATE": "Update Employment Status",

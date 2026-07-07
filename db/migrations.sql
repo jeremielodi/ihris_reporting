@@ -43,3 +43,12 @@ INSERT INTO public.hippo_module_page (code, label, url, is_tree_item, module_id)
 INSERT INTO public.hippo_module_page (code, label, url, is_tree_item, module_id)  VALUES
 ('identification_type_registry', 'TREE.IDENTIFICATION_TYPE', '/manage/identification_type_registry', 1, 5),
 ('identification_type_create', 'TREE.IDENTIFICATION_TYPE_NEW', '/manage/identification_type_create', 0, 5);
+
+
+
+
+INSERT INTO public.hippo_module_page (code, label, url, is_tree_item, module_id)  VALUES
+
+('employee_status_registry', 'TREE.EMPLOYEE_STATUS', '/manage/employee_status_registry', 1, 5),
+('employee_status_create', 'TREE.EMPLOYEE_STATUS_NEW', '/manage/employee_status_create', 0, 5);
+

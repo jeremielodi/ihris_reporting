@@ -629,7 +629,7 @@ const showPersonDialog = () => {
                     <Column field="salary_grade" header="GRADE" footer="GRADE" style="min-width: 200px"></Column>
                     <Column field="salaire" header="SALAIRE" footer="GRADE" style="max-width: 80px"></Column>
                     <Column field="prime" header="PRIME" footer="PRIME" style="max-width: 80px"></Column>
-                    <Column field="year_of_appointment" header="DATE D'ENGAGEMENT" footer="DATE D'ENGAGEMENT" style="max-width: 150px"></Column>
+                    <Column field="year_of_appointment" :header="$t('FORM.LABELS.STARTING_DATE')" :footer="$t('FORM.LABELS.STARTING_DATE')" style="max-width: 150px"></Column>
                     <Column field="ref_on_employment" header=" REF. COMMISION D'AFFECTATION" footer="REF. COMMISIION D'AFFECTATION" style="min-width: 400px"></Column>
                     <Column field="ref_engagement" header="REF. ARRETE D'ADMISSION SOUS STATUT" footer="REF ARRETE D'ADMISSION SOUS STATUT" style="min-width: 300px"></Column>
                     <Column field="mobile_phone" header="TELEPHONE" footer="TELEPHONE" style="min-width: 100px"></Column>

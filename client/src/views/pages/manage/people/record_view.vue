@@ -416,7 +416,7 @@ export default defineComponent({
                                         <td class="fieldValue">{{ info.position_decision_ref }}</td>
                                     </tr>
                                     <tr>
-                                        <td class="fieldName">Ref Act d'engagement</td>
+                                        <td class="fieldName">{{ $t('FORM.LABELS.REF_STARTING_DOC') }}</td>
                                         <td class="fieldValue">{{ info.ref_engagement }}</td>
                                     </tr>
 
@@ -438,7 +438,7 @@ export default defineComponent({
                                         <td class="fieldValue">{{ $t(`FORM.LABELS.${info.allowance ? 'YES' : 'NO'}`) }}</td>
                                     </tr>
                                     <tr>
-                                        <td class="fieldName">Position</td>
+                                        <td class="fieldName">{{$t('TREE.EMPLOYEE_STATUS')}}</td>
                                         <td class="fieldValue">{{ info.employee_status_name }}</td>
                                     </tr>
                                 </tbody>

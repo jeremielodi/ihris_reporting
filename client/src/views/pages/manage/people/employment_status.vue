@@ -189,7 +189,7 @@ export default defineComponent({
                     <MyInputText
                         id="employment_date"
                         :modelValue="this.employmnet_info.employment_date"
-                        label="Date d'engagement"
+                        :label="$t('FORM.LABELS.STARTING_DATE')"
                         type="date"
                         :maxVal="new Date()"
                         :required="true"
@@ -239,7 +239,7 @@ export default defineComponent({
                     <MyInputText
                         id="ref_engagement"
                         v-model="this.employmnet_info.ref_engagement"
-                        label="Ref Act d'engagement"
+                        :label="$t('FORM.LABELS.REF_STARTING_DOC')"
                         type="text"
                         :required="false"
                         @onChange="
