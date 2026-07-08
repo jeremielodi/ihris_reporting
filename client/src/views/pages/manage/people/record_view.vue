@@ -47,6 +47,7 @@ export default defineComponent({
             this.getIdentifications();
             this.getTimeSheets(id);
             this.getDocuments(id);
+            this.getPersonSpecialities(id);
         }
     },
     methods: {
@@ -67,6 +68,11 @@ export default defineComponent({
         openDeleteDocumentConfirm(doc) {
             this.selectedDocument = doc;
             this.displayDeleteDocumentConfirm = true;
+        },
+        getPersonSpecialities(id) {
+            PeopleService.specialities(id).then((specialities) => {
+                this.person.specialities = specialities.map((s) => s.name).join(', ');
+            });
         },
         DeleteConfirmDialog(value) {
             this.displayDeleteDocumentConfirm = false;
@@ -221,6 +227,11 @@ export default defineComponent({
                 <tr>
                     <td class="fieldName">{{ $t('FORM.LABELS.RESIDENCE') }}</td>
                     <td class="fieldValue">{{ person.residence }}</td>
+                </tr>
+
+                <tr>
+                    <td class="fieldName">{{ $t('TREE.SPECIALITY_LIST') }}</td>
+                    <td class="fieldValue">{{ person.specialities }}</td>
                 </tr>
                 <tr>
                     <td class="fieldName">{{ $t('FORM.LABELS.NATIONALITY') }}</td>
