@@ -30,6 +30,11 @@
             "SALARY": "Salary",
             "ALLOWANCE": "Allowance",
             "NATIONALTY": "Nationality",
+            "SPECIALITIES": "Specialities",
+            "SELECTED": "selected",
+            "MAX": "Max",
+            "SELECT_ALL": "Select All",
+            "CLEAR_ALL": "Clear All",
             "JOB": "Job",
             "CATEGORY": "Category",
             "AGENT": "Agent",
@@ -710,6 +715,14 @@
             "VIEW_CLOSING_BALANCE": "View Closing Balance",
             "COMMITMENT": "Information regarding the commitment"
         },
+          "PLACEHOLDERS": {
+            "SELECT_SPECIALITIES": "Select specialities",
+            "SEARCH_SPECIALITIES": "Search specialities..."
+        },
+        "MESSAGES": {
+            "NO_SPECIALITIES_FOUND": "No specialities found",
+            "REMAINING": "Remaining selections"
+        },
         "ERRORS": {
             "INVALID": "Invalid data",
             "REQUIRED": "This value is required"
@@ -827,7 +840,11 @@
         "DOCUMENT_TYPE":"Document type",
         "DOCUMENT_TYPE_NEW":"New document type",
         "DOCUMENT_TYPE_UPDATE":"Update Document type",
-        "ADMIN_DOCUMENTS":"Administratives Documents"
+        "ADMIN_DOCUMENTS":"Administratives Documents",
+        "SPECIALITY": "Speciality",
+        "SPECIALITY_LIST": "Specialities",
+        "SPECIALITY_NEW": "New Speciality",
+        "SPECIALITY_UPDATE": "Update Speciality"
     },
     "WELCOME": {
         "TITLE": "Welcome to iHRIS Manage!",

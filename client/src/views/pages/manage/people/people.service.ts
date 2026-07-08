@@ -34,6 +34,11 @@ function _PeopleService() {
         return service.documents.get(`/upload/${personId}`);
     };
 
+    service.specialities = (personId) => {
+        return service.get(`/${personId}/specialities`);
+    };
+
+    // HippoSpecialityRead
     return service;
 }
 

@@ -39,6 +39,7 @@ from manage.services.norms import norm
 from manage.services.norms import norm_requirement
 from manage.services.document_type import docment_type
 from manage.services.document import document
+from manage.services.speciality import speciality
 
 router = APIRouter()
 
@@ -83,3 +84,4 @@ router.include_router(norm.apiRouter, tags=["Norms"])
 router.include_router(norm_requirement.APIRouter, tags=["Norm Requirements"])
 router.include_router(docment_type.apiRouter, tags=["Document type"])
 router.include_router(document.apiRouter, tags=["Document"])
+router.include_router(speciality.apiRouter, tags=["Specialities"])

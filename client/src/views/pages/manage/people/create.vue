@@ -9,6 +9,7 @@ import MaritalStatusSelect from '@/components/MaritalStatus.vue';
 import PyramidSelect from '@/components/pyramidSelect/pyramidSelect.vue';
 import CountrySelect from '@/components/CountrySelect.vue';
 import DegreeSelect from '@/components/DegreeSelect.vue';
+import SpecialityMultiSelect from '@/components/SpecialityMultiSelect.vue';
 import RoleService from '../role/roleService';
 import constants from '../../../../service/constants';
 
@@ -41,6 +42,7 @@ export default defineComponent({
                     if (person.recruitment_date) {
                         this.person.recruitment_date = new Date(person.recruitment_date);
                     }
+                    this.getPersonSpecialities();
                 }, 400);
             });
         }
@@ -52,9 +54,16 @@ export default defineComponent({
         MaritalStatusSelect,
         PyramidSelect,
         CountrySelect,
-        DegreeSelect
+        DegreeSelect,
+        SpecialityMultiSelect,
     },
     methods: {
+        getPersonSpecialities() {
+            if(!this.personId) return;
+            PeopleService.specialities(this.personId).then((specialities) => {
+                this.person.specialities = specialities.map((s) => s.id);
+            });
+        },
         reset() {
             this.person = {};
             this.formSubmitted = false;
@@ -252,11 +261,8 @@ export default defineComponent({
                         "
                         :validationTrigger="formSubmitted"
                     />
-                </div>
-                <div class="col-12 lg:col-1 xl:col-1 p-field"></div>
 
-                <div class="col-12 lg:col-5 xl:col-5 p-field">
-                    <GenderSelect
+                      <GenderSelect
                         id="gender"
                         :value="person.gender"
                         label="FORM.LABELS.GENDER"
@@ -270,6 +276,26 @@ export default defineComponent({
                     />
                     <br />
 
+                        <MaritalStatusSelect
+                        id="marital_status"
+                        :value="person.marital_status"
+                        label="FORM.LABELS.MARITAL_STATUS"
+                        :required="true"
+                        :onChange="
+                            (value) => {
+                                person.marital_status = value.id;
+                            }
+                        "
+                        :validationTrigger="formSubmitted"
+                    />
+
+
+                </div>
+                <div class="col-12 lg:col-1 xl:col-1 p-field"></div>
+
+                <div class="col-12 lg:col-5 xl:col-5 p-field">                  
+                
+
                     <DegreeSelect
                         id="degree"
                         :value="person.degree"
@@ -282,15 +308,15 @@ export default defineComponent({
                         "
                         :validationTrigger="formSubmitted"
                     />
-
-                    <MaritalStatusSelect
-                        id="marital_status"
-                        :value="person.marital_status"
-                        label="FORM.LABELS.MARITAL_STATUS"
-                        :required="true"
+                    <SpecialityMultiSelect
+                        id="speciality"
+                        :value="person.specialities || []"
+                        label="TREE.SPECIALITY"
+                        :required="false"
                         :onChange="
                             (value) => {
-                                person.marital_status = value.id;
+                                console.log('Selected Specialities in create.vue:', value);
+                                person.specialities = value || [];
                             }
                         "
                         :validationTrigger="formSubmitted"

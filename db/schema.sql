@@ -1206,7 +1206,8 @@ CREATE TABLE public.hippo_speciality (
     parent VARCHAR(255),
     last_modified timestamptz NOT NULL DEFAULT now(),
     created timestamptz NOT NULL DEFAULT now(),
-    description VARCHAR(255)
+    name VARCHAR(255),
+    code VARCHAR(255)
 );
 
 

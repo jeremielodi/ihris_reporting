@@ -961,10 +961,17 @@ class HippoSpeciality(Base):
     parent = Column(String(255), default='|')
     last_modified = Column(DateTime, default=None)
     created = Column(DateTime, default=datetime.datetime.now())
-    remap = Column(String(255), nullable=True)
-    i2ce_hidden = Column(Integer, nullable=True)
     name = Column(String(255), nullable=True)
+    code = Column(String(255), nullable=True)
 
+class HippoSpecialityPerson(Base):
+    __tablename__ = "hippo_speciality_person"
+    id = Column(String(255), primary_key=True)
+    parent = Column(String(255), default='|')
+    last_modified = Column(DateTime, default=datetime.datetime.now())
+    created = Column(DateTime,default=datetime.datetime.now())
+    speciality_id = Column(String(255))
+    person_id = Column(String(255))
 
 class HippoSpecialityType(Base):
     __tablename__ = "hippo_speciality_type"
