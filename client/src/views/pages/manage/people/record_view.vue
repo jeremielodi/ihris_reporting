@@ -238,12 +238,15 @@ export default defineComponent({
                     <td class="fieldValue">{{ person.nationality }}</td>
                 </tr>
 
-                 <tr>
+                <tr>
+                    <td class="fieldName">{{ $t('FORM.LABELS.RECRUITMENT_DATE') }}</td>
+                    <td class="fieldValue">{{ person.recruitment_date }}</td>
+                </tr>
+
+                <tr>
                     <td class="fieldName">{{ $t('FORM.LABELS.REF_STARTING_DOC') }}</td>
                     <td class="fieldValue">{{ person.recruitment_doc_ref }}</td>
                 </tr>
-                
-
             </tbody>
         </table>
 
@@ -430,12 +433,13 @@ export default defineComponent({
                                         <td class="fieldValue">{{ info.employment_date }}</td>
                                     </tr>
                                     <tr>
-                                        <td class="fieldName">Ref commission d'affectation</td>
-                                        <td class="fieldValue">{{ info.position_decision_ref }}</td>
-                                    </tr>
-                                    <tr>
-                                        <td class="fieldName">{{ $t('FORM.LABELS.REF_STARTING_DOC') }}</td>
+                                        <td class="fieldName">{{ $t('FORM.LABELS.REF_ENGAMENT_DOC') }}</td>
                                         <td class="fieldValue">{{ info.ref_engagement }}</td>
+                                    </tr>
+
+                                    <tr>
+                                        <td class="fieldName">{{ $t('FORM.LABELS.REF_POSITION_DECISION_DOC') }}</td>
+                                        <td class="fieldValue">{{ info.position_decision_ref }}</td>
                                     </tr>
 
                                     <tr>
