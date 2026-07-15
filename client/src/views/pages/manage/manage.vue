@@ -164,7 +164,49 @@ export default defineComponent({
 
 .myAppMenu {
     font-size: 14px !important;
-    color: red;
+}
+
+.myAppMenu :deep(.p-tree-node-content) {
+    border-radius: 8px;
+    padding: 0.6rem 0.75rem;
+    margin-bottom: 2px;
+    transition: background-color 0.15s ease;
+}
+
+.myAppMenu :deep(.p-tree-node-content:hover) {
+    background: var(--surface-hover);
+}
+
+.myAppMenu :deep(.p-tree-node-selected) {
+    background: var(--primary-50, #eef2ff) !important;
+    box-shadow: inset 3px 0 0 0 var(--primary-color, #6366f1);
+}
+
+.myAppMenu :deep(.p-tree-node-selected .p-tree-node-label) {
+    color: var(--primary-color, #6366f1);
+    font-weight: 600;
+}
+
+.myAppMenu :deep(.p-tree-root-children > .p-tree-node > .p-tree-node-content .p-tree-node-label) {
+    font-weight: 600;
+}
+
+.myAppMenu :deep(.p-tree-node-icon.pi-folder) {
+    color: var(--primary-color, #6366f1);
+}
+
+.myAppMenu :deep(.p-tree-node-icon.pi-file) {
+    color: var(--text-color-secondary);
+    font-size: 0.85rem;
+}
+
+.myAppMenu :deep(.p-tree-node-toggle-button) {
+    width: 1.5rem;
+    height: 1.5rem;
+}
+
+.myAppMenu :deep(.p-tree-node-children) {
+    padding-left: 0.75rem;
 }
 
 .manage-container {
@@ -174,6 +216,7 @@ export default defineComponent({
 }
 
 .layout-sidebar {
+    width: 280px;
     padding-top: 20px;
 }
 
@@ -181,6 +224,23 @@ export default defineComponent({
     .layout-sidebar {
         margin-top: 70px;
         padding-left: 40px !important;
+    }
+}
+
+@media (min-width: 992px) {
+    .layout-wrapper.layout-static .layout-main-container {
+        margin-left: 250px;
+    }
+
+    /* Collapsed state (toggle button in the topbar): let the page reclaim
+       the full width, same as the main app layout does. Needs to be
+       re-declared here (not just inherited from _responsive.scss) because
+       Vue's scoped-style attribute bumps this rule's specificity above the
+       plain margin-left:250px rule above, so without this override toggling
+       the menu would leave the content pinned at 250px. */
+    .layout-wrapper.layout-static.layout-static-inactive .layout-main-container {
+        margin-left: 0;
+        padding-left: 2rem;
     }
 }
 </style>

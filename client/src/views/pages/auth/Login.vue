@@ -1,61 +1,65 @@
 <template>
-  <div class="surface-ground flex align-items-center justify-content-center min-h-screen min-w-screen overflow-hidden">
-    <div class="flex flex-column align-items-center justify-content-center">
-      <div @keydown="(e) => {
-        console.log(e.key);
-        if(e.key.toLowerCase() =='enter') this.login();
-      }">
-        
-          <div class="w-full surface-card py-8 px-5 sm:px-6 border-round-2xl" style="border-radius: 3px">
-            <div class="text-center mb-5" v-if="appSetting">
-              <img :src="server + 'uploads/'+ appSetting.logo" alt="Image" height="70" class="mb-3" />
-              <div class="text-900 text-3xl font-medium mb-3">{{appSetting.app_name || 'IHRIS Reporting'}}</div>
-              <span class="text-600 font-medium">Connectez-vous pour continuer</span>
-            </div>
-
-            <div class="flex flex-column gap-1">
-              <label for="username" class="block text-xl font-medium m-2">Nom d'utilisateur</label>
-              <InputText
-                id="username"
-                v-model="username"
-                type="text"
-                placeholder="Nom d'utilisateur"
-                class="w-full md:w-30rem mb-1 border-round-3xl"
-                :invalid="usernameInvalid"
-                style="padding: 1rem"
-                autocomplete="username"
-              />
-
-              <label for="password" class="block font-medium text-xl m-2">Mot de passe</label>
-              <Password
-                id="password"
-                v-model="password"
-                :feedback="false"
-                :toggleMask="true"
-                class="w-full mb-3"
-                inputClass="w-full border-round-3xl"
-                :inputStyle="{ padding: '1rem' }"
-                :invalid="passwordInvalid"
-                autocomplete="current-password"
-              />
-
-              <div  
-              class="flex align-items-center justify-content-between mb-5 ml-2 gap-5">
-                <small v-if="errorDisplay" class="text-pink-800">{{ errorMsg || validationError }}</small>
-              </div>
-
-              <Button
-                data-testid="submit"
-                :loading="loading"
-                :disabled="loading"
-                label="Se connecter"
-                class="w-full p-3 border-round-3xl"
-                @click="login"
-              />
-            </div>
-          </div>
-      
+  <div class="login-page flex align-items-center justify-content-center min-h-screen min-w-screen overflow-hidden">
+    <div class="login-card surface-card border-round-2xl py-6 px-5 sm:px-6">
+      <div class="text-center mb-5">
+        <div class="logo-badge mx-auto mb-3 flex align-items-center justify-content-center">
+          <img
+            v-if="appSetting && appSetting.logo"
+            :src="server + 'uploads/' + appSetting.logo"
+            alt="Logo"
+            class="logo-image"
+          />
+          <i v-else class="pi pi-building text-3xl" />
+        </div>
+        <div class="text-900 text-3xl font-semibold mb-2">
+          {{ (appSetting && appSetting.app_name) || 'IHRIS Reporting' }}
+        </div>
+        <span class="text-600">Connectez-vous pour continuer</span>
       </div>
+
+      <form class="flex flex-column gap-2" @submit.prevent="login">
+        <label for="username" class="block font-medium text-700 mb-1">Nom d'utilisateur</label>
+        <IconField class="mb-2">
+          <InputIcon class="pi pi-user" />
+          <InputText
+            id="username"
+            v-model="username"
+            type="text"
+            placeholder="Nom d'utilisateur"
+            class="w-full"
+            :invalid="usernameInvalid"
+            autocomplete="username"
+          />
+        </IconField>
+
+        <label for="password" class="block font-medium text-700 mb-1">Mot de passe</label>
+        <IconField class="mb-3">
+          <InputIcon class="pi pi-lock" />
+          <Password
+            id="password"
+            v-model="password"
+            :feedback="false"
+            :toggleMask="true"
+            class="w-full"
+            input-class="w-full"
+            :invalid="passwordInvalid"
+            autocomplete="current-password"
+          />
+        </IconField>
+
+        <Message v-if="errorDisplay" severity="error" :closable="false" class="mb-3">
+          {{ errorDisplay }}
+        </Message>
+
+        <Button
+          type="submit"
+          data-testid="submit"
+          :loading="loading"
+          :disabled="loading"
+          label="Se connecter"
+          class="w-full p-3 border-round-xl"
+        />
+      </form>
     </div>
   </div>
 
@@ -69,6 +73,9 @@ import apiService from "@/service/ApiService";
 import InputText from "primevue/inputtext";
 import Password from "primevue/password";
 import Button from "primevue/button";
+import Message from "primevue/message";
+import IconField from "primevue/iconfield";
+import InputIcon from "primevue/inputicon";
 import SettingService from '@/views/pages/manage/setting/setting.service';
 import UserService from '@/views/pages/manage/user/user.service';
 
@@ -88,7 +95,7 @@ interface LoginResponse {
 
 export default defineComponent({
   name: "LoginPage",
-  components: { AppConfig, InputText, Password, Button },
+  components: { AppConfig, InputText, Password, Button, Message, IconField, InputIcon },
   data() {
     return {
       loading: false as boolean,
@@ -117,8 +124,10 @@ export default defineComponent({
   methods: {
     loadSettings(){
        SettingService.read(1).then((res) => {
-       this.appSetting = res;
-      })
+        this.appSetting = res;
+      }).catch(() => {
+        // Branding is best-effort; fall back to the default title/icon.
+      });
     },
     async login() {
       this.validationError = "";
@@ -179,19 +188,41 @@ export default defineComponent({
       if (data.validator !== undefined) {
         localStorage.setItem("validator", data.validator);
       }
-      
+
     },
   },
 });
 </script>
 
 <style scoped>
-.pi-eye,
-.pi-eye-slash {
-  transform: scale(1.6);
-  margin-right: 1rem;
+.login-page {
+  background: radial-gradient(circle at top left, #e0f2fe 0%, #eef2ff 45%, #f8fafc 100%);
 }
-.text-pink-800 {
-  color: #9d174d;
+.login-card {
+  width: 100%;
+  max-width: 26rem;
+  box-shadow: 0 20px 45px -12px rgba(15, 23, 42, 0.18);
+}
+.logo-badge {
+  width: 4.5rem;
+  height: 4.5rem;
+  border-radius: 50%;
+  background: var(--primary-color, #6366f1);
+  color: var(--primary-color-text, #ffffff);
+  overflow: hidden;
+}
+.logo-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+:deep(.p-inputtext),
+:deep(.p-password-input) {
+  padding-top: 0.85rem;
+  padding-bottom: 0.85rem;
+  border-radius: 0.75rem;
+}
+:deep(.p-message) {
+  border-radius: 0.75rem;
 }
 </style>

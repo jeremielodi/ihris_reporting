@@ -131,7 +131,7 @@ export default {
 <template>
     <div class="layout-topbar">
         <router-link to="/" class="layout-topbar-logo" v-if="appSetting">
-            <img :src="server + 'uploads/' + appSetting.logo" alt="logo" />
+            <img v-if="appSetting.logo" :src="server + 'uploads/' + appSetting.logo" alt="logo" />
             <span class="font-normal">{{ appSetting.app_name }}</span>
         </router-link>
         <button v-if="topbar_button" class="p-link layout-menu-button layout-topbar-button" @click="onMenuToggle()">

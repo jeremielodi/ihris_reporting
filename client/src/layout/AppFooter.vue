@@ -21,7 +21,7 @@ onMounted(() => {
 
 <template>
     <div class="layout-footer"  v-if="appSetting">
-        <img  :src="server + 'uploads/'+appSetting.logo"  alt="Logo" height="80" style="padding-right: 10px; border-right: 4px solid #ccc" class="mr-2" />
+        <img v-if="appSetting.logo" :src="server + 'uploads/'+appSetting.logo"  alt="Logo" height="80" style="padding-right: 10px; border-right: 4px solid #ccc" class="mr-2" />
 
         <div>
             <span class="font-medium ml-2">
