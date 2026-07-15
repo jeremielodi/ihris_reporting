@@ -123,7 +123,7 @@ export default defineComponent({
             :currentTR="currentTR" :currentHA="currentHA" :currentFacility="currentFacility" />
         <div class="layout-sidebar">
             <div class="grid">
-                <div class="col-12" style="height: calc(100vh - 9rem); overflow: scroll">
+                <div class="col-12">
                     <Tree v-model:selectionKeys="selectedKey" @nodeSelect="nodeSelect" :value="nodes"
                         style="width: 100%; padding:0px" selectionMode="single" class="w-full md:w-[30rem] myAppMenu">
                     </Tree>
