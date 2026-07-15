@@ -10,7 +10,7 @@ data/*
 
 # config/Database.py
 
-./pgdata
+pgdata/
 
 
 # Logs
