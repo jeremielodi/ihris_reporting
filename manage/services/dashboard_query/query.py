@@ -21,6 +21,7 @@ from fastapi import APIRouter, Depends, HTTPException, status
 
 # SQLAlchemy ORM query builder
 from sqlalchemy.future import select
+from sqlalchemy import text
 
 # Database session factory
 from manage.database import SessionLocal
@@ -30,10 +31,29 @@ from endpoints.user_api import get_current_active_user
 
 # UUID handling
 import uuid as uuid_lib
+import re
 
 
 # Create router
 apiRouter = APIRouter()
+
+# Only allow read-only statements through the ad-hoc SQL runner below.
+_DISALLOWED_SQL_KEYWORDS = re.compile(
+    r"\b(insert|update|delete|drop|alter|create|truncate|grant|revoke|"
+    r"attach|copy|vacuum|call|do|execute|merge)\b",
+    re.IGNORECASE,
+)
+
+
+def _assert_read_only_sql(sql: str) -> None:
+    statements = [s.strip() for s in sql.split(";") if s.strip()]
+    if len(statements) != 1:
+        raise HTTPException(status_code=400, detail="Only a single SELECT statement is allowed")
+    statement = statements[0]
+    if not statement.lower().startswith(("select", "with")):
+        raise HTTPException(status_code=400, detail="Only SELECT statements are allowed")
+    if _DISALLOWED_SQL_KEYWORDS.search(statement):
+        raise HTTPException(status_code=400, detail="Statement contains a disallowed keyword")
 
 
 # ---------------------------------------------------------
@@ -52,32 +72,29 @@ async def get_session() -> AsyncSession:
 # RUN CUSTOM DASHBOARD QUERY
 # =========================================================
 
-@apiRouter.post("/dashboard_queries/run")
+@apiRouter.post(
+    "/dashboard_queries/run",
+    dependencies=[Depends(get_current_active_user)],
+)
 async def post_run_dashboard_queries(
     data: DashboardQueryRun,
     session: AsyncSession = Depends(get_session)
 ):
     """
-    Execute a raw SQL query stored or provided by user.
+    Execute a dashboard-authored SQL query.
 
-    ⚠️ CRITICAL SECURITY WARNING:
-    This endpoint executes raw SQL directly:
-        await session.execute(data.sql)
-
-    This exposes your database to:
-    - SQL injection
-    - Data destruction
-    - Privilege escalation
-
-    MUST:
-    - Restrict to read-only queries
-    - Validate query structure
-    - Or sandbox execution
+    Restricted to a single read-only SELECT/WITH statement (see
+    _assert_read_only_sql) and requires authentication, since this
+    endpoint otherwise gives direct SQL access to the database.
     """
 
+    _assert_read_only_sql(data.sql)
+
     try:
-        result = await session.execute(data.sql)
-        return result.all()
+        result = await session.execute(text(data.sql), data.parameters or {})
+        return result.mappings().all()
+    except HTTPException:
+        raise
     except Exception as e:
         raise HTTPException(
             status_code=500,
@@ -89,7 +106,11 @@ async def post_run_dashboard_queries(
 # GET ALL DASHBOARD QUERIES
 # =========================================================
 
-@apiRouter.get("/dashboard_queries/", response_model=list[DashboardQueryRead])
+@apiRouter.get(
+    "/dashboard_queries/",
+    response_model=list[DashboardQueryRead],
+    dependencies=[Depends(get_current_active_user)],
+)
 async def get_dashboard_queries(session: AsyncSession = Depends(get_session)):
     """
     Retrieve all dashboard queries.
@@ -104,7 +125,11 @@ async def get_dashboard_queries(session: AsyncSession = Depends(get_session)):
 # GET DASHBOARD QUERIES BY DASHBOARD UUID
 # =========================================================
 
-@apiRouter.get("/dashboard_queries/for/{dashboard_uuid}", response_model=list[DashboardQueryRead])
+@apiRouter.get(
+    "/dashboard_queries/for/{dashboard_uuid}",
+    response_model=list[DashboardQueryRead],
+    dependencies=[Depends(get_current_active_user)],
+)
 async def get_dashboard_queries_for_dashboard(
     dashboard_uuid: str,
     session: AsyncSession = Depends(get_session)
@@ -127,7 +152,11 @@ async def get_dashboard_queries_for_dashboard(
 # GET DASHBOARD QUERY BY UUID
 # =========================================================
 
-@apiRouter.get("/dashboard_queries/{queryUuid}", response_model=DashboardQueryRead)
+@apiRouter.get(
+    "/dashboard_queries/{queryUuid}",
+    response_model=DashboardQueryRead,
+    dependencies=[Depends(get_current_active_user)],
+)
 async def get_dashboard_query(
     queryUuid: str,
     session: AsyncSession = Depends(get_session)
@@ -308,7 +337,11 @@ async def delete_dashboard_query(
 # SEARCH DASHBOARD QUERIES
 # =========================================================
 
-@apiRouter.get("/dashboard_queries/search/", response_model=list[DashboardQueryRead])
+@apiRouter.get(
+    "/dashboard_queries/search/",
+    response_model=list[DashboardQueryRead],
+    dependencies=[Depends(get_current_active_user)],
+)
 async def search_dashboard_queries(
     query: str = None,
     dashboard_uuid: str = None,

@@ -208,11 +208,11 @@ async def get_OrganisationUnit(id: str, db: AsyncSession = Depends(get_session))
     Prefer parameterized queries (like you did in /path endpoint).
     """
 
-    result = await db.execute(text(f"""
+    result = await db.execute(text("""
         SELECT *
         FROM organization_unit
-        WHERE id='{id}'
-    """))
+        WHERE id=:id
+    """), {"id": id})
 
     rows = result.mappings().all()
     if len(rows) == 0:
@@ -237,12 +237,12 @@ async def get_OrganisationUnit(parentId: str, db: AsyncSession = Depends(get_ses
     Prefer parameterized query (WHERE parent=:parentId).
     """
 
-    result = await db.execute(text(f"""
+    result = await db.execute(text("""
         SELECT *
         FROM organization_unit
-        WHERE parent='{parentId}'
+        WHERE parent=:parentId
         ORDER BY name
-    """))
+    """), {"parentId": parentId})
 
     rows = result.all()
     return rows
@@ -265,7 +265,7 @@ async def get_OrganisationUnitTree(parentId: str, db: AsyncSession = Depends(get
     - Returns: id, name, parent, level, path_text ordered by path_ids.
     """
 
-    result = await db.execute(text(f"""
+    result = await db.execute(text("""
         WITH RECURSIVE tree AS (
 
             -- Start node
@@ -277,7 +277,7 @@ async def get_OrganisationUnitTree(parentId: str, db: AsyncSession = Depends(get
                 ARRAY[id::text] AS path_ids,
                 name::text AS path_text
             FROM organization_unit
-            WHERE id= '{parentId}'
+            WHERE id= :parentId
 
             UNION ALL
 
@@ -296,7 +296,7 @@ async def get_OrganisationUnitTree(parentId: str, db: AsyncSession = Depends(get
         SELECT id, name, parent, level, path_text
         FROM tree
         ORDER BY path_ids;
-    """))
+    """), {"parentId": parentId})
 
     rows = result.all()
     return rows

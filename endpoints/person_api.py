@@ -12,7 +12,6 @@ from models.validation_crud import validation_count
 from reports.reports import download_data
 from models.models import Hippo_person, Person, Record
 from jinja2 import Environment, FileSystemLoader
-from weasyprint import HTML
 
 async def get_session() -> AsyncSession:
     async with SessionLocal() as session:

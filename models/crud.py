@@ -204,12 +204,17 @@ def get_scheduled_training_course(db:Session,startDate:str, endDate:str, categor
         left join hippo_county on hippo_county.id  = hippo_scheduled_training_course.location 
         """
        
-        query = f"{query} WHERE (hippo_scheduled_training_course.created BETWEEN   '{startDate} 00:00:00'  AND '{endDate} 00:00:00')"
-        if category != '1': 
-            query =  f"{query} and  hippo_training_course_category.id =  '{category}'"
+        query = f"{query} WHERE (hippo_scheduled_training_course.created BETWEEN :startDate AND :endDate)"
+        params = {
+            "startDate": f"{startDate} 00:00:00",
+            "endDate": f"{endDate} 00:00:00",
+        }
+        if category != '1':
+            query = f"{query} and  hippo_training_course_category.id = :category"
+            params["category"] = category
 
-        result  = db.execute(text(query))
-        return   result.fetchall() 
+        result  = db.execute(text(query), params)
+        return   result.fetchall()
 
 def scheduled_training_course_details(db:Session,scheduled_training_course_id:str):
 
@@ -230,9 +235,9 @@ def scheduled_training_course_details(db:Session,scheduled_training_course_id:st
              join hippo_person_id on hippo_person_id.parent = hippo_person.id
              left join hippo_facility on hippo_facility.id  =  hippo_employment_status_rdc.facility
              left join  hippo_health_area on hippo_health_area.id =  hippo_facility.location 
-        WHERE  hippo_person_scheduled_training_course.scheduled_training_course = '{scheduled_training_course_id}'
+        WHERE  hippo_person_scheduled_training_course.scheduled_training_course = :scheduled_training_course_id
     """
-    result  = db.execute(text(query))
+    result  = db.execute(text(query), {"scheduled_training_course_id": scheduled_training_course_id})
     
     cadres = db.query(Cadre).where(Cadre.i2ce_hidden == 0).all()
     

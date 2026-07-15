@@ -1,9 +1,19 @@
-from sqlalchemy import Column, String, Integer, Date, DateTime,Numeric, Text, LargeBinary
+from sqlalchemy import Column, String, Integer, Date, DateTime,Numeric, Text, LargeBinary, Boolean
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.dialects.postgresql import UUID
 import datetime
 
 Base = declarative_base()
+
+
+class HippoRefreshToken(Base):
+    __tablename__ = "hippo_refresh_token"
+    id = Column(UUID(as_uuid=True), primary_key=True)
+    user_id = Column(String(255), nullable=False, index=True)
+    token_hash = Column(String(64), nullable=False, unique=True, index=True)
+    created = Column(DateTime, default=datetime.datetime.now())
+    expires = Column(DateTime, nullable=False)
+    revoked = Column(Boolean, nullable=False, default=False)
 
 class User(Base):
     __tablename__ = "users"

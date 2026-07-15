@@ -13,7 +13,6 @@ from reports.reports import (
     revenvus_report_data,
     get_internal_completeness_report_career,
 )
-from weasyprint import HTML
 
 from sqlalchemy.ext.asyncio import AsyncSession
 from manage.database import SessionLocal as AsyncSessionLocal

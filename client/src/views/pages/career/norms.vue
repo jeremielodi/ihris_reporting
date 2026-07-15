@@ -4,6 +4,7 @@ import OrgUnitNormChart from '../../../components/OrgUnitNormChart.vue';
 import ClassificationService from '../manage/classification/classification.service';
 import PyarmidPath from './PyarmidPath.vue';
 import { ref } from 'vue';
+import { saveAs } from 'file-saver';
 
 const resultTree = ref(null);
 const classificationMap = ref({});
@@ -97,6 +98,14 @@ const treeUpdated = (node) => {
     onclickGetReport(node);
 };
 
+// The export endpoint requires authentication, so it must be fetched via
+// the API service (which attaches the Bearer token) rather than a plain
+// <a href> link, which cannot send custom headers.
+const downloadTreeExport = async (orgUnitId) => {
+    const blob = await NormService.downloadTreeExport(orgUnitId);
+    saveAs(blob, `norms_${orgUnitId}.xlsx`);
+};
+
 defineExpose({
     treeUpdated
 });
@@ -126,7 +135,7 @@ defineExpose({
             <template v-if="resultTree">
                 <template v-for="orgUnit in resultTree" :key="orgUnit.id">
                     <div style="float: right; margin-top: -35px">
-                        <a target="_blank" class="p-button-success p-button-sm mx-2" :href="NormService.server + `manage/norms/${orgUnit.id}/tree/export`"> <i class="pi pi-download"></i> {{ $t('FORM.BUTTONS.DOWNLOAD') }} </a>
+                        <button type="button" class="p-button-success p-button-sm mx-2" @click="downloadTreeExport(orgUnit.id)"> <i class="pi pi-download"></i> {{ $t('FORM.BUTTONS.DOWNLOAD') }} </button>
                     </div>
 
                    

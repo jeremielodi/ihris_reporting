@@ -209,8 +209,8 @@ use([
 ]);
 
 /* Services (same as your original) */
-import axios from "axios";
 import _AppCache from "../service/appCache";
+import { withAuthRetry } from "../service/authRefresh";
 import MetabaseService from "@/views/pages/career/metabase/metabase.service";
 import OrgUnitService from "../views/pages/manage/organization_units/orgUnit.service";
 
@@ -878,7 +878,10 @@ export default defineComponent({
       this.downloading = true;
       const cache = _AppCache.getSession() || {};
       try {
-        const res = await axios.post(url, this.createRequestFilter(), {
+        const res = await withAuthRetry({
+          url,
+          method: "post",
+          data: this.createRequestFilter(),
           responseType: "blob",
           timeout: 300000,
           headers: {

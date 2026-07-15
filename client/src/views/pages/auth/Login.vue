@@ -74,6 +74,7 @@ import UserService from '@/views/pages/manage/user/user.service';
 
 interface LoginResponse {
   token: string;
+  refresh_token: string;
   username: string;
   user_id:string,
   validator?: string;
@@ -157,6 +158,9 @@ export default defineComponent({
     storeToken(data: LoginResponse) {
       localStorage.setItem("_vlogin", "1");
       localStorage.setItem("_ihris_token", data.token);
+      if (data.refresh_token) {
+        localStorage.setItem("_ihris_refresh_token", data.refresh_token);
+      }
       localStorage.setItem("_ihris_username", data.username);
       localStorage.setItem("_ihris_user_id", data.user_id);
       if (data.access?.access_facility) {

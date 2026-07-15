@@ -1,10 +1,10 @@
 from sqlalchemy import text
 
 async def get_OrganisationUnit(id:str,db):
-    result = await db.execute(text(f"""
+    result = await db.execute(text("""
         SELECT *
-        FROM organization_unit 
-        WHERE id= :id                             
+        FROM organization_unit
+        WHERE id= :id
     """), { "id": id})
     rows = result.mappings().all()
     if len(rows) == 0:
@@ -15,10 +15,10 @@ async def get_OrganisationUnit(id:str,db):
 # get all organization_units tree from parent id
 async def get_OrganisationUnitTree(parentId:str,db):
     
-    result = await db.execute(text(f"""
+    result = await db.execute(text("""
         WITH RECURSIVE tree AS (
 
-            SELECT 
+            SELECT
                 id,
                 name,
                 parent,
@@ -26,7 +26,7 @@ async def get_OrganisationUnitTree(parentId:str,db):
                 ARRAY[id::text] AS path_ids,
                 name::text AS path_text
             FROM organization_unit
-            WHERE id= '{parentId}'
+            WHERE id= :parentId
 
             UNION ALL
 
@@ -43,6 +43,6 @@ async def get_OrganisationUnitTree(parentId:str,db):
         )
         SELECT id, name, parent, level, path_text
         FROM tree
-        ORDER BY path_ids;                 
-    """))
+        ORDER BY path_ids;
+    """), {"parentId": parentId})
     return result.mappings().all()

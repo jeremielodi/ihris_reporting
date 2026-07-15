@@ -22,7 +22,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.security import HTTPBasic, HTTPBasicCredentials
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
-import weasyprint
+
 
 # ----------------------------
 # Internal imports (your app)
@@ -46,7 +46,6 @@ from manage.routes import router as manageApiRouter
 # ---------------------------------------------------------
 # Logging / third-party setup
 # ---------------------------------------------------------
-weasyprint.DEBUG = False
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
@@ -170,7 +169,16 @@ def register_routes(app: FastAPI) -> None:
     require_auth = Depends(endpoints.user_api.get_current_active_user)
 
     # Manage API (already has its own routes inside manage/routes.py)
-    app.include_router(manageApiRouter, prefix="/manage", tags=["manage"])
+    # Router-level auth as defense-in-depth: most sub-routes already require
+    # get_current_active_user individually, but a few (e.g. norms, some
+    # dashboard_query endpoints) did not. The frontend always attaches the
+    # Bearer token, so this does not change behavior for already-working flows.
+    app.include_router(
+        manageApiRouter,
+        prefix="/manage",
+        tags=["manage"],
+        dependencies=[require_auth],
+    )
 
     # Auth / users endpoints (some of these include login endpoints)
     app.include_router(endpoints.user_api.api_user_router, tags=["users"])
@@ -217,12 +225,11 @@ def register_routes(app: FastAPI) -> None:
     )
 
     # Files endpoints
-    # NOTE: You had no auth dependency here; keep it if intended, otherwise add `dependencies=[require_auth]`.
     app.include_router(
         endpoints.person_file_api.router,
         prefix="/files",
         tags=["files"],
-        # dependencies=[require_auth],  # uncomment if required
+        dependencies=[require_auth],
     )
 
     # Validation endpoints

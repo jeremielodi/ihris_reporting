@@ -1,6 +1,7 @@
 import axios, { AxiosResponse, AxiosRequestConfig, ResponseType } from 'axios';
 import NProgress from 'nprogress';
 import AppCache from './appCache';
+import { clearAuthTokens, withAuthRetry } from './authRefresh';
 
 // Helper function to unwrap the HTTP response
 function unwrapHttpResponse(response: AxiosResponse): any {
@@ -8,10 +9,10 @@ function unwrapHttpResponse(response: AxiosResponse): any {
   return hasData ? response.data : response;
 }
 
-// Centralized 401 error handler
+// Centralized 401 error handler (called once a refresh attempt, if any, has failed)
 function handleAuthError(error: any): Promise<never> {
   if (error.response?.status === 401) {
-    localStorage.removeItem('_ihris_token');
+    clearAuthTokens();
     AppCache.clearSession?.();
     setTimeout(() => {
       window.location.reload();
@@ -19,6 +20,7 @@ function handleAuthError(error: any): Promise<never> {
   }
   return Promise.reject(error);
 }
+
 
 // Generic HTTP request function
 function httpRequest(
@@ -50,7 +52,7 @@ function httpRequest(
   };
 
   NProgress.start();
-  return axios(config)
+  return withAuthRetry(config)
     .then((resp) => {
       NProgress.done();
       return unwrapHttpResponse(resp);
@@ -73,7 +75,7 @@ function pdfStreamRequest(
   const cache = AppCache.getSession() || {};
   NProgress.start();
 
-  return axios({
+  return withAuthRetry({
     url,
     method,
 
@@ -108,7 +110,7 @@ function HTMLStreamRequest(url: string, method: string, param: Record<string, an
 
   const cache = AppCache.getSession() || {};
   NProgress.start();
-  return axios({
+  return withAuthRetry({
     url,
     method,
     data: _data,

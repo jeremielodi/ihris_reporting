@@ -2,12 +2,15 @@ import fastapi
 
 
 def get_timesheet_query(datestr: str):
-
-    subquery = f" order by hippo_person_timesheet.created desc  limit 145018"
+    """
+    Returns (sql, params). Caller must pass params to db.execute(text(sql), params).
+    """
     if datestr != '':
-        subquery = f" where date(hippo_person_timesheet.created) >= '{datestr}' order by hippo_person_timesheet.created asc  limit 4000"
+        subquery = " where date(hippo_person_timesheet.created) >= :datestr order by hippo_person_timesheet.created asc  limit 4000"
+        return timesheet_query + subquery, {"datestr": datestr}
 
-    return timesheet_query + subquery
+    subquery = " order by hippo_person_timesheet.created desc  limit 145018"
+    return timesheet_query + subquery, {}
 
 
 timesheet_query = """
@@ -62,17 +65,20 @@ timesheet_query = """
         left join hippo_person on hippo_person.id = hippo_person_timesheet.parent
 """
 
-def person_file_query(id ):
-   a =   f"""
-    select * FROM z_employment_status_view Where id = '{id}'
+def person_file_query(id):
     """
-   return a
+    Returns (sql, params). Caller must pass params to db.execute(text(sql), params).
+    """
+    a = """
+    select * FROM z_employment_status_view Where id = :id
+    """
+    return a, {"id": id}
 
 def person_file_employments(id):
-    q = f"""
+    q = """
         select *
         FROM hippo_employment_status_info
-        where person_id= '{id }'
+        where person_id= :id
         ORDER BY created asc
     """
-    return q
+    return q, {"id": id}

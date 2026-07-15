@@ -5,6 +5,7 @@ import { useLayout } from '@/layout/composables/layout';
 import SwitchLanguage from '../components/SwitchLanguage.vue';
 import SettingService from '@/views/pages/manage/setting/setting.service';
 import ChangePasswordModal from '@/views/pages/manage/user/change_pwd.vue';
+import UserService from '@/views/pages/manage/user/user.service';
 
 export default {
     name: 'Topbar',
@@ -115,7 +116,12 @@ export default {
         },
         logout() {
             this.topbarMenuActive = !this.topbarMenuActive;
-            ['_ihris_token', '_ihris_username', '_access_facility_id', '_access_facility_name', '_access_facility_type', '_access_facility_target', '_access_facility_parents', 'validator'].forEach((k) => localStorage.removeItem(k));
+            const refreshToken = localStorage.getItem('_ihris_refresh_token');
+            if (refreshToken) {
+                // Best-effort server-side revocation; don't block the UI logout on it.
+                UserService.users.reportingLogout(refreshToken).catch(() => {});
+            }
+            ['_ihris_token', '_ihris_refresh_token', '_ihris_username', '_access_facility_id', '_access_facility_name', '_access_facility_type', '_access_facility_target', '_access_facility_parents', 'validator'].forEach((k) => localStorage.removeItem(k));
             setTimeout(() => window.location.reload(), 600);
         }
     }

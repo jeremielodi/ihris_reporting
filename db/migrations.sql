@@ -54,6 +54,7 @@ INSERT INTO public.hippo_module_page (code, label, url, is_tree_item, module_id)
 
 ALTER TABLE public.hippo_person ADD recruitment_doc_ref VARCHAR(255);
 
+
 -- speciality
 
 DROP TABLE IF EXISTS public.hippo_speciality;
@@ -134,3 +135,16 @@ VALUES
 ('speciality|INFPE', 'Infirmier en pratique avancée', 'INFPE', '|', NOW(), NOW()),
 ('speciality|INFCL', 'Infirmier clinicien', 'INFCL', '|', NOW(), NOW())
 ON CONFLICT (id) DO NOTHING;
+
+
+-- refresh tokens for the /users/reporting/login flow (rotating, revocable)
+CREATE TABLE public.hippo_refresh_token (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    user_id VARCHAR(255) NOT NULL REFERENCES public.hippo_user(id),
+    token_hash VARCHAR(64) NOT NULL UNIQUE,
+    created timestamptz NOT NULL DEFAULT now(),
+    expires timestamptz NOT NULL,
+    revoked boolean NOT NULL DEFAULT false
+);
+
+CREATE INDEX ix_hippo_refresh_token_user_id ON public.hippo_refresh_token USING btree (user_id);

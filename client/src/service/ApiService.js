@@ -1,5 +1,6 @@
 import axios from 'axios';
 import NProgress from 'nprogress';
+import { refreshAccessToken, clearAuthTokens } from './authRefresh';
 
 let apiService = axios.create({
     //baseURL: 'http://127.0.0.1:8000/',
@@ -30,12 +31,24 @@ apiService.interceptors.response.use(
         NProgress.done();
         return response;
     },
-    function (error) {
+    async function (error) {
         NProgress.done();
         // Do something with response error
         console.error(error);
-        if (error.response.status === 401) {
-            localStorage.removeItem('_ihris_token');
+        const config = error.config || {};
+
+        if (error.response?.status === 401 && !config.__isRetry) {
+            const newToken = await refreshAccessToken();
+            if (newToken) {
+                apiService.defaults.headers.common['Authorization'] = `Bearer ${newToken}`;
+                config.__isRetry = true;
+                config.headers = { ...config.headers, Authorization: `Bearer ${newToken}` };
+                return apiService(config);
+            }
+        }
+
+        if (error.response?.status === 401) {
+            clearAuthTokens();
             //window.location.href = '/#/auth/login';
             setTimeout(() => {
                window.location.reload();

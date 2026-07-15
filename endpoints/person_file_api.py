@@ -5,7 +5,6 @@ from helpers.helpers import generate_qr_code
 from sqlalchemy.orm import Session
 from manage.database import SessionLocal, engine
 from models.crud import get_person_scheduled_training_course, get_person_timesheet
-from weasyprint import HTML
 from sqlalchemy.sql import text
 from sqlalchemy.ext.asyncio import AsyncSession
 from config.sqlquery import person_file_employments, person_file_query
@@ -22,17 +21,18 @@ async def get_session() -> AsyncSession:
 
 @router.get("/person")
 async def personFile(id, request: Request, db: Session = Depends(get_session) ):
-    query =  person_file_query(id)
+    query, params = person_file_query(id)
 
-    data  = await db.execute(text(query))
+    data  = await db.execute(text(query), params)
 
-    result = data.mappings().all() 
-    if (len(result)  == 0): 
+    result = data.mappings().all()
+    if (len(result)  == 0):
         return {"error": 'No such person'}
     person = result[0]
 
-    res = await db.execute(text(person_file_employments(id)))
-    employments = res.mappings().all() 
+    emp_query, emp_params = person_file_employments(id)
+    res = await db.execute(text(emp_query), emp_params)
+    employments = res.mappings().all()
 
     env = Environment(loader=FileSystemLoader("templates"))
     template = env.get_template("person-file.html")
