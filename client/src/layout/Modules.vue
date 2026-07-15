@@ -42,42 +42,40 @@ export default defineComponent({
         <app-topbar :topbar_button="false"></app-topbar>
         <div class="layout-main-container">
             <div class="layout-main">
-                <div class="surface-ground">
-                    <div class="flex flex-column align-items-center justify-content-center">
-                        <div style="border-radius: 56px; padding: 0.3rem">
-                            <div class="w-full surface-card pb-4 sm:px-8 flex flex-column align-items-center">
-                                <br /><br />
-                                <router-link v-if="userManageAccess" to="/manage/home" class="w-full flex align-items-center py-5 border-300 border-bottom-1">
-                                    <span class="flex justify-content-center align-items-center bg-green-400 border-round" style="height: 3.5rem; width: 3.5rem">
-                                        <i class="text-50 pi pi-fw pi-cog text-2xl"></i>
-                                    </span>
-                                    <span class="ml-4 flex flex-column" data-testid="manage">
-                                        <span class="text-900 lg:text-xl font-medium mb-0 block">iHRIS Manage</span>
-                                        <span class="text-600 lg:text-xl">Enregistrement des agents, configuration du système</span>
-                                    </span>
-                                </router-link>
+                <div class="surface-ground module-landing">
+                    <div class="module-grid">
+                        <router-link v-if="userManageAccess" to="/manage/home" class="module-card">
+                            <span class="module-icon bg-green-400">
+                                <i class="text-50 pi pi-fw pi-cog text-2xl"></i>
+                            </span>
+                            <span class="module-text" data-testid="manage">
+                                <span class="module-title">iHRIS Manage</span>
+                                <span class="module-desc">Enregistrement des agents, configuration du système</span>
+                            </span>
+                            <i class="pi pi-angle-right module-chevron"></i>
+                        </router-link>
 
-                                <router-link v-if="reportingAccess" to="/app/career" class="w-full flex align-items-center py-5 border-300 border-bottom-1">
-                                    <span class="flex justify-content-center align-items-center bg-cyan-400 border-round" style="height: 3.5rem; width: 3.5rem">
-                                        <i class="text-50 pi pi-fw pi-table text-2xl"></i>
-                                    </span>
-                                    <span class="ml-4 flex flex-column">
-                                        <span class="text-900 lg:text-xl font-medium mb-0 block">Gestion carrière</span>
-                                        <span class="text-600 lg:text-xl">Visualiser les rapports, complétudes de prestation, Situation salaire & prime, éligibilité à la retraite...</span>
-                                    </span>
-                                </router-link>
+                        <router-link v-if="reportingAccess" to="/app/career" class="module-card">
+                            <span class="module-icon bg-cyan-400">
+                                <i class="text-50 pi pi-fw pi-table text-2xl"></i>
+                            </span>
+                            <span class="module-text">
+                                <span class="module-title">Gestion carrière</span>
+                                <span class="module-desc">Visualiser les rapports, complétudes de prestation, Situation salaire & prime, éligibilité à la retraite...</span>
+                            </span>
+                            <i class="pi pi-angle-right module-chevron"></i>
+                        </router-link>
 
-                                <router-link v-if="trainingAccess" to="/app/training" class="w-full flex align-items-center py-5 border-300">
-                                    <span class="flex justify-content-center align-items-center bg-orange-400 border-round" style="height: 3.5rem; width: 3.5rem">
-                                        <i class="pi pi-fw pi-question-circle text-50 text-2xl"></i>
-                                    </span>
-                                    <span class="ml-4 flex flex-column">
-                                        <span class="text-900 lg:text-xl font-medium mb-0">Formation continue</span>
-                                        <span class="text-600 lg:text-xl">Formations programmées, personnel formé par catégorie professionnelle, test ...</span>
-                                    </span>
-                                </router-link>
-                            </div>
-                        </div>
+                        <router-link v-if="trainingAccess" to="/app/training" class="module-card">
+                            <span class="module-icon bg-orange-400">
+                                <i class="pi pi-fw pi-question-circle text-50 text-2xl"></i>
+                            </span>
+                            <span class="module-text">
+                                <span class="module-title">Formation continue</span>
+                                <span class="module-desc">Formations programmées, personnel formé par catégorie professionnelle, test ...</span>
+                            </span>
+                            <i class="pi pi-angle-right module-chevron"></i>
+                        </router-link>
                     </div>
                 </div>
             </div>
@@ -87,3 +85,74 @@ export default defineComponent({
         <div class="layout-mask"></div>
     </div>
 </template>
+
+<style scoped>
+.module-landing {
+    display: flex;
+    justify-content: center;
+    padding: 3rem 1.5rem;
+}
+
+.module-grid {
+    width: 100%;
+    max-width: 46rem;
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.module-card {
+    display: flex;
+    align-items: center;
+    gap: 1.25rem;
+    padding: 1.5rem;
+    background: var(--surface-card);
+    border-radius: 14px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+    border: 1px solid var(--surface-border);
+    text-decoration: none;
+    transition: transform 0.15s ease, box-shadow 0.15s ease, border-color 0.15s ease;
+}
+
+.module-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 24px rgba(0, 0, 0, 0.1);
+    border-color: var(--primary-color);
+}
+
+.module-icon {
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 3.5rem;
+    width: 3.5rem;
+    border-radius: 12px;
+}
+
+.module-text {
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+}
+
+.module-title {
+    color: var(--text-color);
+    font-size: 1.15rem;
+    font-weight: 600;
+    margin-bottom: 0.2rem;
+}
+
+.module-desc {
+    color: var(--text-color-secondary);
+    font-size: 0.9rem;
+    line-height: 1.4;
+}
+
+.module-chevron {
+    margin-left: auto;
+    color: var(--text-color-secondary);
+    font-size: 1.1rem;
+    flex-shrink: 0;
+}
+</style>
