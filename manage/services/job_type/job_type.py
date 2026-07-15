@@ -131,7 +131,7 @@ async def create_job_type(
     If names are not unique, you should add a uniqueness check.
     """
 
-    job_type_data = job_type.dict()
+    job_type_data = job_type.model_dump()
 
     # Generate ID using name
     job_type_data['id'] = f"job_type|{job_type.name}"
@@ -182,10 +182,7 @@ async def bulk_create_job_types(
 
     # Normalize payload and generate IDs
     for item in job_types:
-        try:
-            data = item.model_dump()  # Pydantic v2
-        except AttributeError:
-            data = item.dict()        # Pydantic v1 fallback
+        data = item.model_dump()
 
         classId = f"{entityName}|{maxNumber}"
         data["id"] = classId
@@ -251,7 +248,7 @@ async def update_job_type(
     if not existing_job_type:
         raise HTTPException(status_code=404, detail="Job type not found")
 
-    for key, value in job_type.dict().items():
+    for key, value in job_type.model_dump().items():
         if value is not None:
             setattr(existing_job_type, key, value)
 

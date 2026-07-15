@@ -127,7 +127,7 @@ async def create_Educational_major(
         HippoEducationalMajorRead
     """
 
-    Educational_major_data = Educational_major.dict()
+    Educational_major_data = Educational_major.model_dump()
 
     # Generate ID using naming convention
     Educational_major_data['id'] = (
@@ -184,10 +184,7 @@ async def bulk_create_classifications(
 
     # Normalize payload into list of dicts
     for item in majorTypes:
-        try:
-            data = item.model_dump()  # Pydantic v2
-        except AttributeError:
-            data = item.dict()  # Pydantic v1 fallback
+        data = item.model_dump()
 
         # Generate sequential ID
         majorId = f"educational_major|{maxNumber}"
@@ -254,7 +251,7 @@ async def update_Educational_major(
         raise HTTPException(status_code=404, detail="Educational_major not found")
 
     # Apply partial update
-    for key, value in Educational_major.dict().items():
+    for key, value in Educational_major.model_dump().items():
         if value is not None:
             setattr(existing_Educational_major, key, value)
 

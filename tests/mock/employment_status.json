@@ -1,0 +1,12 @@
+{
+  "employment_status": {
+    "name": "TestEmploymentStatus",
+    "code": "TES",
+    "parent": "|",
+    "remap": null,
+    "i2ce_hidden": 0
+  },
+  "employment_status_update": {
+    "code": "UPDATED"
+  }
+}

@@ -143,7 +143,7 @@ async def create_Contact(
     """
 
     # Convert Pydantic model to dictionary
-    Contact_data = Contact.dict()
+    Contact_data = Contact.model_dump()
 
     # Generate unique ID
     Contact_data['id'] = uuid.uuid4()
@@ -195,7 +195,7 @@ async def update_Contact(
         raise HTTPException(status_code=404, detail="Contact not found")
 
     # Update provided fields dynamically
-    for key, value in Contact.dict().items():
+    for key, value in Contact.model_dump().items():
         if value is not None and key != 'created':
             setattr(existing_Contact, key, value)
 

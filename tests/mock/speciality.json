@@ -1,0 +1,10 @@
+{
+  "speciality": {
+    "name": "TestSpeciality",
+    "code": "TSP",
+    "parent": "|"
+  },
+  "speciality_update": {
+    "code": "UPDATED"
+  }
+}

@@ -346,7 +346,7 @@ async def create_role(
 
     maxNumber = await entity_map.getMaxNumber("role", session)
     maxNumber = maxNumber + 1
-    role_data = role.dict()  # get dict from pydantic model
+    role_data = role.model_dump()  # get dict from pydantic model
     role_data['id'] = f"role|{maxNumber}"
     role_data['created_by'] = current_user_id
     new_role = HippoRole(**role_data)
@@ -371,7 +371,7 @@ async def update_role(role_id: str, role: HippoRoleUpdate, session: AsyncSession
     if not existing_role:
         raise HTTPException(status_code=404, detail="role not found")
     
-    for key, value in role.dict().items():
+    for key, value in role.model_dump().items():
         if value is not None and key != 'created':
             setattr(existing_role, key, value)
     

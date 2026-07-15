@@ -1,4 +1,4 @@
-from pydantic import BaseModel, EmailStr
+from pydantic import BaseModel, EmailStr, ConfigDict
 from typing import Optional
 from datetime import datetime
 
@@ -31,5 +31,4 @@ class HippoCadreRead(HippoCadreBase):
     translate_key: str | None
     
 
-    class Config:
-        orm_mode = True
+    model_config = ConfigDict(from_attributes=True)

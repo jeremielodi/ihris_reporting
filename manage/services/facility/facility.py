@@ -37,7 +37,7 @@ async def create_Facility(
     Facility:HippoFacilityCreate,
     session: AsyncSession = Depends(get_session),
 ):
-    Facility_data = Facility.dict()  # get dict from pydantic model
+    Facility_data = Facility.model_dump()  # get dict from pydantic model
     Facility_data['id'] = f"facility|{Facility.name}"
     
     new_Facility = HippoFacility(**Facility_data)
@@ -54,7 +54,7 @@ async def update_Facility(facility_id: str, Facility:HippoFacilityUpdate, sessio
     if not existing_Facility:
         raise HTTPException(status_code=404, detail="Facility not found")
     
-    for key, value in Facility.dict().items():
+    for key, value in Facility.model_dump().items():
         if value is not None:
             setattr(existing_Facility, key, value)
     

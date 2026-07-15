@@ -1,4 +1,4 @@
-from pydantic import BaseModel, EmailStr,validator
+from pydantic import BaseModel, EmailStr, field_validator, ConfigDict
 from typing import Optional
 from datetime import date, datetime
 
@@ -31,7 +31,8 @@ class HippoTimesheetCreate(HippoTimesheetBase):
     created: Optional[datetime] = datetime.now()
     last_modified: Optional[datetime] = datetime.now()  # Default to now if not provided
 
-    @validator("month_year", pre=True)
+    @field_validator("month_year", mode="before")
+    @classmethod
     def parse_month_year(cls, v):
         if isinstance(v, str):
             # accept "YYYY-MM" or "YYYY-MM-DD"
@@ -50,5 +51,4 @@ class HippoTimesheetRead(HippoTimesheetBase):
     id: str
     
 
-    class Config:
-        orm_mode = True
+    model_config = ConfigDict(from_attributes=True)

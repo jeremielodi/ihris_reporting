@@ -1,0 +1,11 @@
+{
+  "role": {
+    "name": "Test Role",
+    "parent": "|",
+    "remap": null,
+    "i2ce_hidden": 0
+  },
+  "role_update": {
+    "name": "Updated Role"
+  }
+}

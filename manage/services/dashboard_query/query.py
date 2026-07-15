@@ -282,7 +282,7 @@ async def update_dashboard_query(
             raise HTTPException(status_code=400, detail="Query already exists")
 
     # Update fields dynamically
-    update_data = query_data.dict(exclude_unset=True)
+    update_data = query_data.model_dump(exclude_unset=True)
 
     for field, value in update_data.items():
         if hasattr(existing_query, field):

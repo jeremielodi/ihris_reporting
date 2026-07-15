@@ -78,7 +78,7 @@ async def create_organization_level(
     - Returns the created record.
     """
 
-    data = payload.dict()
+    data = payload.model_dump()
 
     # Generate an ID if missing
     if not data.get("id"):
@@ -122,7 +122,7 @@ async def update_organization_level(
     if not existing:
         raise HTTPException(status_code=404, detail="Organization level not found")
 
-    updates = payload.dict(exclude_unset=True)
+    updates = payload.model_dump(exclude_unset=True)
     for k, v in updates.items():
         if v is not None:
             setattr(existing, k, v)

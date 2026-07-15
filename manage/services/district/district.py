@@ -37,7 +37,7 @@ async def create_District(
     District:HippoDistrictCreate,
     session: AsyncSession = Depends(get_session),
 ):
-    District_data = District.dict()  # get dict from pydantic model
+    District_data = District.model_dump()  # get dict from pydantic model
     District_data['id'] = f"district|{District.name}"
     
     new_District = HippoDistrict(**District_data)
@@ -54,7 +54,7 @@ async def update_District(district_id: str, District:HippoDistrictUpdate, sessio
     if not existing_District:
         raise HTTPException(status_code=404, detail="District not found")
     
-    for key, value in District.dict().items():
+    for key, value in District.model_dump().items():
         if value is not None:
             setattr(existing_District, key, value)
     

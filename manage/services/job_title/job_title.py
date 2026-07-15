@@ -128,7 +128,7 @@ async def create_job_title(
     """
 
     # Convert Pydantic model to dictionary
-    job_title_data = job_title.dict()
+    job_title_data = job_title.model_dump()
 
     # Generate ID using name
     job_title_data['id'] = f"job_title|{job_title.name}"
@@ -175,7 +175,7 @@ async def update_job_title(
         raise HTTPException(status_code=404, detail="Job title not found")
 
     # Apply partial update
-    for key, value in job_title.dict().items():
+    for key, value in job_title.model_dump().items():
         if value is not None:
             setattr(existing_job_title, key, value)
 

@@ -80,7 +80,7 @@ async def create_Person_Timesheet(
     maxNumber = await entity_map.getMaxNumber("timesheet", session)
     maxNumber = maxNumber + 1
 
-    Person_Timesheet_data = timesheet.dict()  # get dict from pydantic model
+    Person_Timesheet_data = timesheet.model_dump()  # get dict from pydantic model
     Person_Timesheet_data['id'] = f"person_timesheet|{maxNumber}"
     
     new_Person_Timesheet = HippoPersonTimesheet(**Person_Timesheet_data)
@@ -106,7 +106,7 @@ async def update_Person_Timesheet(person_timesheet_id: str, Person_Timesheet:Hip
     if not existing_Person_Timesheet:
         raise HTTPException(status_code=404, detail="Person_Timesheet not found")
     
-    for key, value in Person_Timesheet.dict().items():
+    for key, value in Person_Timesheet.model_dump().items():
         if value is not None:
             setattr(existing_Person_Timesheet, key, value)
     

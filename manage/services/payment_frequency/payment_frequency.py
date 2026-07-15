@@ -127,7 +127,7 @@ async def create_payment_frequency(
     """
 
     # Convert Pydantic model to dictionary
-    payment_frequency_data = payment_frequency.dict()
+    payment_frequency_data = payment_frequency.model_dump()
 
     # Generate ID
     payment_frequency_data['id'] = f"payment_frequency|{payment_frequency.name}"
@@ -173,7 +173,7 @@ async def update_payment_frequency(
     if not existing_payment_frequency:
         raise HTTPException(status_code=404, detail="Payment frequency not found")
 
-    for key, value in payment_frequency.dict().items():
+    for key, value in payment_frequency.model_dump().items():
         if value is not None:
             setattr(existing_payment_frequency, key, value)
 

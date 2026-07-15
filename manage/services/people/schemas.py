@@ -1,4 +1,4 @@
-from pydantic import BaseModel, Field, validator
+from pydantic import BaseModel, Field, field_validator, ConfigDict
 from typing import Optional
 from datetime import date, datetime
 
@@ -33,7 +33,8 @@ class HippoPersonCreate(HippoPersonBase):
     birthdate: date                                  # <-- date, required
     marital_status: str
 
-    @validator("birthdate", pre=True)
+    @field_validator("birthdate", mode="before")
+    @classmethod
     def parse_birthdate(cls, v):
         # Accept "1992-03-13", "1992-03-13T00:00:00", or "...Z"
         if isinstance(v, str):
@@ -42,7 +43,8 @@ class HippoPersonCreate(HippoPersonBase):
             return date.fromisoformat(v.split("T")[0])
         return v
 
-    @validator("recruitment_date", pre=True)
+    @field_validator("recruitment_date", mode="before")
+    @classmethod
     def parse_recruitment_date(cls, v):
         # Accept "1992-03-13", "1992-03-13T00:00:00", or "...Z"
         if isinstance(v, str):
@@ -63,21 +65,21 @@ class HippoPersonRead(HippoPersonBase):
     degree_id:Optional[str] = None
     dependents:Optional[int] = None
 
-    class Config:
-        orm_mode = True
+    model_config = ConfigDict(from_attributes=True)
 
 
 class PeopelQueryParameters(BaseModel):
     
-    name: Optional[str] 
-    lastname : Optional[str]
-    middlename : Optional[str]
-    firstname : Optional[str]
-    matricule: Optional[str]
-    birthdate: Optional[date]
-    id: Optional[str] 
+    name: Optional[str] = None
+    lastname : Optional[str] = None
+    middlename : Optional[str] = None
+    firstname : Optional[str] = None
+    matricule: Optional[str] = None
+    birthdate: Optional[date] = None
+    id: Optional[str] = None
 
-    @validator("birthdate", pre=True)
+    @field_validator("birthdate", mode="before")
+    @classmethod
     def parse_birthdate(cls, v):
         # Accept "1992-03-13", "1992-03-13T00:00:00", or "...Z"
         if isinstance(v, str):

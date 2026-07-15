@@ -115,7 +115,7 @@ async def create_dashboard(
     - Stores audit fields (created_by, last_modified_by).
     """
     try:
-        data_dict = data.dict()
+        data_dict = data.model_dump()
 
         # Generate unique UUID
         data_dict['uuid'] = str(uuid.uuid4())
@@ -182,7 +182,7 @@ async def update_dashboard(
         # Only allow controlled fields
         allowed_update_fields = ['mb_dashboard_uuid', 'label']
 
-        update_data = data.dict(exclude_unset=True)
+        update_data = data.model_dump(exclude_unset=True)
 
         for field, value in update_data.items():
             if field in allowed_update_fields:

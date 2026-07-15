@@ -129,7 +129,7 @@ async def create_facility_type(
     Consider validating uniqueness of name before insert.
     """
 
-    facility_type_data = facility_type.dict()
+    facility_type_data = facility_type.model_dump()
 
     # Generate ID based on name
     facility_type_data['id'] = f"facility_type|{facility_type.name}"
@@ -174,7 +174,7 @@ async def update_facility_type(
     if not existing_facility_type:
         raise HTTPException(status_code=404, detail="Facility type not found")
 
-    for key, value in facility_type.dict().items():
+    for key, value in facility_type.model_dump().items():
         if value is not None:
             setattr(existing_facility_type, key, value)
 

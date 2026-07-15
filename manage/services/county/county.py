@@ -37,7 +37,7 @@ async def create_County(
     County:HippoCountyCreate,
     session: AsyncSession = Depends(get_session),
 ):
-    County_data = County.dict()  # get dict from pydantic model
+    County_data = County.model_dump()  # get dict from pydantic model
     County_data['id'] = f"county|{County.name}"
     
     new_County = HippoCounty(**County_data)
@@ -54,7 +54,7 @@ async def update_County(county_id: str, County:HippoCountyUpdate, session: Async
     if not existing_County:
         raise HTTPException(status_code=404, detail="County not found")
     
-    for key, value in County.dict().items():
+    for key, value in County.model_dump().items():
         if value is not None:
             setattr(existing_County, key, value)
     

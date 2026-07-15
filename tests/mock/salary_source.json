@@ -1,0 +1,13 @@
+{
+  "salary_source": {
+    "name": "TestSalarySource",
+    "description": "A test salary source",
+    "code": "TSS",
+    "parent": "|",
+    "remap": null,
+    "i2ce_hidden": 0
+  },
+  "salary_source_update": {
+    "description": "Updated description"
+  }
+}

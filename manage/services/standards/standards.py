@@ -54,7 +54,7 @@ async def create_organization_unit_standard(
     org_standard: OrganizationUnitStandardsCreate,
     session: AsyncSession = Depends(get_session),
 ):
-    org_standard_data = org_standard.dict()
+    org_standard_data = org_standard.model_dump()
     org_standard_data['uuid'] = uuid.uuid4()
     
     new_org_standard = OrganizationUnitStandards(**org_standard_data)
@@ -79,7 +79,7 @@ async def update_organization_unit_standard(
     if not existing_org_standard:
         raise HTTPException(status_code=404, detail="Organization unit standard not found")
     
-    for key, value in org_standard.dict(exclude_unset=True).items():
+    for key, value in org_standard.model_dump(exclude_unset=True).items():
         if value is not None and key != 'created' and key != 'uuid':
             setattr(existing_org_standard, key, value)
     

@@ -1,0 +1,22 @@
+# Never needed inside any image built from this context (Dockerfile.backend
+# does its own pip install; Dockerfile.frontend does its own npm install).
+client/node_modules
+client/dist
+client/dist-ssr
+client/coverage
+client/test-results
+client/.vite
+
+# Local/dev-only, not part of any image
+venv
+__pycache__
+**/__pycache__
+*.pyc
+.git
+.claude
+.DS_Store
+
+# Local Postgres data volume and uploads — large, and mounted at runtime
+# instead (see docker-compose.yml), never something an image should bundle
+pgdata
+data

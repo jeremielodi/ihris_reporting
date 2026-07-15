@@ -136,7 +136,7 @@ async def reporting_login(userCreate: UserLoginModel,  db: Session = Depends(get
         raise HTTPException(status_code=401, detail="Incorrect username or password")
 
     # S'assurer que _get_access_facility est sync, sinon await directement
-    access_payload = await _get_access_facility(db=db, userid=user.id)
+    access_payload = serialize_access_facility(await _get_access_facility(db=db, userid=user.id))
 
     access_token = create_access_token(
         data={"userid": user.id, "sub": user.username, "type": "reporting"},

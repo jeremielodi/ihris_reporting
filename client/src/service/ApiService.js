@@ -47,7 +47,13 @@ apiService.interceptors.response.use(
             }
         }
 
-        if (error.response?.status === 401) {
+        // Only treat this as "session expired" if there was actually a
+        // session to lose. Anonymous requests (e.g. the login page fetching
+        // branding/settings before the user is authenticated) also 401
+        // against protected routes, and reloading in that case just races
+        // with (and cancels) an in-flight login request instead of fixing
+        // anything.
+        if (error.response?.status === 401 && localStorage.getItem('_ihris_token')) {
             clearAuthTokens();
             //window.location.href = '/#/auth/login';
             setTimeout(() => {

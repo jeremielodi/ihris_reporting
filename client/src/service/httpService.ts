@@ -12,11 +12,19 @@ function unwrapHttpResponse(response: AxiosResponse): any {
 // Centralized 401 error handler (called once a refresh attempt, if any, has failed)
 function handleAuthError(error: any): Promise<never> {
   if (error.response?.status === 401) {
-    clearAuthTokens();
-    AppCache.clearSession?.();
-    setTimeout(() => {
-      window.location.reload();
-    }, 600);
+    // Only treat this as "session expired" if there was actually a session to
+    // lose. Anonymous requests (e.g. the login page fetching branding/settings
+    // before the user is authenticated) also 401 against protected routes,
+    // and reloading in that case just races with (and cancels) an in-flight
+    // login request instead of fixing anything.
+    const hadToken = !!AppCache.getSession()?.token;
+    if (hadToken) {
+      clearAuthTokens();
+      AppCache.clearSession?.();
+      setTimeout(() => {
+        window.location.reload();
+      }, 600);
+    }
   }
   return Promise.reject(error);
 }

@@ -37,7 +37,7 @@ async def create_Region(
     Region:HippoRegionCreate,
     session: AsyncSession = Depends(get_session),
 ):
-    Region_data = Region.dict()  # get dict from pydantic model
+    Region_data = Region.model_dump()  # get dict from pydantic model
     Region_data['id'] = f"region|{Region.name}"
     
     new_Region = HippoRegion(**Region_data)
@@ -54,7 +54,7 @@ async def update_Region(region_id: str, Region:HippoRegionUpdate, session: Async
     if not existing_Region:
         raise HTTPException(status_code=404, detail="Region not found")
     
-    for key, value in Region.dict().items():
+    for key, value in Region.model_dump().items():
         if value is not None:
             setattr(existing_Region, key, value)
     

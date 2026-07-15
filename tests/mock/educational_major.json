@@ -1,0 +1,12 @@
+{
+  "educational_major": {
+    "name": "TestEducationalMajor",
+    "code": "TEM",
+    "parent": "|",
+    "remap": null,
+    "i2ce_hidden": 0
+  },
+  "educational_major_update": {
+    "code": "UPDATED"
+  }
+}

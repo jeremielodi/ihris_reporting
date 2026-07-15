@@ -41,6 +41,7 @@ from config.Database import docAccess
 from manage.database import engine
 from manage.models import Base
 from manage.routes import router as manageApiRouter
+from manage.services.settings.settings import public_router as settings_public_router
 
 
 # ---------------------------------------------------------
@@ -178,6 +179,15 @@ def register_routes(app: FastAPI) -> None:
         prefix="/manage",
         tags=["manage"],
         dependencies=[require_auth],
+    )
+
+    # Public /manage routes: mounted outside the blanket auth dependency
+    # above. Currently just GET /manage/settings/{id}, which the login
+    # page fetches (app branding) before the user has a token.
+    app.include_router(
+        settings_public_router,
+        prefix="/manage",
+        tags=["manage"],
     )
 
     # Auth / users endpoints (some of these include login endpoints)

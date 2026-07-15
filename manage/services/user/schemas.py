@@ -1,4 +1,4 @@
-from pydantic import BaseModel, EmailStr, Field
+from pydantic import BaseModel, EmailStr, Field, ConfigDict
 from typing import Optional
 from datetime import datetime
 
@@ -12,7 +12,7 @@ class HippoUserBase(BaseModel):
     password: str = Field(None, min_length=5, max_length=150, exclude=True)
     firstname: Optional[str] = Field(None, min_length=3, max_length=50)
     lastname: str = Field(None, min_length=3, max_length=50)
-    email: Optional[EmailStr]
+    email: Optional[EmailStr] = None
 
 class HippoUserCreate(HippoUserBase):
     username: str = Field(None, min_length=5, max_length=50)
@@ -33,8 +33,7 @@ class HippoUserRead(HippoUserBase):
     username: Optional[str] = None
     facility_id : Optional[str] = None  #
     facility_name : Optional[str] = None  #
-    class Config:
-        orm_mode = True
+    model_config = ConfigDict(from_attributes=True)
 
 
 class HippoUserChangePassword(BaseModel):

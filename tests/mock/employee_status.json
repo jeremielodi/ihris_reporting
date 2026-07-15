@@ -1,0 +1,12 @@
+{
+  "employee_status": {
+    "name": "TestEmployeeStatus",
+    "translate_key": null,
+    "parent": "|",
+    "remap": null,
+    "i2ce_hidden": 0
+  },
+  "employee_status_update": {
+    "name": "UpdatedEmployeeStatus"
+  }
+}

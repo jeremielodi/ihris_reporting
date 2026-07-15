@@ -136,7 +136,7 @@ async def create_organization_unit_type(
         )
 
     # Convert request payload to dictionary
-    org_unit_type_data = org_unit_type.dict()
+    org_unit_type_data = org_unit_type.model_dump()
 
     # Generate ID (⚠️ currently uses org_unit_type.id from payload — ensure it's intended)
     org_unit_type_data['id'] = f"org_unit_type|{org_unit_type.id}"
@@ -200,7 +200,7 @@ async def update_organization_unit_type(
             )
 
     # Apply partial update (only provided fields)
-    for key, value in org_unit_type.dict(exclude_unset=True).items():
+    for key, value in org_unit_type.model_dump(exclude_unset=True).items():
         if value is not None:
             setattr(existing_org_unit_type, key, value)
 

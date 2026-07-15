@@ -151,7 +151,7 @@ async def create_Institution_type(
     Returns:
         HippoInstitutionTypeRead
     """
-    Institution_type_data = Institution_type.dict()
+    Institution_type_data = Institution_type.model_dump()
 
     # Generate deterministic ID based on naming convention
     Institution_type_data['id'] = f"institution_type|{Institution_type.name}"
@@ -209,7 +209,7 @@ async def update_Institution_type(
         raise HTTPException(status_code=404, detail="Institution_type not found")
 
     # Update only fields provided in request
-    for key, value in Institution_type.dict().items():
+    for key, value in Institution_type.model_dump().items():
         if value is not None:
             setattr(existing_Institution_type, key, value)
 

@@ -1,0 +1,12 @@
+{
+  "payment_frequency": {
+    "name": "TestPaymentFrequency",
+    "code": "TPF",
+    "parent": "|",
+    "remap": null,
+    "i2ce_hidden": 0
+  },
+  "payment_frequency_update": {
+    "code": "UPDATED"
+  }
+}

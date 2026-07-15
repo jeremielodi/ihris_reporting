@@ -84,7 +84,7 @@ async def create_org_unit(
     """
 
     # Convert Pydantic model -> dict
-    orgUnitData = orgUnit.dict()
+    orgUnitData = orgUnit.model_dump()
 
     # Generate an ID with prefix based on org unit level (e.g. orgUnit|3xxxxx)
     orgUnitId = generate_unit_id(prefix=f"orgUnit|{orgUnit.level}", length=10)
@@ -147,7 +147,7 @@ async def update_org_unit(
         raise HTTPException(status_code=404, detail="Org Unit not found")
 
     # Apply incoming fields (partial update behavior)
-    for key, value in orgUnit.dict().items():
+    for key, value in orgUnit.model_dump().items():
         if value is not None and key != 'created':
             setattr(existing_org_unit, key, value)
 
@@ -244,8 +244,8 @@ async def get_OrganisationUnit(parentId: str, db: AsyncSession = Depends(get_ses
         ORDER BY name
     """), {"parentId": parentId})
 
-    rows = result.all()
-    return rows
+    rows = result.mappings().all()
+    return [dict(row) for row in rows]
 
 
 # ---------------------------------------------------------
@@ -298,8 +298,8 @@ async def get_OrganisationUnitTree(parentId: str, db: AsyncSession = Depends(get
         ORDER BY path_ids;
     """), {"parentId": parentId})
 
-    rows = result.all()
-    return rows
+    rows = result.mappings().all()
+    return [dict(row) for row in rows]
 
 
 # ---------------------------------------------------------
@@ -336,8 +336,8 @@ async def get_OrgUnitUpTree(parentId: str, db: AsyncSession = Depends(get_sessio
         ORDER BY hops DESC;
     """), {'id': parentId})
 
-    rows = result.all()
-    return rows
+    rows = result.mappings().all()
+    return [dict(row) for row in rows]
 
 
 # ---------------------------------------------------------

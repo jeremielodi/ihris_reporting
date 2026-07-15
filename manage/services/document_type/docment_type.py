@@ -130,7 +130,7 @@ async def create_documenttype(
     - created_by is stored for audit tracking.
     """
 
-    data = doc_type.dict()
+    data = doc_type.model_dump()
 
     # Generate consistent ID using utility
     data["id"] = f"documenttype|{make_id(doc_type.name)}"
@@ -181,7 +181,7 @@ async def update_documenttype(
         raise HTTPException(status_code=404, detail="DocumentType not found")
 
     # Update only provided fields
-    updates = payload.dict(exclude_unset=True)
+    updates = payload.model_dump(exclude_unset=True)
 
     for key, value in updates.items():
         setattr(existing, key, value)

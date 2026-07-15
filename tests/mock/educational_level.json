@@ -1,0 +1,12 @@
+{
+  "educational_level": {
+    "name": "TestEducationalLevel",
+    "code": "TEL",
+    "parent": "|",
+    "remap": null,
+    "i2ce_hidden": 0
+  },
+  "educational_level_update": {
+    "code": "UPDATED"
+  }
+}

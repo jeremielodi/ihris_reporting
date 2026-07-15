@@ -87,7 +87,7 @@ async def create_employement_infos(
     maxNumber = maxNumber + 1
 
     # Convert Pydantic model to dict
-    employment_data = employment_infos.dict()
+    employment_data = employment_infos.model_dump()
 
     # Generate secure, formatted unique ID
     employment_data['id'] = generate_unit_id(
@@ -156,7 +156,7 @@ async def update_person(
         )
 
     # Apply partial update (exclude 'created' field)
-    for key, value in statusInfo.dict().items():
+    for key, value in statusInfo.model_dump().items():
         if value is not None and key != 'created':
             setattr(existing_employmentInfo, key, value)
 

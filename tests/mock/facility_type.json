@@ -1,0 +1,12 @@
+{
+  "facility_type": {
+    "name": "TestFacilityType",
+    "code": "TFT",
+    "parent": "|",
+    "remap": null,
+    "i2ce_hidden": 0
+  },
+  "facility_type_update": {
+    "code": "UPDATED"
+  }
+}

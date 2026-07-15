@@ -1,3 +1,5 @@
+# syntax=docker/dockerfile:1@sha256:87999aa3d42bdc6bea60565083ee17e86d1f3339802f543c0d03998580f9cb89
+
 # ========= base =========
 FROM python:3.10-slim AS base
 
@@ -15,8 +17,13 @@ WORKDIR /app
 # ========= build wheels =========
 FROM base AS builder
 COPY requirements.txt /tmp/requirements.txt
-RUN python -m pip install --upgrade pip wheel \
- && pip wheel --wheel-dir /wheels -r /tmp/requirements.txt
+# --cache-dir overrides the base stage's PIP_NO_CACHE_DIR just for this
+# layer (the cache mount is discarded with the builder stage, so it never
+# reaches the final image) so retries after a dropped connection resume
+# instead of re-downloading every package from scratch.
+RUN --mount=type=cache,target=/root/.cache/pip \
+    python -m pip install --cache-dir=/root/.cache/pip --upgrade pip wheel --retries 10 --timeout 60 \
+ && pip wheel --cache-dir=/root/.cache/pip --wheel-dir /wheels -r /tmp/requirements.txt --retries 10 --timeout 60
 
 # ========= runtime =========
 FROM base AS runtime

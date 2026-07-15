@@ -1,0 +1,8 @@
+{
+  "document_type": {
+    "name": "TestDocumentType"
+  },
+  "document_type_update": {
+    "name": "UpdatedDocumentType"
+  }
+}

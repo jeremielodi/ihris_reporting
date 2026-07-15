@@ -1,4 +1,4 @@
-from pydantic import BaseModel, validator
+from pydantic import BaseModel, field_validator, ConfigDict
 from typing import Optional
 from datetime import datetime, date
 
@@ -20,7 +20,8 @@ class HippoPersonIdentificationCreate(HippoPersonIdentificationBase):
     id: Optional[str] = None
     number : str
 
-    @validator("acquisition_date", pre=True)
+    @field_validator("acquisition_date", mode="before")
+    @classmethod
     def parse_acquisition_date(cls, v):
         # Accept "1992-03-13", "1992-03-13T00:00:00", or "...Z"
         if isinstance(v, str):
@@ -29,7 +30,8 @@ class HippoPersonIdentificationCreate(HippoPersonIdentificationBase):
             return date.fromisoformat(v.split("T")[0])
         return v
 
-    @validator("expiration_date", pre=True)
+    @field_validator("expiration_date", mode="before")
+    @classmethod
     def parse_expiration_date(cls, v):
         # Accept "1992-03-13", "1992-03-13T00:00:00", or "...Z"
         if isinstance(v, str):
@@ -48,5 +50,4 @@ class HippoPersonIdentificationRead(HippoPersonIdentificationBase):
     type_name: Optional[str]=None
     country_name: Optional[str]=None
 
-    class Config:
-        orm_mode = True
+    model_config = ConfigDict(from_attributes=True)

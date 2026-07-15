@@ -84,11 +84,10 @@ def _detect_type(byte_head: bytes) -> str | None:
 # GET PASSPORT IMAGES FOR A PERSON
 # =========================================================
 
-@apiRouter.get("/passport/upload/{person_id}")
+@apiRouter.get("/passport/upload/{person_id}", response_model=list[HippoPassportRead])
 async def get_image(
     person_id: str,
     session: AsyncSession = Depends(get_session),
-    response_model=list[HippoPassportRead],
 ):
     """
     Retrieve all passport images for a specific person.
@@ -184,7 +183,7 @@ async def upload_image(
         person_id=person_id
     )
 
-    new_photo = HippoPersonPassport(**data.dict())
+    new_photo = HippoPersonPassport(**data.model_dump())
 
     session.add(new_photo)
     await session.commit()

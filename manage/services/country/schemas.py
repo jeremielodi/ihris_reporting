@@ -1,10 +1,10 @@
-from pydantic import BaseModel, EmailStr
+from pydantic import BaseModel, EmailStr, ConfigDict
 from typing import Optional
 from datetime import datetime
 
 class HippoCountryBase(BaseModel):
     id: Optional[str] = None  # Use Optional for id, as it may not be set on creation
-    code: Optional[str] = None
+    code: Optional[int] = None  # ISO 3166-1 numeric code; hippo_country.code is an integer column
     name: Optional[str] = None
     parent: Optional[str] = '|'
     last_modified: Optional[datetime] = datetime(1900, 1, 1, 0, 0, 0)
@@ -28,5 +28,4 @@ class HippoCountryRead(HippoCountryBase):
     id: str
     
 
-    class Config:
-        orm_mode = True
+    model_config = ConfigDict(from_attributes=True)

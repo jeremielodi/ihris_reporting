@@ -1,4 +1,4 @@
-from pydantic import BaseModel, Field, validator
+from pydantic import BaseModel, Field, ConfigDict
 from typing import Optional, Dict, Any
 from datetime import datetime
 import uuid as uuid_lib
@@ -32,11 +32,8 @@ class DashboardQueryRead(DashboardQueryBase):
     created: datetime
     last_modified: datetime
     
-    class Config:
-        orm_mode = True
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)
 
-    
 
 class DashboardQueryRun(BaseModel):
     sql: str

@@ -108,15 +108,15 @@ async def get_employee_status(status_id: str, session: AsyncSession = Depends(ge
     result = await session.execute(
         select(HippoEmployeeStatus).where(HippoEmployeeStatus.id == status_id)
     )
-    status = result.scalar_one_or_none()
+    employee_status_obj = result.scalar_one_or_none()
 
-    if not status:
+    if not employee_status_obj:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
             detail="Employee status not found"
         )
 
-    return status
+    return employee_status_obj
 
 
 # -------------------------------------------------------------------
@@ -233,33 +233,33 @@ async def update_employee_status(
     result = await session.execute(
         select(HippoEmployeeStatus).where(HippoEmployeeStatus.id == status_id)
     )
-    status = result.scalar_one_or_none()
+    employee_status_obj = result.scalar_one_or_none()
 
-    if not status:
+    if not employee_status_obj:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
             detail=f"Employee status with ID '{status_id}' not found"
         )
 
     # Update only provided fields
-    update_data = employee_status_data.dict(exclude_unset=True)
-    
+    update_data = employee_status_data.model_dump(exclude_unset=True)
+
     # Remove id and timestamps from update data if present
     update_data.pop('id', None)
     update_data.pop('created', None)
     update_data.pop('last_modified', None)
-    
+
     # Apply updates
     for key, value in update_data.items():
-        setattr(status, key, value)
-    
+        setattr(employee_status_obj, key, value)
+
     # Always update last_modified timestamp
-    status.last_modified = datetime.now()
+    employee_status_obj.last_modified = datetime.now()
 
     await session.commit()
-    await session.refresh(status)
+    await session.refresh(employee_status_obj)
 
-    return status
+    return employee_status_obj
 
 
 # -------------------------------------------------------------------
@@ -301,15 +301,15 @@ async def delete_employee_status(
     result = await session.execute(
         select(HippoEmployeeStatus).where(HippoEmployeeStatus.id == status_id)
     )
-    status = result.scalar_one_or_none()
+    employee_status_obj = result.scalar_one_or_none()
 
-    if not status:
+    if not employee_status_obj:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
             detail=f"Employee status with ID '{status_id}' not found"
         )
 
-    await session.delete(status)
+    await session.delete(employee_status_obj)
     await session.commit()
 
     return None  # 204 No Content

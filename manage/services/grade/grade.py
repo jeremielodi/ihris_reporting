@@ -120,7 +120,7 @@ async def create_Grade(
     Returns:
         HippoGradeRead
     """
-    Grade_data = Grade.dict()
+    Grade_data = Grade.model_dump()
     Grade_data['id'] = f"salary_grade|{Grade.name}"
 
     new_Grade = HippoSalaryGrade(**Grade_data)
@@ -174,10 +174,7 @@ async def bulk_create_classifications(
 
     # Normalize input into list of dictionaries
     for item in grades:
-        try:
-            data = item.model_dump()  # Pydantic v2
-        except AttributeError:
-            data = item.dict()  # Pydantic v1 fallback
+        data = item.model_dump()
 
         # Generate sequential ID
         gradeId = f"salary_grade|{maxNumber}"
@@ -239,7 +236,7 @@ async def update_Grade(
         raise HTTPException(status_code=404, detail="Grade not found")
 
     # Apply partial update
-    for key, value in Grade.dict().items():
+    for key, value in Grade.model_dump().items():
         if value is not None:
             setattr(existing_Grade, key, value)
 

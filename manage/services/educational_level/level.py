@@ -126,7 +126,7 @@ async def create_Educational_level(
         HippoEducationalLevelRead
     """
 
-    Educational_level_data = Educational_level.dict()
+    Educational_level_data = Educational_level.model_dump()
 
     # Generate ID using naming convention
     Educational_level_data['id'] = (
@@ -183,10 +183,7 @@ async def bulk_create_classifications(
 
     # Normalize payload into list of dicts
     for item in educationLevels:
-        try:
-            data = item.model_dump()  # Pydantic v2
-        except AttributeError:
-            data = item.dict()  # Pydantic v1 fallback
+        data = item.model_dump()
 
         # Generate sequential ID
         gradeId = f"education_level|{maxNumber}"
@@ -253,7 +250,7 @@ async def update_Educational_level(
         raise HTTPException(status_code=404, detail="Educational_level not found")
 
     # Apply partial update
-    for key, value in Educational_level.dict().items():
+    for key, value in Educational_level.model_dump().items():
         if value is not None:
             setattr(existing_Educational_level, key, value)
 

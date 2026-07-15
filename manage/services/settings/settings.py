@@ -43,6 +43,12 @@ from fastapi.responses import JSONResponse
 # Create API router
 apiRouter = APIRouter()
 
+# Routes that must stay reachable without a Bearer token (e.g. the login
+# page fetches the app's branding via GET /settings/{id} before the user
+# is authenticated). Mounted directly on the app in main.py, outside the
+# router-level auth dependency applied to the rest of /manage.
+public_router = APIRouter()
+
 
 # ---------------------------------------------------------
 # Dependency: Get Async DB Session
@@ -77,7 +83,7 @@ async def get_settings(session: AsyncSession = Depends(get_session)):
 # ---------------------------------------------------------
 # GET SETTING BY ID
 # ---------------------------------------------------------
-@apiRouter.get("/settings/{setting_id}", response_model=HippoSettingRead)
+@public_router.get("/settings/{setting_id}", response_model=HippoSettingRead)
 async def get_Setting(setting_id: int, session: AsyncSession = Depends(get_session)):
     """
     Retrieve a single setting by its ID.
@@ -120,7 +126,7 @@ async def update_Setting(
         raise HTTPException(status_code=404, detail="Setting not found")
 
     # Apply partial update (ignore id & created fields)
-    for key, value in Setting.dict().items():
+    for key, value in Setting.model_dump().items():
         if value is not None and key not in ('id', 'created'):
             setattr(existing_Setting, key, value)
 
@@ -247,7 +253,7 @@ async def create_Setting(
         if existing:
             raise HTTPException(status_code=400, detail="Setting with this app_name already exists")
 
-    data = Setting.dict()
+    data = Setting.model_dump()
     # data.pop("id", None)  # ensure DB auto-generates numeric ID
 
     new_setting = HippoSetting(**data)

@@ -137,7 +137,7 @@ async def create_Reason_departure(
     Returns:
         HippoReasonDepartureRead
     """
-    Reason_departure_data = Reason_departure.dict()
+    Reason_departure_data = Reason_departure.model_dump()
 
     # Generate ID based on naming convention
     Reason_departure_data['id'] = f"reason_departure|{Reason_departure.name}"
@@ -194,7 +194,7 @@ async def update_Reason_departure(
         raise HTTPException(status_code=404, detail="Reason_departure not found")
 
     # Apply partial update (only provided fields)
-    for key, value in Reason_departure.dict().items():
+    for key, value in Reason_departure.model_dump().items():
         if value is not None:
             setattr(existing_Reason_departure, key, value)
 

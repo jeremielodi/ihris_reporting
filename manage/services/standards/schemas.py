@@ -1,4 +1,4 @@
-from pydantic import BaseModel
+from pydantic import BaseModel, ConfigDict
 from datetime import datetime
 from typing import Optional
 from uuid import UUID
@@ -20,9 +20,8 @@ class OrganizationUnitStandardsUpdate(OrganizationUnitStandardsBase):
 class OrganizationUnitStandardsRead(OrganizationUnitStandardsBase):
     uuid: Optional[UUID] = None
     created: Optional[datetime] = None
-    last_modified: Optional[datetime]  
-    org_unit_type_name : Optional[str]  
-    classification_name : Optional[str] 
+    last_modified: Optional[datetime] = None
+    org_unit_type_name : Optional[str] = None
+    classification_name : Optional[str] = None
 
-    class Config:
-         orm_mode = True
+    model_config = ConfigDict(from_attributes=True)

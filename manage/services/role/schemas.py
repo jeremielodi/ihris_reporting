@@ -1,4 +1,4 @@
-from pydantic import BaseModel, EmailStr, Field
+from pydantic import BaseModel, EmailStr, Field, ConfigDict
 from typing import Optional
 from datetime import datetime
 from typing import List
@@ -19,7 +19,7 @@ class HippoRoleBase(BaseModel):
     name: Optional[str] = None
 
 class HippoRoleCreate(HippoRoleBase):
-    id: Optional[str]  # Usually, primary key id is required on create
+    id: Optional[str] = None  # server-generated (see create_role); not required from the client
     created: Optional[datetime] = datetime.now()
     last_modified: Optional[datetime] = datetime.now()  # Default to now if not provided
 
@@ -32,8 +32,7 @@ class HippoRoleRead(HippoRoleBase):
     id: str
     
 
-    class Config:
-        orm_mode = True
+    model_config = ConfigDict(from_attributes=True)
 
 
 class AssignRolesPayload(BaseModel):

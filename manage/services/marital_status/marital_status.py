@@ -127,7 +127,7 @@ async def create_marital_status(
     ID format:
         marital_status|<name>
     """
-    data = marital_status.dict()
+    data = marital_status.model_dump()
 
     # Generate ID based on name (same pattern as your other reference tables)
     data["id"] = f"marital_status|{marital_status.name}"
@@ -167,7 +167,7 @@ async def update_marital_status(
     if not existing:
         raise HTTPException(status_code=404, detail="Marital status not found")
 
-    for key, value in marital_status.dict().items():
+    for key, value in marital_status.model_dump().items():
         if value is not None and key != "created":
             setattr(existing, key, value)
 

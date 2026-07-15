@@ -1,4 +1,4 @@
-from pydantic import BaseModel
+from pydantic import BaseModel, ConfigDict
 from typing import Dict, List, Optional
 from uuid import UUID
 
@@ -20,8 +20,7 @@ class NormRequirementRead(NormRequirementBase):
     classification_name: Optional[str]
     organization_unit_type_name: Optional[str]
 
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)
 
 class FacilityResult(BaseModel):
     org_unit_id: str

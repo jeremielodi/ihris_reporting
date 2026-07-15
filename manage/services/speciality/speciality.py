@@ -121,7 +121,7 @@ async def create_speciality(
     Consider validating uniqueness of name before insertion.
     """
 
-    speciality_data = speciality.dict()
+    speciality_data = speciality.model_dump()
     # Generate ID based on speciality name
     speciality_data['id'] = f"speciality|{speciality.name}"
 
@@ -166,7 +166,7 @@ async def update_speciality(
         raise HTTPException(status_code=404, detail="Speciality not found")
 
     # Update all fields (consider using exclude_unset=True for partial updates)
-    for key, value in speciality.dict().items():
+    for key, value in speciality.model_dump().items():
         if value is not None:
             setattr(existing_speciality, key, value)
 

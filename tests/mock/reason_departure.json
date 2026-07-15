@@ -1,0 +1,12 @@
+{
+  "reason_departure": {
+    "name": "TestReasonDeparture",
+    "code": "TRD",
+    "parent": "|",
+    "remap": null,
+    "i2ce_hidden": 0
+  },
+  "reason_departure_update": {
+    "code": "UPDATED"
+  }
+}

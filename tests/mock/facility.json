@@ -1,0 +1,12 @@
+{
+  "facility": {
+    "name": "TestFacility",
+    "facility_type": "facility_type|Test",
+    "location": "|",
+    "remap": null,
+    "i2ce_hidden": 0
+  },
+  "facility_update": {
+    "facility_type": "facility_type|TestUpdated"
+  }
+}

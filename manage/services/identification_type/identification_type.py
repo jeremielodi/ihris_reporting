@@ -129,7 +129,7 @@ async def create_identification_type(
     Consider validating uniqueness of name before insert.
     """
 
-    identification_type_data = identification_type.dict()
+    identification_type_data = identification_type.model_dump()
 
     # Generate ID based on name
     identification_type_data['id'] = (
@@ -176,7 +176,7 @@ async def update_identification_type(
     if not existing_identification_type:
         raise HTTPException(status_code=404, detail="Identification type not found")
 
-    for key, value in identification_type.dict().items():
+    for key, value in identification_type.model_dump().items():
         if value is not None:
             setattr(existing_identification_type, key, value)
 

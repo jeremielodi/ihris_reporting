@@ -21,12 +21,14 @@ def unique_suffix():
 
 
 @pytest.mark.anyio
-async def test_01_get_all_marital_status_public(api_context, state):
+async def test_01_get_all_marital_status_public(api_context, auth_headers, state):
     """
     GET /manage/marital_status/
-    This endpoint is PUBLIC (no auth dependency in your code).
+    The route itself has no auth dependency, but everything under /manage
+    is wrapped with router-level auth as defense-in-depth (see main.py),
+    so a valid token is still required.
     """
-    r = await api_context.get(f"{BASE}/")
+    r = await api_context.get(f"{BASE}/", headers=auth_headers)
     assert r.status_code == 200, r.text
     assert isinstance(r.json(), list)
 

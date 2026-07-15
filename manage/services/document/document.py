@@ -176,7 +176,7 @@ async def upload_image(
         type_id=type_id,
     )
 
-    new_document = HippoPersonDocument(**data.dict())
+    new_document = HippoPersonDocument(**data.model_dump())
     new_document.created_by = current_user_id
 
     session.add(new_document)

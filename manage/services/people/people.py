@@ -71,17 +71,23 @@ async def lookUp(id: str, queryParameters = PeopelQueryParameters, db: AsyncSess
     Generic people lookup query used by multiple endpoints.
     """
     sql = """
-        SELECT 
+        SELECT
             p.id,
-            p.firstname, 
-            p.middlename, 
+            p.firstname,
+            p.middlename,
             p.lastname,
+            p.address,
             p.birthdate,
             p.recruitment_date,
             p.birthplace,
             p.residence,
             p.dependents,
             p.recruitment_doc_ref,
+            p.email,
+            p.created_by,
+            p.i2ce_hidden,
+            p.last_modified,
+            p.created,
             gender.id as gender_id,
             gender.name as gender,
             hc.id as nationality_id,
@@ -91,10 +97,11 @@ async def lookUp(id: str, queryParameters = PeopelQueryParameters, db: AsyncSess
             dgr.name as degree,
             dgr.id as degree_id
         FROM (
-            SELECT  id, 
-                firstname, 
-                middlename, 
+            SELECT  id,
+                firstname,
+                middlename,
                 lastname,
+                address,
                 birthdate,
                 recruitment_date,
                 birthplace,
@@ -104,8 +111,13 @@ async def lookUp(id: str, queryParameters = PeopelQueryParameters, db: AsyncSess
                 gender,
                 marital_status,
                 recruitment_doc_ref,
+                email,
+                created_by,
+                i2ce_hidden,
+                last_modified,
+                created,
                 degree
-            FROM hippo_person 
+            FROM hippo_person
             ORDER BY created ASC
         ) as p
         LEFT JOIN hippo_country hc ON hc.id = p.nationality
@@ -178,7 +190,7 @@ async def get_peoples(
     Search and return people list (limited to 25).
     """
     result = await lookUp(None, PeopelQueryParameters(name=name, firstname=firstname, middlename=middlename, lastname=lastname, birthdate=birthdate, matricule=matricule), db)
-    return result
+    return [dict(row) for row in result]
 
 
 # ---------------------------------------------------------
@@ -276,7 +288,7 @@ async def create_person(
     maxNumber = maxNumber + 1
 
     # Convert request payload to dict
-    person_data = person.dict(exclude={'specialities'})  # Exclude specialities from person data
+    person_data = person.model_dump(exclude={'specialities'})  # Exclude specialities from person data
 
     # Generate ID
     person_id = generate_unit_id(f"person|{maxNumber}", length=10)
@@ -381,7 +393,7 @@ async def update_person(
         raise HTTPException(status_code=404, detail="Person not found")
 
     # Apply incoming updates (exclude specialities)
-    update_data = person.dict(exclude_unset=True, exclude={'specialities'})
+    update_data = person.model_dump(exclude_unset=True, exclude={'specialities'})
     
     # S'assurer que last_modified est toujours mis à jour
     update_data['last_modified'] = datetime.now()

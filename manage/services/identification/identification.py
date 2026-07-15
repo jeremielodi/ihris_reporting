@@ -103,7 +103,7 @@ async def get_person_identifications(
     """), {"person_id": person_id})
 
     identifications = result.mappings().all()
-    return identifications
+    return [dict(row) for row in identifications]
 
 
 # =========================================================
@@ -160,7 +160,7 @@ async def create_identification(
     ⚠️ Ensure number uniqueness per person in production.
     """
 
-    identification_data = identification.dict()
+    identification_data = identification.model_dump()
 
     # Generate composite ID
     identification_data['id'] = (
@@ -207,7 +207,7 @@ async def update_identification(
     if not existing_identification:
         raise HTTPException(status_code=404, detail="Identification not found")
 
-    for key, value in identification.dict().items():
+    for key, value in identification.model_dump().items():
         if value is not None and key != 'created':
             setattr(existing_identification, key, value)
 

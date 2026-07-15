@@ -129,7 +129,7 @@ async def create_contact_type(
     Consider adding uniqueness validation on name before insert.
     """
 
-    contact_type_data = contact_type.dict()
+    contact_type_data = contact_type.model_dump()
 
     # Generate ID based on name
     contact_type_data['id'] = f"contact_type|{contact_type.name}"
@@ -174,7 +174,7 @@ async def update_contact_type(
     if not existing_contact_type:
         raise HTTPException(status_code=404, detail="Contact type not found")
 
-    for key, value in contact_type.dict().items():
+    for key, value in contact_type.model_dump().items():
         if value is not None:
             setattr(existing_contact_type, key, value)
 

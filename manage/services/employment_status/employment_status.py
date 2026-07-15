@@ -135,7 +135,7 @@ async def create_Employment_status(
         HippoEmploymentStatusRead
     """
 
-    Employment_status_data = Employment_status.dict()
+    Employment_status_data = Employment_status.model_dump()
 
     # Generate ID based on name
     Employment_status_data['id'] = (
@@ -189,7 +189,7 @@ async def update_Employment_status(
         )
 
     # Apply partial update
-    for key, value in Employment_status.dict().items():
+    for key, value in Employment_status.model_dump().items():
         if value is not None:
             setattr(existing_Employment_status, key, value)
 

@@ -119,7 +119,7 @@ async def create_classification(
     """
 
     # Convert Pydantic model to dictionary
-    classification_data = classification.dict()
+    classification_data = classification.model_dump()
 
     # Generate custom ID
     classification_data['id'] = f"classification|{classification.name}"
@@ -169,10 +169,7 @@ async def bulk_create_classifications(
 
     # Prepare rows for bulk insertion
     for item in classifications:
-        try:
-            data = item.model_dump()  # Pydantic v2
-        except AttributeError:
-            data = item.dict()        # Pydantic v1 fallback
+        data = item.model_dump()
 
         # Generate sequential ID
         classId = f"classification|{maxNumber}"
@@ -242,7 +239,7 @@ async def update_Classification(
         )
 
     # Update fields dynamically (excluding protected fields)
-    for key, value in Classification.dict().items():
+    for key, value in Classification.model_dump().items():
         if (value is not None) and (key != 'created'):
             setattr(existing_Classification, key, value)
 

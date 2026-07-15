@@ -126,7 +126,7 @@ async def create_degree(
     Consider validating uniqueness of name before insertion.
     """
 
-    degree_data = degree.dict()
+    degree_data = degree.model_dump()
     # Generate ID based on degree name
     degree_data['id'] = f"degree|{degree.name}"
 
@@ -172,7 +172,7 @@ async def update_degree(
         raise HTTPException(status_code=404, detail="Degree not found")
 
     # Update all fields (consider using exclude_unset=True for partial updates)
-    for key, value in degree.dict().items():
+    for key, value in degree.model_dump().items():
         if value is not None:
             setattr(existing_degree, key, value)
 

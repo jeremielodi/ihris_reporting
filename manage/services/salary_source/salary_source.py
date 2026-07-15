@@ -113,7 +113,7 @@ async def create_salary_source(
     """
 
     # Convert Pydantic model to dictionary
-    salary_source_data = salary_source.dict()
+    salary_source_data = salary_source.model_dump()
 
     # Generate ID (correct prefix)
     salary_source_data['id'] = f"salary_source|{salary_source.name}"
@@ -159,7 +159,7 @@ async def update_salary_source(
         raise HTTPException(status_code=404, detail="Salary source not found")
 
     # Apply partial update
-    for key, value in salary_source.dict().items():
+    for key, value in salary_source.model_dump().items():
         if value is not None:
             setattr(existing_salary_source, key, value)
 

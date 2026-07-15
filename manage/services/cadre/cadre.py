@@ -103,7 +103,7 @@ async def create_Cadre(
     The ID is generated using format: 'cadre|<Cadre.name>'.
     """
     # Convert Pydantic model to dictionary
-    Cadre_data = Cadre.dict()
+    Cadre_data = Cadre.model_dump()
 
     # Generate custom ID
     Cadre_data['id'] = f"cadre|{Cadre.name}"
@@ -152,10 +152,7 @@ async def bulk_create_classifications(
 
     # Prepare rows for bulk insertion
     for item in cadres:
-        try:
-            data = item.model_dump()  # Pydantic v2
-        except AttributeError:
-            data = item.dict()        # Pydantic v1 fallback
+        data = item.model_dump()
 
         # Generate sequential ID (cadre|<number>)
         cadreId = f"cadre|{maxNumber}"
@@ -214,7 +211,7 @@ async def update_Cadre(
         raise HTTPException(status_code=404, detail="Cadre not found")
 
     # Update only provided fields
-    for key, value in Cadre.dict().items():
+    for key, value in Cadre.model_dump().items():
         if value is not None:
             setattr(existing_Cadre, key, value)
 

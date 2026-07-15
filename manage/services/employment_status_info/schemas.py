@@ -1,4 +1,4 @@
-from pydantic import BaseModel, Field, validator
+from pydantic import BaseModel, Field, field_validator, ConfigDict
 from typing import Optional
 from datetime import date, datetime
 
@@ -37,7 +37,8 @@ class HippoEmploymentStatusInfoCreate(HippoEmploymentStatusInfoBase):
     created: Optional[datetime] = datetime.now()
     last_modified: Optional[datetime] = datetime.now()
 
-    @validator("employment_date", pre=True)
+    @field_validator("employment_date", mode="before")
+    @classmethod
     def parse_birthdate(cls, v):
         print(v)
         # Accept "1992-03-13", "1992-03-13T00:00:00", or "...Z"
@@ -47,7 +48,8 @@ class HippoEmploymentStatusInfoCreate(HippoEmploymentStatusInfoBase):
             return date.fromisoformat(v.split("T")[0])
         return v
     
-    @validator("start_service_date", pre=True)
+    @field_validator("start_service_date", mode="before")
+    @classmethod
     def parse_start_service_date(cls, v):
         # Accept "1992-03-13", "1992-03-13T00:00:00", or "...Z"
         if isinstance(v, str):
@@ -71,5 +73,4 @@ class HippoEmploymentStatusInfoRead(HippoEmploymentStatusInfoBase):
     salary_source_name : Optional[str]=None
     job_type_name : Optional[str]=None
 
-    class Config:
-        orm_mode = True
+    model_config = ConfigDict(from_attributes=True)
