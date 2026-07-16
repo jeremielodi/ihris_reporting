@@ -38,6 +38,10 @@ function _PeopleService() {
         return service.get(`/${personId}/specialities`);
     };
 
+    service.duplicates = () => {
+        return service.get('/duplicates');
+    };
+
     // HippoSpecialityRead
     return service;
 }

@@ -19,6 +19,35 @@ async def get_session() -> AsyncSession:
         yield session
 
 
+def require_action(action_id: int):
+    """
+    FastAPI dependency factory: 403s unless the current user's role grants
+    the given hippo_actions.id (same check as GET /roles/actions/user/{id}
+    below, which the frontend uses to decide whether to show a button -
+    this is the server-side enforcement of that same permission).
+
+    Usage: dependencies=[Depends(require_action(7))]
+    """
+    async def _check(
+        session: AsyncSession = Depends(get_session),
+        current_user_id: str = Depends(get_current_active_user),
+    ):
+        result = await session.execute(
+            text("""
+                SELECT count(ra.uuid) as nbr
+                FROM public.hippo_role_actions ra
+                JOIN public.hippo_user_role as ur ON ur.role_id = ra.role_id
+                WHERE actions_id = :action_id AND ur.user_id = :user_id
+            """),
+            {"action_id": action_id, "user_id": current_user_id},
+        )
+        allowed = result.mappings().all()[0]["nbr"] > 0
+        if not allowed:
+            raise HTTPException(status_code=403, detail="Forbidden: missing required permission")
+
+    return _check
+
+
 @apiRouter.get('/testing')
 def testing():
     return JSONResponse({"description": "tesing route"})

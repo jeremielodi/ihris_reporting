@@ -4,11 +4,26 @@
 
 # ORM models
 from datetime import date, datetime
+import json
+import os
+from pathlib import Path
 
 # Importer delete de SQLAlchemy (pas de requests)
 from sqlalchemy import delete
 
-from manage.models import HippoSpecialityPerson, HippoSpeciality, HippoPerson, HippoEntityMap, HippoAuditLog
+from manage.models import (
+    HippoSpecialityPerson,
+    HippoSpeciality,
+    HippoPerson,
+    HippoEntityMap,
+    HippoAuditLog,
+    HippoContact,
+    HippoEmploymentStatusInfo,
+    HippoPersonIdentification,
+    HippoPersonTimesheet,
+    HippoPersonDocument,
+    HippoPersonPassport,
+)
 
 # Pydantic schemas for People
 from manage.services.people.schemas import (
@@ -34,6 +49,11 @@ from manage.database import SessionLocal, engine
 
 # Authentication dependency
 from endpoints.user_api import get_current_active_user
+from manage.services.role.role import require_action
+
+# hippo_actions.id for "CAN_DELETE_DUPLICATE_PERSON" (see db/config.sql /
+# client/src/service/constants.ts) - gates viewing and deleting duplicates.
+CAN_DELETE_DUPLICATE_PERSON = 7
 
 # Service used to generate incremental numbers
 from manage.services.entity_map import entity_map
@@ -49,6 +69,10 @@ import uuid
 
 # Create router instance
 apiRouter = APIRouter()
+
+# Where uploaded documents/photos live on disk (same resolution as
+# document.py/passport.py) so deleting a person can also clean up their files.
+UPLOAD_DIR = Path(os.getenv("UPLOAD_DIR") or "./uploads")
 
 
 # ---------------------------------------------------------
@@ -191,6 +215,55 @@ async def get_peoples(
     """
     result = await lookUp(None, PeopelQueryParameters(name=name, firstname=firstname, middlename=middlename, lastname=lastname, birthdate=birthdate, matricule=matricule), db)
     return [dict(row) for row in result]
+
+
+# ---------------------------------------------------------
+# FIND DUPLICATE PEOPLE
+# ---------------------------------------------------------
+# NOTE: must stay registered before GET /people/{id} below, otherwise
+# "duplicates" would be swallowed as that route's {id} path param.
+@apiRouter.get(
+    "/people/duplicates",
+    dependencies=[Depends(get_current_active_user), Depends(require_action(CAN_DELETE_DUPLICATE_PERSON))],
+)
+async def get_duplicate_people(db: AsyncSession = Depends(get_session)):
+    """
+    Group people who share the same lastname, firstname, middlename and
+    birthdate - the same match used to warn about a possible duplicate at
+    creation time (see create.vue's searchExisting()). Only groups with
+    more than one member are returned.
+
+    Counts of related records are included so a reviewer can tell at a
+    glance which record in a group has the most data tied to it before
+    deciding which one to keep.
+    """
+    result = await db.execute(text("""
+        SELECT
+            p.id, p.lastname, p.firstname, p.middlename, p.birthdate, p.created,
+            (SELECT COUNT(*) FROM hippo_person_identification i WHERE i.person_id = p.id) AS identification_count,
+            (SELECT COUNT(*) FROM hippo_employment_status_info e WHERE e.person_id = p.id) AS employment_count,
+            (SELECT COUNT(*) FROM hippo_person_document d WHERE d.person_id = p.id) AS document_count
+        FROM hippo_person p
+        WHERE p.lastname IS NOT NULL AND p.birthdate IS NOT NULL
+        ORDER BY p.lastname, p.firstname, p.created
+    """))
+    rows = [dict(row) for row in result.mappings().all()]
+
+    # Grouped in Python (not SQL) because comparing NULL middlenames with a
+    # row-value IN-subquery never matches (NULL = NULL is NULL, not true in
+    # SQL), which would silently hide the very common case of two duplicate
+    # records that both have no middlename.
+    groups = {}
+    for row in rows:
+        key = (
+            (row['lastname'] or '').strip().lower(),
+            (row['firstname'] or '').strip().lower(),
+            (row['middlename'] or '').strip().lower(),
+            str(row['birthdate']),
+        )
+        groups.setdefault(key, []).append(row)
+
+    return [members for members in groups.values() if len(members) > 1]
 
 
 # ---------------------------------------------------------
@@ -466,8 +539,114 @@ async def update_person(
     
     # Load person with specialities for response
     person_with_specialities = await get_person_with_specialities(session, person_id)
-    
+
     return person_with_specialities
+
+
+# ---------------------------------------------------------
+# DELETE PERSON (used from the duplicate-cleanup screen)
+# ---------------------------------------------------------
+def _row_to_jsonable_dict(obj) -> dict:
+    """ORM instance -> plain dict, with dates/datetimes as ISO strings."""
+    result = {}
+    for column in obj.__table__.columns:
+        value = getattr(obj, column.name)
+        if isinstance(value, (datetime, date)):
+            value = value.isoformat()
+        result[column.name] = value
+    return result
+
+
+@apiRouter.delete(
+    "/people/{person_id}",
+    dependencies=[Depends(get_current_active_user), Depends(require_action(CAN_DELETE_DUPLICATE_PERSON))],
+)
+async def delete_person(
+    person_id: str,
+    session: AsyncSession = Depends(get_session),
+    current_user_id: str = Depends(get_current_active_user),
+):
+    """
+    Permanently delete a person and every record tied to them
+    (identifications, contacts, specialities, employment history,
+    timesheets, documents, passport photo), after writing a full
+    snapshot of all of it to the audit log.
+
+    This is irreversible beyond what's captured in that audit entry -
+    there is no soft-delete/undo. Intended to be triggered only from the
+    duplicate-cleanup review screen, not exposed as a general-purpose
+    "delete a person" action.
+    """
+    result = await session.execute(select(HippoPerson).where(HippoPerson.id == person_id))
+    person = result.scalar_one_or_none()
+    if not person:
+        raise HTTPException(status_code=404, detail="Person not found")
+
+    identifications = (await session.execute(
+        select(HippoPersonIdentification).where(HippoPersonIdentification.person_id == person_id)
+    )).scalars().all()
+    contacts = (await session.execute(
+        select(HippoContact).where(HippoContact.person_id == person_id)
+    )).scalars().all()
+    speciality_links = (await session.execute(
+        select(HippoSpecialityPerson).where(HippoSpecialityPerson.person_id == person_id)
+    )).scalars().all()
+    employment_infos = (await session.execute(
+        select(HippoEmploymentStatusInfo).where(HippoEmploymentStatusInfo.person_id == person_id)
+    )).scalars().all()
+    timesheets = (await session.execute(
+        select(HippoPersonTimesheet).where(HippoPersonTimesheet.person_id == person_id)
+    )).scalars().all()
+    documents = (await session.execute(
+        select(HippoPersonDocument).where(HippoPersonDocument.person_id == person_id)
+    )).scalars().all()
+    photos = (await session.execute(
+        select(HippoPersonPassport).where(HippoPersonPassport.person_id == person_id)
+    )).scalars().all()
+
+    snapshot = {
+        "person": _row_to_jsonable_dict(person),
+        "identifications": [_row_to_jsonable_dict(x) for x in identifications],
+        "contacts": [_row_to_jsonable_dict(x) for x in contacts],
+        "specialities": [_row_to_jsonable_dict(x) for x in speciality_links],
+        "employment_status_info": [_row_to_jsonable_dict(x) for x in employment_infos],
+        "timesheets": [_row_to_jsonable_dict(x) for x in timesheets],
+        "documents": [_row_to_jsonable_dict(x) for x in documents],
+        "photos": [_row_to_jsonable_dict(x) for x in photos],
+    }
+
+    audit_log = HippoAuditLog(
+        id=uuid.uuid4(),
+        user_id=current_user_id,
+        operation=json.dumps({"action": "delete_person", "person_id": person_id, "snapshot": snapshot}, default=str),
+    )
+    session.add(audit_log)
+
+    # Best-effort cleanup of uploaded files - the audit snapshot above is
+    # the record of truth, so a failure here shouldn't block the deletion.
+    for row in (*documents, *photos):
+        try:
+            (UPLOAD_DIR / row.path).unlink(missing_ok=True)
+        except Exception:
+            pass
+
+    await session.execute(delete(HippoPersonIdentification).where(HippoPersonIdentification.person_id == person_id))
+    await session.execute(delete(HippoContact).where(HippoContact.person_id == person_id))
+    await session.execute(delete(HippoSpecialityPerson).where(HippoSpecialityPerson.person_id == person_id))
+    await session.execute(delete(HippoEmploymentStatusInfo).where(HippoEmploymentStatusInfo.person_id == person_id))
+    await session.execute(delete(HippoPersonTimesheet).where(HippoPersonTimesheet.person_id == person_id))
+    await session.execute(delete(HippoPersonDocument).where(HippoPersonDocument.person_id == person_id))
+    await session.execute(delete(HippoPersonPassport).where(HippoPersonPassport.person_id == person_id))
+    await session.execute(delete(HippoPerson).where(HippoPerson.id == person_id))
+
+    try:
+        await session.commit()
+    except Exception as e:
+        await session.rollback()
+        raise HTTPException(status_code=500, detail=f"Error deleting person: {str(e)}")
+
+    return {"detail": "Person and related records deleted", "person_id": person_id}
+
 
 # ---------------------------------------------------------
 # HELPER: Get person with specialities

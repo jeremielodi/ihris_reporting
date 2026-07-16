@@ -462,6 +462,12 @@ const router = createRouter({
                     component: () =>
                         import("@/views/pages/manage/people/create.vue"),
                 },
+                {
+                    path: "people_duplicates",
+                    name: "people_duplicates",
+                    component: () =>
+                        import("@/views/pages/manage/people/duplicates.vue"),
+                },
 
                 {
                     path: "/manage/speciality_registry",

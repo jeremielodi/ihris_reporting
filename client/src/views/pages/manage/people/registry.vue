@@ -12,6 +12,7 @@ export default defineComponent({
             payment_frequencys: [],
             selectedUser: null,
             canEditPerson: false,
+            canDeleteDuplicates: false,
             loading: false,
             searchText: '',
             matricule: '',
@@ -25,6 +26,7 @@ export default defineComponent({
     methods: {
         async init() {
             this.canEditPerson = await this.checkPermission(constants.ACTIONS.CAN_EDIT_PERSON);
+            this.canDeleteDuplicates = await this.checkPermission(constants.ACTIONS.CAN_DELETE_DUPLICATE_PERSON);
         },
         checkPermission(id) {
             return RoleService.userHasAction(id);
@@ -124,6 +126,7 @@ export default defineComponent({
                             <Button v-if="canEditPerson" :label="$t('FORM.BUTTONS.ADD')" @click="this.$router.push('/manage/people_create')" icon="pi pi-plus" />
                            
                             <Button v-if="canEditPerson" :label="$t('IMPORT')" @click="gotoImport()" severity="secondary" icon="pi pi-plus" />
+                            <Button v-if="canDeleteDuplicates" :label="$t('TREE.PEOPLE_DUPLICATES')" @click="this.$router.push('/manage/people_duplicates')" severity="warning" icon="pi pi-copy" />
                         </InputGroup>
                     </span>
                 </div>
