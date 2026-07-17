@@ -24,7 +24,7 @@ class HippoEmploymentStatusInfoBase(BaseModel):
     last_modified :  Optional[datetime]= None
     i2ce_hidden : Optional[int] = 0
     seniority: Optional[int] = 0
-    created : Optional[date]= None
+    created : Optional[datetime]= None
     
 
 class HippoEmploymentStatusInfoCreate(HippoEmploymentStatusInfoBase):
