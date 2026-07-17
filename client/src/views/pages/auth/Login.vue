@@ -1,6 +1,6 @@
 <template>
   <div class="login-page flex align-items-center justify-content-center min-h-screen min-w-screen overflow-hidden">
-    <div class="login-card surface-card border-round-2xl py-6 px-5 sm:px-6">
+    <div class="login-card surface-card border-round-2xl py-7 px-5 sm:px-7">
       <div class="text-center mb-5">
         <div class="logo-badge mx-auto mb-3 flex align-items-center justify-content-center">
           <img
@@ -200,7 +200,7 @@ export default defineComponent({
 }
 .login-card {
   width: 100%;
-  max-width: 26rem;
+  max-width: 32rem;
   box-shadow: 0 20px 45px -12px rgba(15, 23, 42, 0.18);
 }
 .logo-badge {
