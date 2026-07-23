@@ -21,6 +21,7 @@ from fastapi.responses import StreamingResponse
 
 # SQLAlchemy query builder for ORM-style queries
 from sqlalchemy.future import select
+from sqlalchemy.exc import IntegrityError
 
 # Database session factory
 from manage.database import SessionLocal, engine
@@ -165,6 +166,52 @@ async def update_org_unit(
     await session.commit()
     await session.refresh(existing_org_unit)
     return existing_org_unit
+
+
+# ---------------------------------------------------------
+# DELETE ORGANIZATION UNIT
+# ---------------------------------------------------------
+@apiRouter.delete("/organization_units/{org_id}")
+async def delete_org_unit(
+    org_id: str,
+    session: AsyncSession = Depends(get_session),
+    current_user_id: str = Depends(get_current_active_user),
+):
+    """
+    Delete an organization unit.
+
+    The DB enforces organization_unit_parent_fkey (ON DELETE NO ACTION), so
+    this is rejected with a 409 if the unit still has children - the
+    caller has to delete or re-parent them first. Note that other tables
+    referencing an org unit by id (facility.location, hippo_person.residence,
+    etc.) are plain string columns with no FK constraint, so deleting a
+    unit still "in use" there won't be blocked; those references just go
+    stale rather than raising an error.
+    """
+    result = await session.execute(select(ViewOrgUnitList).where(ViewOrgUnitList.id == org_id))
+    org_unit = result.scalar_one_or_none()
+
+    if not org_unit:
+        raise HTTPException(status_code=404, detail="Org Unit not found")
+
+    auditLog = HippoAuditLog(
+        id=uuid.uuid4(),
+        user_id=current_user_id,
+        operation=f'delete orgUnit {org_id}, {org_unit.name}'
+    )
+    session.add(auditLog)
+
+    await session.delete(org_unit)
+    try:
+        await session.commit()
+    except IntegrityError:
+        await session.rollback()
+        raise HTTPException(
+            status_code=409,
+            detail="Cannot delete: this organization unit still has child units. Delete or move them first."
+        )
+
+    return {"detail": "Organization unit deleted successfully"}
 
 
 # ---------------------------------------------------------

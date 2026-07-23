@@ -639,6 +639,7 @@
             "CONFIRM_DEACTIVATION": "Voulez vous vraiment blocker les droits d'accès de cet utilisateur",
             "CONFIRM_DELETE": "Vous etes sur le point de supprimer un enregistrement. Cette action sera permanent et ne pourra etre annulé. Cliquer sur \"Confirmer\" pour accepter ou \"Annuler\" pour annuler cette action",
             "CANNOT_UNDONE_ACTION": "Cette action ne pourra pas être annuler, les consequences de cette action seront definitives. Vous devez etre sure que vous voulez vraiment effectuer cette action",
+            "CANNOT_DELETE_ORG_UNIT_HAS_CHILDREN": "Impossible de supprimer : cette unité d'organisation a encore des unités enfants. Supprimez ou déplacez-les d'abord.",
             "NO_CORRESPONDANCY": "Aucune correspondance trouvée pour",
             "PLEASE_TYPE_TEXT": "Veuillez saisir {{value}} pour confirmer ",
             "PLEASE_READ": "Vous risquez de perdre des donnees importantes si vous ne lisez pas ce message!",

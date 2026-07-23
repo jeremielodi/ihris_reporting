@@ -144,8 +144,9 @@ async def getUserRoles(user_id:str, session: AsyncSession = Depends(get_session)
 
     """
     query = await session.execute(text(Sql), {'user_id': user_id})
-    # RowMapping -> make them mutable dicts
-    return query.mappings().all()
+    # RowMapping isn't a plain dict, so pydantic v2's strict serializer can't
+    # turn it into JSON on its own - convert explicitly.
+    return [dict(row) for row in query.mappings().all()]
 
 
 # use hippo_user_role table to insert data
@@ -221,7 +222,7 @@ async def get_modules_for_user(
    
     for m in modules:
         pages_res = await session.execute(page_sql, {"user_id": user_id, "module_id": m["id"]})
-        m["pages"] = pages_res.mappings().all()  # list[RowMapping], fine for JSON response 
+        m["pages"] = [dict(row) for row in pages_res.mappings().all()]
     return modules
 
 
@@ -243,7 +244,7 @@ async def get_role_actions(
     """)
 
     pages_res = await session.execute(page_sql, {"role_id": role_id})
-    return pages_res.mappings().all() 
+    return [dict(row) for row in pages_res.mappings().all()]
 
 
 
@@ -319,7 +320,7 @@ async def get_modules_for_role(
 
     for m in modules:
         pages_res = await session.execute(page_sql, {"role_id": role_id, "module_id": m["id"]})
-        m["pages"] = pages_res.mappings().all()  # list[RowMapping], fine for JSON response
+        m["pages"] = [dict(row) for row in pages_res.mappings().all()]
 
     return modules
 

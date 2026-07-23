@@ -5,6 +5,7 @@ import OrgUnitService from './orgUnit.service';
 import Tree from '@/service/treeService.js';
 import ImportModal from './import_modal.vue';
 import NotifyService from '@/service/Notify.service';
+import ConfirmModal from '@/components/ConfirmModal.vue';
 
 export default defineComponent({
     name: 'Payment_frequencyRegistry',
@@ -14,12 +15,15 @@ export default defineComponent({
             payment_frequencys: [],
             selectedUser: null,
             displayImportModal: false,
+            displayConfirm: false,
+            nodeToDelete: null,
             loading: false,
             filters1: { global: { value: null, matchMode: FilterMatchMode.CONTAINS } }
         };
     },
     components:{
         ImportModal,
+        ConfirmModal,
     },
     created() {
         this.load();
@@ -66,6 +70,30 @@ export default defineComponent({
         },
         addChild(node) {
             this.$router.push(`/manage/org_unit_create?parent=${node.id}`);
+        },
+        confirmDelete(node) {
+            this.nodeToDelete = node;
+            this.displayConfirm = true;
+        },
+        closeConfirmDialog(result) {
+            this.displayConfirm = false;
+            if (!result || !this.nodeToDelete) {
+                this.nodeToDelete = null;
+                return;
+            }
+
+            OrgUnitService.delete(this.nodeToDelete.id)
+                .then(() => {
+                    NotifyService.success(this, '', null);
+                    this.load();
+                })
+                .catch((error) => {
+                    const msg = error?.response?.status === 409 ? 'FORM.DIALOGS.CANNOT_DELETE_ORG_UNIT_HAS_CHILDREN' : null;
+                    NotifyService.danger(this, '', msg);
+                })
+                .finally(() => {
+                    this.nodeToDelete = null;
+                });
         },
         load() {
             OrgUnitService.read().then((orgs) => {
@@ -117,9 +145,11 @@ export default defineComponent({
                 <template #body="slotProps">
                     <Button icon="pi pi-pencil" label="Fils" class="p-button-rounded p-button-success p-mr-2" @click="addChild(slotProps.node)" />
                     <Button icon="pi pi-pencil" label="Edit"  class="p-button-rounded p-button-secondary p-mr-2" @click="editItem(slotProps.node)" />
+                    <Button icon="pi pi-trash" label="Supprimer" class="p-button-rounded p-button-danger p-mr-2" @click="confirmDelete(slotProps.node)" />
                 </template>
             </Column>
         </TreeTable>
         <ImportModal ref="importModal" :close="closeImportDialog" :display="displayImportModal" />
+        <ConfirmModal :close="closeConfirmDialog" :display="displayConfirm" />
     </div>
 </template>
