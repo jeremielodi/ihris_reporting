@@ -101,11 +101,11 @@ export default defineComponent({
         formateNodes(nodes) {
             for (const node of nodes) {
                 node.children = node.items;
+                if (!node.icon) {
+                    node.icon = node.items && node.items.length !== 0 ? 'pi pi-folder' : 'pi pi-file';
+                }
                 if (node.items && node.items.length !== 0) {
-                    node.icon = 'pi pi-folder';
                     this.formateNodes(node.items);
-                } else {
-                    node.icon = 'pi pi-file';
                 }
             }
         },

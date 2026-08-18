@@ -148,3 +148,15 @@ CREATE TABLE public.hippo_refresh_token (
 );
 
 CREATE INDEX ix_hippo_refresh_token_user_id ON public.hippo_refresh_token USING btree (user_id);
+
+
+-- le 18 aout 2026 : donner a chaque module une icone distincte (primeicons, pas fontawesome)
+UPDATE public.hippo_module SET icon = 'pi pi-users' WHERE id = 1;
+UPDATE public.hippo_module SET icon = 'pi pi-user' WHERE id = 2;
+UPDATE public.hippo_module SET icon = 'pi pi-database' WHERE id = 3;
+UPDATE public.hippo_module SET icon = 'pi pi-chart-bar' WHERE id = 4;
+UPDATE public.hippo_module SET icon = 'pi pi-list' WHERE id = 5;
+UPDATE public.hippo_module SET icon = 'pi pi-graduation-cap' WHERE id = 6;
+UPDATE public.hippo_module SET icon = 'pi pi-briefcase' WHERE id = 7;
+UPDATE public.hippo_module SET icon = 'pi pi-sitemap' WHERE id = 8;
+UPDATE public.hippo_module SET icon = 'pi pi-map-marker' WHERE id = 9;

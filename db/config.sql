@@ -1,13 +1,13 @@
 INSERT INTO public.hippo_module(id, label, description, icon, parent) VALUES
-(1, 'TREE.PEOPLE', 'people', 'fa fa-briefcase', NULL),
-(2, 'TREE.SYSTEM_USERS', 'system users', 'fa fa-briefcase', NULL),
-(3, 'TREE.DATABASE', 'database', 'fa fa-briefcase', NULL),
-(4, 'TREE.REPORTS', 'reports', 'fa fa-briefcase', NULL),
-(5, 'TREE.OTHER_LIST', 'other_list', 'fa fa-briefcase', 3),
-(6, 'TREE.EDUCATION_LIST', 'educ_list', 'fa fa-briefcase', 3),
-(7, 'TREE.JOB_LIST', 'job_list', 'fa fa-briefcase', 3),
-(8, 'TREE.POSITION_LIST', 'position_list', 'fa fa-briefcase', 3),
-(9, 'TREE.GEOGRAPHIC_INFO', 'geo_info', 'fa fa-briefcase', 3);
+(1, 'TREE.PEOPLE', 'people', 'pi pi-users', NULL),
+(2, 'TREE.SYSTEM_USERS', 'system users', 'pi pi-user', NULL),
+(3, 'TREE.DATABASE', 'database', 'pi pi-database', NULL),
+(4, 'TREE.REPORTS', 'reports', 'pi pi-chart-bar', NULL),
+(5, 'TREE.OTHER_LIST', 'other_list', 'pi pi-list', 3),
+(6, 'TREE.EDUCATION_LIST', 'educ_list', 'pi pi-graduation-cap', 3),
+(7, 'TREE.JOB_LIST', 'job_list', 'pi pi-briefcase', 3),
+(8, 'TREE.POSITION_LIST', 'position_list', 'pi pi-sitemap', 3),
+(9, 'TREE.GEOGRAPHIC_INFO', 'geo_info', 'pi pi-map-marker', 3);
 
 INSERT INTO public.hippo_module_page (code, label, url, is_tree_item, module_id)  VALUES
 ('people_registry', 'TREE.PEOPLE_LIST', '/manage/people_registry', 1, 1),

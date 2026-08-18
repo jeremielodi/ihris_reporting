@@ -1,6 +1,9 @@
 <script setup>
 import * as echarts from 'echarts';
 import { onMounted, onBeforeUnmount, watch, ref, nextTick } from 'vue';
+import { useI18n } from 'vue-i18n';
+
+const { t } = useI18n();
 
 const props = defineProps({
     title: { type: String, default: '' },
@@ -38,10 +41,10 @@ const render = () => {
             },
             yAxis: { type: 'value' },
             series: [
-                { name: 'Requis', type: 'bar', data: props.required },
-                { name: 'Actif', type: 'bar', data: props.actual },
-                { name: 'Carence', type: 'bar', itemStyle: { color: '#dc2626' }, data: props.missing },
-                { name: 'Pléthore', type: 'bar', itemStyle: { color: '#f59e0b' }, data: props.excess }
+                { name: t('FORM.LABELS.NORM_REQUIRED'), type: 'bar', data: props.required },
+                { name: t('FORM.LABELS.NORM_PRESENT'), type: 'bar', data: props.actual },
+                { name: t('FORM.LABELS.NORM_NEEDS'), type: 'bar', itemStyle: { color: '#dc2626' }, data: props.missing },
+                { name: t('FORM.LABELS.NORM_SURPLUS'), type: 'bar', itemStyle: { color: '#f59e0b' }, data: props.excess }
             ]
         },
         true

@@ -15,16 +15,27 @@ const loading = ref(false);
 
 const toNumber = (v) => (typeof v === 'number' ? v : Number(v || 0));
 
-const getChildrenWithValue = (orgUnit, type, classificationId) => {
-    // type = "missing_total" ou "excess"
+// ✅ NEW: full breakdown per structure (requis/présents/besoins/surplus) for a given classification
+const getChildrenStats = (orgUnit, classificationId) => {
     const children = orgUnit?.items || [];
     return children
         .map((c) => {
-            const val = toNumber(c?.stat?.[type]?.[classificationId]);
-            return val > 0 ? { ...c, _val: val } : null;
+            const required = c?.stat?.required?.[classificationId];
+            const actual = c?.stat?.actual?.[classificationId];
+            const missing = c?.stat?.missing_total?.[classificationId];
+            const excess = c?.stat?.excess?.[classificationId];
+            if (required === undefined && actual === undefined && missing === undefined && excess === undefined) return null;
+            return {
+                id: c.id,
+                name: c.name,
+                required: toNumber(required),
+                actual: toNumber(actual),
+                missing: toNumber(missing),
+                excess: toNumber(excess)
+            };
         })
         .filter(Boolean)
-        .sort((a, b) => b._val - a._val);
+        .sort((a, b) => a.name.localeCompare(b.name));
 };
 const getChartData = (orgUnit) => {
     const stat = orgUnit?.stat || {};
@@ -39,14 +50,6 @@ const getChartData = (orgUnit) => {
 
     return { categories, required, actual, missing, excess };
 };
-
-// Optionnel: petit toggle par classification pour afficher/cacher la liste
-const opened = ref({}); // key: `${orgUnit.id}|${type}|${classificationId}` -> bool
-const toggleDetails = (orgUnitId, type, classificationId) => {
-    const key = `${orgUnitId}|${type}|${classificationId}`;
-    opened.value[key] = !opened.value[key];
-};
-const isOpen = (orgUnitId, type, classificationId) => !!opened.value[`${orgUnitId}|${type}|${classificationId}`];
 
 // ✅ NEW: union of classifications keys across required/actual/missing/excess
 const getAllClassifications = (stat) => {
@@ -118,18 +121,18 @@ defineExpose({
         </div>
 
         <div className="card">
-            <h4>Normes</h4>
+            <h4>{{ $t('FORM.LABELS.NORM_TITLE') }}</h4>
 
 
-            
+
             <!-- ✅ NEW: Search input -->
             <div style="margin-bottom: 10px">
-                <input v-model="categorySearch" type="text" placeholder="Rechercher une catégorie..." style="width: 85%; padding: 6px" />
+                <input v-model="categorySearch" type="text" :placeholder="$t('FORM.LABELS.NORM_SEARCH_PLACEHOLDER')" style="width: 85%; padding: 6px" />
             </div>
 
             <div v-if="loading" class="mt-4 pt-4">
                         <ScaleLoader :color="'#3B82F6'"></ScaleLoader>
-                        <p class="text-center">chargement ...</p>
+                        <p class="text-center">{{ $t('FORM.INFO.LOADING') }}</p>
                     </div>
 
             <template v-if="resultTree">
@@ -143,22 +146,21 @@ defineExpose({
                     <table style="width: 100%" class="table">
                         <thead>
                             <tr>
-                                <th colspan="5">NORMES - {{ orgUnit.name }}</th>
+                                <th colspan="5">{{ $t('FORM.LABELS.NORM_TITLE') }} - {{ orgUnit.name }}</th>
                             </tr>
                             <tr>
-                                <th>CATEGORIE</th>
-                                <th align="right">REQUIS</th>
-                                <th align="right">ACTIF</th>
-                                <th align="right">CARENCE</th>
-                                <th align="right">PLETHORE</th>
+                                <th>{{ $t('FORM.LABELS.NORM_CATEGORY') }}</th>
+                                <th align="right">{{ $t('FORM.LABELS.NORM_REQUIRED') }}</th>
+                                <th align="right">{{ $t('FORM.LABELS.NORM_PRESENT') }}</th>
+                                <th align="right">{{ $t('FORM.LABELS.NORM_NEEDS') }}</th>
+                                <th align="right">{{ $t('FORM.LABELS.NORM_SURPLUS') }}</th>
                             </tr>
                         </thead>
 
                         <template v-if="orgUnit.stat">
                             <template v-for="classificationId in getFilteredClassifications(orgUnit)" :key="classificationId">
                                 <tr v-if="orgUnit.stat?.required || orgUnit.stat?.actual">
-                                    <!-- click on category name to toggle details -->
-                                    <td style="cursor: pointer; text-decoration: underline" @click="toggleDetails(orgUnit.id, 'mix', classificationId)">
+                                    <td>
                                         {{ classificationMap[classificationId]?.name || classificationId }}
                                     </td>
 
@@ -179,61 +181,30 @@ defineExpose({
                                     </td>
                                 </tr>
 
-                                <!-- Details row -->
-                                <tr v-if="isOpen(orgUnit.id, 'mix', classificationId)">
+                                <!-- Structures directement affichées, avec leurs données -->
+                                <tr v-if="getChildrenStats(orgUnit, classificationId).length">
                                     <td colspan="5">
                                         <div class="details-box">
-                                            <h5 style="margin: 0 0 8px 0">
-                                                Détails pour
-                                                <u>{{ classificationMap[classificationId]?.name || classificationId }}</u>
-                                            </h5>
-
-                                            <!-- Missing details -->
-                                            <template v-if="(orgUnit.stat?.missing_total?.[classificationId] ?? 0) > 0">
-                                                <div style="margin-bottom: 10px">
-                                                    <b>Structures manquant les {{ classificationMap[classificationId]?.name }} :</b>
-                                                    <template v-if="getChildrenWithValue(orgUnit, 'missing_total', classificationId).length">
-                                                        <div
-                                                            v-for="child in getChildrenWithValue(orgUnit, 'missing_total', classificationId)"
-                                                            :key="child.id + '_m'"
-                                                            class="detailBottomLine"
-                                                            style="display: flex; justify-content: space-between; padding: 2px 0"
-                                                        >
-                                                            <span>{{ child.name }}</span>
-                                                            <b>{{ child._val }}</b>
-                                                        </div>
-                                                    </template>
-                                                    <template v-else>
-                                                        <div>Aucun item avec manque pour cette catégorie.</div>
-                                                    </template>
-                                                </div>
-                                            </template>
-
-                                            <!-- Excess details -->
-                                            <template v-if="(orgUnit.stat?.excess?.[classificationId] ?? 0) > 0">
-                                                <div>
-                                                    <b>Structures ayant {{ classificationMap[classificationId]?.name }} en excès :</b>
-                                                    <template v-if="getChildrenWithValue(orgUnit, 'excess', classificationId).length">
-                                                        <div
-                                                            v-for="child in getChildrenWithValue(orgUnit, 'excess', classificationId)"
-                                                            :key="child.id + '_e'"
-                                                            class="detailBottomLine"
-                                                            style="display: flex; justify-content: space-between; padding: 2px 0"
-                                                        >
-                                                            <span>{{ child.name }}</span>
-                                                            <b>{{ child._val }}</b>
-                                                        </div>
-                                                    </template>
-                                                    <template v-else>
-                                                        <div>Aucune structure avec excès pour cette catégorie.</div>
-                                                    </template>
-                                                </div>
-                                            </template>
-
-                                            <!-- If neither missing nor excess -->
-                                            <template v-if="(orgUnit.stat?.missing_total?.[classificationId] ?? 0) === 0 && (orgUnit.stat?.excess?.[classificationId] ?? 0) === 0">
-                                                <div>Aucun manque ni excès pour cette catégorie.</div>
-                                            </template>
+                                            <table class="table sub-table">
+                                                <thead>
+                                                    <tr>
+                                                        <th>{{ $t('FORM.LABELS.NORM_STRUCTURE') }}</th>
+                                                        <th align="right">{{ $t('FORM.LABELS.NORM_REQUIRED') }}</th>
+                                                        <th align="right">{{ $t('FORM.LABELS.NORM_PRESENT') }}</th>
+                                                        <th align="right">{{ $t('FORM.LABELS.NORM_NEEDS') }}</th>
+                                                        <th align="right">{{ $t('FORM.LABELS.NORM_SURPLUS') }}</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    <tr v-for="child in getChildrenStats(orgUnit, classificationId)" :key="child.id">
+                                                        <td>{{ child.name }}</td>
+                                                        <td align="right" width="100">{{ child.required }}</td>
+                                                        <td align="right" width="100">{{ child.actual }}</td>
+                                                        <td align="right" width="100">{{ child.missing }}</td>
+                                                        <td align="right" width="100">{{ child.excess }}</td>
+                                                    </tr>
+                                                </tbody>
+                                            </table>
                                         </div>
                                     </td>
                                 </tr>
@@ -241,14 +212,14 @@ defineExpose({
 
                             <template v-if="getFilteredClassifications(orgUnit).length === 0">
                                 <tr>
-                                    <td colspan="5">Aucun résultat pour ce filtre.</td>
+                                    <td colspan="5">{{ $t('FORM.LABELS.NORM_NO_FILTER_RESULT') }}</td>
                                 </tr>
                             </template>
                         </template>
 
                         <template v-else>
                             <tr>
-                                <td colspan="5">Aucune statistique disponible.</td>
+                                <td colspan="5">{{ $t('FORM.LABELS.NORM_NO_STAT') }}</td>
                             </tr>
                         </template>
                     </table>
@@ -258,7 +229,7 @@ defineExpose({
                     <div class="card">
                         <OrgUnitNormChart
                         v-if="orgUnit.stat"
-                        :title="`Normes - ${orgUnit.name}`"
+                        :title="`${$t('FORM.LABELS.NORM_TITLE')} - ${orgUnit.name}`"
                         :categories="getChartData(orgUnit).categories"
                         :required="getChartData(orgUnit).required"
                         :actual="getChartData(orgUnit).actual"
@@ -393,6 +364,25 @@ defineExpose({
     border-left: 4px solid #3b82f6;
     padding: 10px;
     border-radius: 4px;
+}
+
+/* Structures directly listed under each category */
+.sub-table {
+    box-shadow: none;
+    margin: 0;
+}
+
+.sub-table thead tr th {
+    background: #e5e7eb !important;
+    color: #374151 !important;
+    font-size: 0.78rem;
+    text-transform: none !important;
+    padding: 6px 8px !important;
+}
+
+.sub-table td {
+    font-size: 0.85rem;
+    padding: 6px 8px !important;
 }
 
 /* Section titles inside details */
