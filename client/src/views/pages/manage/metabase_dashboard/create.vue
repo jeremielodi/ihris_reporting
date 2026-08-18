@@ -1,6 +1,7 @@
 <script>
 import { defineComponent } from 'vue';
 import MyInputText from '@/components/InputText.vue';
+import MetabaseDashboardSelect from './dashboardSelect.vue';
 import dashboardService from './dashboard.service';
 import NotifyService from '@/service/Notify.service';
 
@@ -27,8 +28,15 @@ export default defineComponent({
     },
     components: {
         MyInputText,
+        MetabaseDashboardSelect,
     },
     methods: {
+        onDashboardSelected(mbDashboard) {
+            this.dashboard.mb_dashboard_id = mbDashboard.id;
+            if (!this.dashboard.label) {
+                this.dashboard.label = mbDashboard.name;
+            }
+        },
         reset() {
             this.dashboard = {};
             this.formSubmitted = false;
@@ -94,16 +102,13 @@ export default defineComponent({
                     <hr />
                 </div>
                 <div class="col-12 lg:col-5 xl:col-5 p-field">
-                    <MyInputText
+                    <MetabaseDashboardSelect
                         id="mb_dashboard_id"
                         v-model="dashboard.mb_dashboard_id"
-                        label="FORM.LABELS.ID"
+                        label="FORM.LABELS.METABASE_DASHBOARD_SELECT"
                         :required="true"
-                        @onChange="
-                            (value) => {
-                                dashboard.mb_dashboard_id = value;
-                            }
-                        "
+                        :excludeUuid="dashboardId"
+                        @onChange="onDashboardSelected"
                         :validationTrigger="formSubmitted"
                     />
                     <MyInputText

@@ -41,6 +41,9 @@ export default defineComponent({
         },
         onFilter(event) {
             this.filters = event.filters;
+        },
+        reloaddashboardsList() {
+            this.getdashboardss();
         }
     }
 });
@@ -88,7 +91,7 @@ export default defineComponent({
 
             <Column field="actions" :header="$t('Actions')" style="width: 80px">
                 <template #body="{ data }">
-                    <dashboardsAction :entity="data" :action-id="data.id" />
+                    <dashboardsAction :entity="data" :action-id="data.id" @reloaddashboardsList="reloaddashboardsList" />
                 </template>
             </Column>
         </DataTable>

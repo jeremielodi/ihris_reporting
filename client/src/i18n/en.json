@@ -330,6 +330,7 @@
             "MAX_CREDIT_INFO": "The maximum credit value this debtor group can collect before being warned. A value of 0 means no maximum limit.",
             "MEDICAL_NONMEDICAL_STAFF": "Medical and Non-Medical Employees",
             "MEDICAL_STAFF": "Medical staff",
+            "METABASE_DASHBOARD_SELECT": "Metabase dashboard",
             "MIDDLE_NAME": "Middle Name",
             "MONTH": "Month",
             "YEAR": "Year",

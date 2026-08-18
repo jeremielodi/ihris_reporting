@@ -117,6 +117,16 @@ async def create_dashboard(
     try:
         data_dict = data.model_dump()
 
+        # Prevent registering the same Metabase dashboard twice
+        existing = await session.execute(
+            select(HippoDashboard).where(HippoDashboard.mb_dashboard_id == data_dict['mb_dashboard_id'])
+        )
+        if existing.scalar_one_or_none():
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="This Metabase dashboard is already registered"
+            )
+
         # Generate unique UUID
         data_dict['uuid'] = str(uuid.uuid4())
 
@@ -132,6 +142,8 @@ async def create_dashboard(
 
         return new_dashboard
 
+    except HTTPException:
+        raise
     except Exception as e:
         await session.rollback()
         raise HTTPException(
@@ -180,9 +192,24 @@ async def update_dashboard(
             )
 
         # Only allow controlled fields
-        allowed_update_fields = ['mb_dashboard_uuid', 'label']
+        allowed_update_fields = ['mb_dashboard_id', 'label']
 
         update_data = data.model_dump(exclude_unset=True)
+
+        # Prevent updating to a Metabase dashboard already registered under another entry
+        new_mb_id = update_data.get('mb_dashboard_id')
+        if new_mb_id is not None and new_mb_id != existing_dashboard.mb_dashboard_id:
+            duplicate = await session.execute(
+                select(HippoDashboard).where(
+                    HippoDashboard.mb_dashboard_id == new_mb_id,
+                    HippoDashboard.uuid != dashboard_uuid_str,
+                )
+            )
+            if duplicate.scalar_one_or_none():
+                raise HTTPException(
+                    status_code=status.HTTP_400_BAD_REQUEST,
+                    detail="This Metabase dashboard is already registered"
+                )
 
         for field, value in update_data.items():
             if field in allowed_update_fields:
@@ -232,6 +259,12 @@ async def delete_dashboard(
                 status_code=status.HTTP_404_NOT_FOUND,
                 detail="Dashboard not found"
             )
+
+        # Clean up role assignments (no FK/cascade on hippo_role_dashboard)
+        await session.execute(
+            text("DELETE FROM hippo_role_dashboard WHERE dashboard_uuid = :dashboard_uuid"),
+            {"dashboard_uuid": dashboard_uuid}
+        )
 
         await session.delete(dashboard)
         await session.commit()

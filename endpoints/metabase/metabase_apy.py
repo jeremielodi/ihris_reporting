@@ -89,6 +89,32 @@ async def build_request_parameters(id: int, data: List[RequestionParamers]) -> L
     
     return request_queries
 
+@router.get('/mb_dashboards')
+async def list_dashboards():
+    """List dashboards available in Metabase, for use when registering a dashboard."""
+    api_url = f"{METABASE_API_URL}/dashboard"
+    headers = {"x-api-key": METABASE_API_KEY}
+
+    try:
+        result = await make_metabase_request("GET", api_url, headers)
+        return [
+            {
+                "id": item["id"],
+                "name": item["name"],
+                "description": item.get("description"),
+                "collection_id": item.get("collection_id"),
+            }
+            for item in result
+            if not item.get("archived")
+        ]
+
+    except httpx.TimeoutException:
+        raise HTTPException(status_code=504, detail="Metabase API request timed out")
+    except httpx.RequestError as e:
+        raise HTTPException(status_code=502, detail=f"Metabase API request failed: {str(e)}")
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Unexpected error: {str(e)}")
+
 @router.get('/mb_dashbord_details/{id}')
 async def get_dashbord_details(id: int):
     """Get dashboard details - fully async, client waits for result"""

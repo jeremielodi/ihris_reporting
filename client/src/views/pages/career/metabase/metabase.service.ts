@@ -12,6 +12,10 @@ function _metabase() {
         return service.get(`/mb_dashbord_details/${id}`);
     };
 
+    service.listDashboards = () => {
+        return service.get(`/mb_dashboards`);
+    };
+
     return service;
 }
 

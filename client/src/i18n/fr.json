@@ -333,6 +333,7 @@
             "MAX_CREDIT_INFO": "La valeur de crédit maximum de ce groupe débiteur peut recueillir avant d'être mis en garde. Une valeur de 0 signifie aucune limite maximale.",
             "MEDICAL_NONMEDICAL_STAFF": "Employés médicaux et non médicaux",
             "MEDICAL_STAFF": "Personnel médical",
+            "METABASE_DASHBOARD_SELECT": "Tableau de bord Metabase",
             "MIDDLE_NAME": "Post-nom",
             "MONTH": "Mois",
             "YEAR": "Année",

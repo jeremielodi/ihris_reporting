@@ -2,9 +2,10 @@
 import { defineComponent } from 'vue';
 import NotifyService from '@/service/Notify.service';
 import ConfirmModal from '@/components/ConfirmModal.vue';
+import dashboardService from './dashboard.service';
 
 export default defineComponent({
-    name: 'RegionAction',
+    name: 'DashboardAction',
     props: {
         entity: Object,
         actionId: String
@@ -16,7 +17,7 @@ export default defineComponent({
             displayConfirm: false,
         };
     },
-    emits: ['reloadRegionList'],
+    emits: ['reloaddashboardsList'],
     setup() {},
     methods: {
         toggle(event) {
@@ -26,7 +27,7 @@ export default defineComponent({
 
         closeDialog(result) {
             if (result) {
-                this.$emit('reloadRegionList', true);
+                this.$emit('reloaddashboardsList', true);
             }
             this.display = false;
             this.displayConfirm = false;
@@ -35,6 +36,24 @@ export default defineComponent({
             this.display = false;
             this.displayConfirm = false;
         },
+
+        DeleteConfirmDialog(result) {
+            if (!result) {
+                this.HideModal();
+                return;
+            }
+            dashboardService.delete(this.entity.uuid)
+                .then(() => {
+                    NotifyService.success(this, '', null);
+                    this.$emit('reloaddashboardsList', true);
+                    this.HideModal();
+                })
+                .catch(() => {
+                    NotifyService.danger(this, '', null);
+                    this.HideModal();
+                });
+        },
+
         setItems() {
             this.items = [
                 {
@@ -45,6 +64,13 @@ export default defineComponent({
                             icon: 'pi pi-fw pi-pencil',
                             command: () => {
                                 this.$router.push(`/manage/dashboard_create?uuid=${this.entity.uuid}`);
+                            }
+                        },
+                        {
+                            label: this.$t('FORM.BUTTONS.DELETE'),
+                            icon: 'pi pi-fw pi-trash',
+                            command: () => {
+                                this.displayConfirm = true;
                             }
                         }
                     ]
@@ -65,7 +91,7 @@ export default defineComponent({
             <i class="link pi pi-chevron-down" style="fontsize: 1rem"> </i>
         </div>
         <Menu ref="menu" :model="items" :popup="true" />
-        <ConfirmModal :region="entity" :close="DeleteConfirmDialog" :display="displayConfirm"> </ConfirmModal>
+        <ConfirmModal :close="DeleteConfirmDialog" :display="displayConfirm"> </ConfirmModal>
     </div>
 </template>
 
